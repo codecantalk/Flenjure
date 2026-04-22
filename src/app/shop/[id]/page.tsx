@@ -34,15 +34,17 @@ export default function ProductPage() {
     ]
   };
 
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSize, setSelectedSize] = useState<string | null>(
+    productData.sizes.length > 0 ? null : "One Size"
+  );
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("details");
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
-      alert("Please select a size.");
+    if (productData.sizes.length > 0 && !selectedSize) {
+      alert("Please select a size");
       return;
     }
     setAdding(true);
@@ -87,28 +89,30 @@ export default function ProductPage() {
               <p>{productData.description}</p>
             </div>
 
-            <div className="mb-10">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xs uppercase tracking-[0.15em] font-normal">Size</h3>
-                <button className="text-xs text-stone-500 hover:text-stone-900 underline transition-colors duration-500 min-h-[44px]">Size Guide</button>
+            {productData.sizes.length > 0 && (
+              <div className="mb-10">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xs uppercase tracking-[0.15em] font-normal">Size</h3>
+                  <button className="text-xs text-stone-500 hover:text-stone-900 underline transition-colors duration-500 min-h-[44px]">Size Guide</button>
+                </div>
+                <div className="grid grid-cols-4 gap-3">
+                   {productData.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={clsx(
+                        "py-3 border text-xs tracking-widest transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px]",
+                        selectedSize === size 
+                          ? "border-stone-900 bg-stone-900 text-stone-50" 
+                          : "border-stone-200 text-stone-600 hover:border-stone-900"
+                      )}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-4 gap-3">
-                 {productData.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={clsx(
-                      "py-3 border text-xs tracking-widest transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px]",
-                      selectedSize === size 
-                        ? "border-stone-900 bg-stone-900 text-stone-50" 
-                        : "border-stone-200 text-stone-600 hover:border-stone-900"
-                    )}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
 
             <div className="flex items-center gap-4 mb-8">
               <div className="flex items-center justify-between border border-stone-200 min-h-[50px] w-32 px-4 shadow-sm">

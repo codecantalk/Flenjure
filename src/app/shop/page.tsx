@@ -193,7 +193,11 @@ function QuickAddTrigger({ product, addItem }: { product: any; addItem: any }) {
             </button>
             
             <div className="text-center">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-400">Select Size</span>
+              {product.sizes.length > 0 ? (
+                <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-400">Select Size</span>
+              ) : (
+                <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-400">Quick Add</span>
+              )}
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 w-full">
@@ -300,7 +304,9 @@ function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any
               </button>
 
               <div className="text-center">
-                <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Options</span>
+                {product.sizes.length > 0 && (
+                  <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Options</span>
+                )}
                 <h4 className="text-xl font-serif font-light mt-2 text-stone-900">{product.name}</h4>
               </div>
 
