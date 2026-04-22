@@ -20,6 +20,7 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isStudio = pathname.startsWith("/studio");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMouseActive, setIsMouseActive] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -75,6 +76,8 @@ export default function Navbar() {
       document.body.style.overflow = "auto";
     }
   }, [isMenuOpen]);
+
+  if (isStudio) return null;
 
   return (
     <>
