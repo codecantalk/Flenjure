@@ -44,9 +44,9 @@ export default function CustomPackaging() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-xl text-stone-600 text-lg md:text-xl font-light leading-relaxed"
+            className="max-w-2xl text-stone-600 text-lg md:text-xl font-light leading-relaxed"
           >
-            Elevate your brand with Fleñjure&apos;s premium custom packaging solutions. We provide high-end, smell-proof, and eco-friendly options for modern retailers.
+            Your packaging is the first contact consumers have with your brand. We provide distinctive branding and packaging solutions to provide your customers with a captivating experience with high quality packaging made to engage customers. We know what it takes to stand out from the competition and provide your business with the marketing and packaging solutions to elevate your brand.
           </motion.p>
         </div>
       </section>

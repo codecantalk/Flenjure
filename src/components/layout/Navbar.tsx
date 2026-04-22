@@ -11,10 +11,9 @@ import { useCartStore } from "@/lib/store";
 import SearchOverlay from "../search/SearchOverlay";
 
 const navLinks = [
-  { name: "New Arrivals", href: "/shop" },
+  { name: "Home", href: "/" },
+  { name: "Shop", href: "/shop" },
   { name: "Custom Packaging", href: "/custom-packaging" },
-  { name: "Collections", href: "/collections" },
-  { name: "Editorial", href: "/editorial" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -22,6 +21,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMouseActive, setIsMouseActive] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { items, setIsOpen: setCartOpen } = useCartStore();
@@ -33,8 +33,39 @@ export default function Navbar() {
       setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
+
+  // Mouse activity timer for cinematic homepage header
+  useEffect(() => {
+    if (!isHome) return;
+
+    let inactivityTimer: NodeJS.Timeout;
+
+    const handleMouseMove = () => {
+      setIsMouseActive(true);
+      
+      clearTimeout(inactivityTimer);
+      
+      // Auto-hide after 2.5 seconds of no movement
+      inactivityTimer = setTimeout(() => {
+        setIsMouseActive(false);
+      }, 2500);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    
+    // Initial trigger to show it when page first loads
+    handleMouseMove();
+    
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      clearTimeout(inactivityTimer);
+    };
+  }, [isHome]);
 
   // Prevent scroll when menu is open
   useEffect(() => {
@@ -52,7 +83,10 @@ export default function Navbar() {
           "fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]",
           isScrolled
             ? "bg-white/80 backdrop-blur-lg py-4 border-b border-stone-100"
-            : (isHome ? "bg-transparent py-8" : "bg-white py-6 border-b border-stone-50")
+            : (isHome ? "bg-transparent py-8" : "bg-white py-6 border-b border-stone-50"),
+          isHome && !isMouseActive && !isScrolled && !isMenuOpen && !isSearchOpen
+            ? "-translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-0 opacity-100 pointer-events-auto"
         )}
       >
         <div className="container mx-auto px-6 lg:px-12 grid grid-cols-3 items-center">

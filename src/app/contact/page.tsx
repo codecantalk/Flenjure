@@ -14,19 +14,28 @@ export default function Contact() {
             transition={{ duration: 0.8 }}
             className="flex flex-col items-center gap-4"
           >
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-stone-400">Support</span>
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-stone-400">Philosophy</span>
             <h1 className="font-serif text-5xl md:text-8xl font-light tracking-tight leading-tight">
-              Get in <span className="italic">Touch</span>
+              Enjoy <span className="italic text-stone-400">Carefree</span>
             </h1>
           </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-2xl text-stone-500 text-lg font-light leading-relaxed"
+            className="max-w-3xl text-stone-600 text-lg md:text-xl font-light leading-relaxed font-serif italic italic-stone-400"
           >
-            Whether you have a question about our collections, custom packaging, or just want to say hello, our team is here for you. We aim to respond to all inquiries within 24 hours.
+            “FLEÑJURE roughly translates to, ‘living carefree without consideration, with genuineness and purity in your thoughts and actions’. It’s an elevated experience encouraging you to embrace not just your life, not just in its troubles and complexities but its simplicity and everythingness.”
           </motion.p>
+          <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             transition={{ delay: 1 }}
+             className="flex flex-col items-center gap-2 mt-8"
+          >
+            <p className="text-stone-400 text-xs tracking-widest uppercase">Your experiences do define YOU. Make them the highest quality ones.</p>
+            <h3 className="text-2xl font-serif font-light mt-8">Questions/Feedback About the Club?</h3>
+          </motion.div>
         </div>
       </section>
 
@@ -95,10 +104,7 @@ export default function Contact() {
       {/* Info Section */}
       <section className="w-full py-24 bg-stone-50 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
-          <div className="flex flex-col gap-4">
-            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">General Inquiries</span>
-            <p className="text-stone-900 font-light">flenjureatl@gmail.com</p>
-          </div>
+
           <div className="flex flex-col gap-4">
             <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">Social</span>
             <div className="flex flex-col md:flex-row gap-4">

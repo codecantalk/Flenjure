@@ -1,365 +1,187 @@
 "use client";
 
-import { useState, useRef } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import clsx from "clsx";
-import { Plus, X, ArrowRight } from "lucide-react";
-import { useCartStore } from "@/lib/store";
-import shopifyData from "@/data/products.json";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, X, Volume2, VolumeX } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
-  const addItem = useCartStore((state) => state.addItem);
-  const heroRef = useRef(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
-  });
-
-  // Parallax effect: moves image slightly down while scrolling
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  // Subtle scaling effect while scrolling
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
-  // Fade out overlay as we scroll
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.4, 0.6]);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative w-full h-[90vh] md:h-[100vh] flex flex-col justify-end pb-16 px-8 lg:px-16 bg-stone-900 border-b border-stone-200 overflow-hidden">
-        {/* Cinematic parallax background image */}
-        <motion.div
-          className="absolute inset-0 z-0"
-          initial={{ scale: 1.2, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 2.5, ease: [0.19, 1, 0.22, 1] }}
-          style={{ y, scale }}
-        >
-          <Image
-            src="/Flenjure-herobg.png"
-            alt="Fleñjure Campaign Background"
-            fill
-            priority
-            className="object-cover object-center"
-          />
-          <motion.div style={{ opacity }} className="absolute inset-0 bg-stone-900" />
-        </motion.div>
+    <div className="relative w-screen h-screen overflow-hidden bg-stone-900">
+      {/* Video Background */}
+      <video
+        autoPlay
+        loop
+        muted={isMuted}
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
+      >
+        <source src="/FlenjureFinalr.mp4" type="video/mp4" />
+      </video>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, delay: 0.8, ease: [0.25, 1, 0.5, 1] }}
-          >
-            <Link
-              href="/shop"
-              className="group relative inline-flex min-w-[200px] items-center justify-center overflow-hidden border border-white/20 px-10 py-5 text-stone-50 transition-all duration-700"
-            >
-              <div className="absolute inset-0 translate-y-[101%] bg-white transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
-              <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] transition-colors duration-700 group-hover:text-stone-900">
-                Discover the Collection
-              </span>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Featured Story / Editorial */}
-      <EditorialSection />      {/* Product Highlight / Essentials - Modern Parallax Layout */}
-      <section className="w-full py-40 px-6 lg:px-12 bg-white overflow-hidden">
-        <div className="max-w-[1600px] mx-auto flex flex-col gap-32">
-          <div className="flex flex-col items-center text-center gap-6">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-stone-400">Shop</span>
-            <h3 className="font-serif text-5xl md:text-8xl font-light tracking-tight">FLEÑJURE <span className="italic">ESSENTIALS</span></h3>
-          </div>
-
-          {/* Asymmetric Parallax Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-20 md:gap-32 items-center">
-            {/* 1. Rolling Papers (Left - Medium) */}
-            <div className="md:col-span-1" />
-            <div className="md:col-span-4 group">
-              <ParallaxProductCard
-                product={mapProduct(shopifyData.products.find(p => p.handle === "flenjure-cali-rolling-papers") || shopifyData.products[0])}
-                addItem={addItem}
-                speed={-40}
-                aspect="aspect-[3/4]"
-              />
-            </div>
-
-            {/* 2. Bag Packs (Center/Right - Large) */}
-            <div className="md:col-span-6 md:translate-y-24 group">
-              <ParallaxProductCard
-                product={mapProduct(shopifyData.products.find(p => p.handle === "flenjure-snack-packs") || shopifyData.products[1])}
-                addItem={addItem}
-                speed={60}
-                aspect="aspect-[4/5]"
-              />
-            </div>
-            <div className="md:col-span-1" />
-
-            {/* Gap */}
-            <div className="col-span-full h-24 md:h-48" />
-
-            {/* 3. OG Jersey (Full width / Asymmetric Right) */}
-            <div className="md:col-span-3" />
-            <div className="md:col-span-7 group">
-              <ParallaxProductCard
-                product={mapProduct(shopifyData.products.find(p => p.handle === "flenjure-og-jersey") || shopifyData.products[2])}
-                addItem={addItem}
-                speed={-20}
-                aspect="aspect-[16/10]"
-              />
-            </div>
-            <div className="md:col-span-2 flex items-center justify-center md:pt-40">
-              <Link
-                href="/shop"
-                className="group/btn flex flex-col items-center gap-4 text-stone-900"
-              >
-                <div className="w-20 h-20 rounded-full border border-stone-200 flex items-center justify-center group-hover/btn:bg-stone-900 group-hover/btn:text-white transition-all duration-700">
-                  <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
-                </div>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-center">View All</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="w-full py-16 px-6 lg:px-12 bg-stone-950 text-stone-300">
-        <div className="max-w-7xl mx-auto flex flex-col gap-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div className="col-span-1 md:col-span-2">
-              <Link href="/" className="relative h-8 w-32 mb-6 block invert brightness-0">
-                <Image
-                  src="/logo.png"
-                  alt="Fleñjure Logo"
-                  fill
-                  className="object-contain object-left"
-                />
-              </Link>
-              <p className="max-w-sm text-sm leading-relaxed text-stone-500 font-light">
-                Quality. Experience. Fun. <br />
-                Enjoy life! On ne vit qu&apos;une fois. <br />
-                We are nothing without YOU.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="text-stone-50 uppercase tracking-[0.3em] text-[10px] font-bold mb-2">Shop</h4>
-              <Link href="/shop" className="text-xs font-light hover:text-stone-50 transition-colors tracking-widest">All Products</Link>
-              <Link href="/custom-packaging" className="text-xs font-light hover:text-stone-50 transition-colors tracking-widest">Custom Packaging</Link>
-              <Link href="/collections" className="text-xs font-light hover:text-stone-50 transition-colors tracking-widest">Collections</Link>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="text-stone-50 uppercase tracking-[0.3em] text-[10px] font-bold mb-2">Support</h4>
-              <Link href="/contact" className="text-xs font-light hover:text-stone-50 transition-colors tracking-widest">Contact Us</Link>
-              <Link href="/shipping" className="text-xs font-light hover:text-stone-50 transition-colors tracking-widest">Shipping & Returns</Link>
-              <Link href="/faq" className="text-xs font-light hover:text-stone-50 transition-colors tracking-widest">FAQ</Link>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-stone-800 text-xs text-stone-500">
-            <span>&copy; {new Date().getFullYear()} Flenjure. All Rights Reserved.</span>
-            <div className="flex gap-6 mt-4 md:mt-0">
-              <Link href="/terms" className="hover:text-stone-300 transition-colors">Terms</Link>
-              <Link href="/privacy" className="hover:text-stone-300 transition-colors">Privacy</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-const mapProduct = (raw: any) => ({
-  id: raw.handle,
-  name: raw.title,
-  price: "$" + (raw.variants?.[0]?.price || "0.00"),
-  image: raw.images?.[0]?.src || "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=2000&auto=format&fit=crop",
-  sizes: raw.options?.find((o: any) => o.name === "Size" || o.name === "Title" || o.name === "Quantity")?.values
-    .filter((v: any) => v !== "Default Title") || [],
-});
-
-function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any; addItem: any; speed: number; aspect: string }) {
-  const containerRef = useRef(null);
-  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [0, speed]);
-
-  return (
-    <div ref={containerRef} className="relative flex flex-col gap-8">
-      <div className={clsx(
-        "relative overflow-hidden bg-[#f4f4f4] transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group",
-        aspect
-      )}>
-        <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
-          <motion.div style={{ y }} className="absolute inset-8 md:inset-16 h-full w-full">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-contain mix-blend-multiply transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </motion.div>
-        </Link>
-
-        {/* Quick Add Icon Trigger */}
-        <button
-          onClick={() => setIsQuickAddOpen(true)}
-          className="absolute top-8 right-8 z-20 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm border border-stone-100 flex items-center justify-center text-stone-900 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-700 hover:bg-stone-900 hover:text-white shadow-lg"
-          aria-label="Quick add"
-        >
-          <Plus size={24} strokeWidth={1} />
-        </button>
-
-        <AnimatePresence>
-          {isQuickAddOpen && (
+      {/* Volume Toggle */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        onClick={() => setIsMuted(!isMuted)}
+        className="absolute bottom-8 right-8 md:bottom-32 md:right-12 z-30 p-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-500"
+        aria-label={isMuted ? "Unmute" : "Mute"}
+      >
+        <AnimatePresence mode="wait">
+          {isMuted ? (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              key="muted"
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-30 bg-white/95 backdrop-blur-md p-8 flex flex-col justify-center items-center gap-8"
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
             >
-              <button
-                onClick={() => setIsQuickAddOpen(false)}
-                className="absolute top-8 right-8 text-stone-400 hover:text-stone-900 transition-colors"
-                aria-label="Close"
-              >
-                <X size={24} strokeWidth={1} />
-              </button>
-
-              <div className="text-center">
-                <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Options</span>
-                <h4 className="text-xl font-serif font-light mt-2 text-stone-900">{product.name}</h4>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-4 w-full max-w-sm">
-                {product.sizes.length > 0 ? (
-                  product.sizes.map((size: string) => (
-                    <button
-                      key={size}
-                      onClick={() => {
-                        addItem({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          size: size,
-                          image: product.image,
-                          quantity: 1,
-                        });
-                        setIsQuickAddOpen(false);
-                      }}
-                      className="px-6 py-3 border border-stone-200 text-[10px] tracking-[0.2em] uppercase hover:bg-stone-900 hover:text-white transition-all duration-300 min-w-[80px] font-medium"
-                    >
-                      {size}
-                    </button>
-                  ))
-                ) : (
-                  <button
-                    onClick={() => {
-                      addItem({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        size: "One Size",
-                        image: product.image,
-                        quantity: 1,
-                      });
-                      setIsQuickAddOpen(false);
-                    }}
-                    className="px-10 py-4 border border-stone-900 text-[10px] tracking-[0.3em] uppercase bg-stone-900 text-white hover:bg-transparent hover:text-stone-900 transition-all duration-300 font-bold"
-                  >
-                    Add to Cart
-                  </button>
-                )}
-              </div>
+              <VolumeX size={18} strokeWidth={1.5} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="unmuted"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Volume2 size={18} strokeWidth={1.5} />
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.button>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-start">
-          <Link href={`/shop/${product.id}`}>
-            <h4 className="font-serif text-2xl font-light tracking-wide max-w-[70%] hover:text-stone-400 transition-colors">{product.name}</h4>
-          </Link>
-          <span className="font-semibold text-stone-900 text-sm mt-1">{product.price}</span>
-        </div>
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-stone-400">
-          <span className="w-8 h-[1px] bg-stone-200" />
-          <span>Shop Essential</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+      {/* Subtle Overlay gradients for legibility */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-stone-950/80 via-transparent to-stone-950/30" />
 
-function EditorialSection() {
-  const containerRef = useRef(null);
+      {/* Main Content Interface */}
+      <div className="relative z-20 w-full h-full flex flex-col justify-between p-8 lg:p-16 pt-32">
+        
+        {/* Entrance Controls */}
+        <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-12 mt-auto">
+          
+          <div className="flex flex-col gap-8">
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  // A more subtle, buttery parallax range
-  const y = useTransform(scrollYProgress, [0, 1], [-80, 80]);
-
-  return (
-    <section className="w-full py-24 md:py-40 px-6 lg:px-12 overflow-hidden bg-stone-50">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-32 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1, ease: [0.25, 1, 0.5, 1] }}
-          className="flex flex-col gap-8 order-2 md:order-1"
-        >
-          <div className="flex flex-col gap-4">
-            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400">Membership</span>
-            <h2 className="font-serif text-5xl md:text-6xl lg:text-8xl leading-[1.1] tracking-tight">
-              Enjoy <span className="italic">Life</span>
-            </h2>
-          </div>
-          <p className="max-w-md text-stone-600 leading-relaxed text-lg font-light">
-            We offer FREE cash and gifts to our loyal and engaged members. Sign up to join our Private FLEÑJURE Members Club for exclusive drops and access.
-          </p>
-          <div className="pt-4">
-            <Link
-              href="/editorial"
-              className="group inline-flex items-center gap-4 uppercase tracking-[0.3em] text-[10px] font-bold border-b border-stone-900 pb-2 hover:text-stone-400 hover:border-stone-400 transition-all duration-500"
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 2, ease: [0.25, 1, 0.5, 1] }}
+              className="flex flex-col sm:flex-row gap-6 items-center"
             >
-              Join the Club
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-500" />
-            </Link>
+              <Link
+                href="/shop"
+                className="group relative inline-flex min-w-[200px] items-center justify-center overflow-hidden border border-white/30 bg-white/5 backdrop-blur-md px-12 py-5 text-stone-50 transition-all duration-700 hover:border-white"
+              >
+                <div className="absolute inset-0 translate-y-[101%] bg-white transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
+                <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900">
+                  Enter Store
+                </span>
+              </Link>
+              
+              <button
+                onClick={() => setIsMemberModalOpen(true)}
+                className="group flex items-center gap-4 uppercase tracking-[0.3em] text-[10px] font-bold text-white/70 hover:text-white transition-colors duration-500 py-4"
+              >
+                Become a Member
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-500" />
+              </button>
+            </motion.div>
           </div>
-        </motion.div>
-
-        <div
-          ref={containerRef}
-          className="relative aspect-[4/5] md:aspect-[3/4] w-full overflow-hidden bg-[#f4f4f4] order-1 md:order-2 shadow-2xl"
-        >
-          <motion.div
-            style={{ y, willChange: "transform" }}
-            className="absolute inset-0 block h-[130%] w-full -top-[15%]"
+          
+          {/* Subtle footer markings */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5, delay: 2.5 }}
+            className="hidden md:flex flex-col text-white/40 text-[10px] uppercase tracking-widest text-right gap-2"
           >
-            <Image
-              src="/PrivateMembers.png"
-              alt="Private FLEÑJURE Members"
-              fill
-              className="object-contain transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
+            <span>Est. 2024</span>
+            <span>Smyrna, GA</span>
           </motion.div>
         </div>
       </div>
-    </section>
+
+      {/* Membership Modal */}
+      <AnimatePresence>
+        {isMemberModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-stone-950/80 backdrop-blur-xl"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+              className="relative w-full max-w-md bg-white p-10 md:p-12 shadow-2xl flex flex-col gap-8"
+            >
+              <button
+                onClick={() => setIsMemberModalOpen(false)}
+                className="absolute top-6 right-6 text-stone-400 hover:text-stone-900 transition-colors"
+                aria-label="Close"
+              >
+                <X size={20} strokeWidth={1} />
+              </button>
+
+              <div className="flex flex-col gap-2 text-center">
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400">Join the Club</span>
+                <h3 className="font-serif text-3xl font-light text-stone-900">Private Membership</h3>
+                <p className="text-stone-500 text-sm mt-2 font-light">Get exclusive access to drops, free gifts, and private events.</p>
+              </div>
+
+              <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">Email Address *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
+                    placeholder="Enter your email"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="snapchat" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">Snapchat (Optional)</label>
+                  <input
+                    type="text"
+                    id="snapchat"
+                    className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
+                    placeholder="@username"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="whatsapp" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">WhatsApp Number (Optional)</label>
+                  <input
+                    type="tel"
+                    id="whatsapp"
+                    className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  className="mt-4 group relative w-full flex items-center justify-center overflow-hidden border border-stone-900 bg-stone-900 px-8 py-4 text-white transition-all duration-700"
+                >
+                  <div className="absolute inset-0 translate-y-[101%] bg-white transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
+                  <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900">
+                    Submit Request
+                  </span>
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

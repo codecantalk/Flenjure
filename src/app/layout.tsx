@@ -4,6 +4,8 @@ import "./globals.css";
 import SmoothScroller from "@/components/layout/SmoothScroller";
 import Navbar from "@/components/layout/Navbar";
 import CartDrawer from "@/components/cart/CartDrawer";
+import LoadingScreen from "@/components/layout/LoadingScreen";
+import Footer from "@/components/layout/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -52,10 +54,12 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#fcfcfc] text-stone-900 font-sans font-light tracking-[0.015em] selection:bg-stone-900 selection:text-white transition-colors duration-700 ease-in-out">
+        <LoadingScreen />
         <SmoothScroller>
           <Navbar />
           <CartDrawer />
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main className="flex-1 flex flex-col min-h-[calc(100vh-200px)]">{children}</main>
+          <Footer />
         </SmoothScroller>
       </body>
     </html>

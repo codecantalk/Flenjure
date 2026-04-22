@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import clsx from "clsx";
 import { Plus, X } from "lucide-react";
 import { useCartStore } from "@/lib/store";
@@ -39,27 +40,73 @@ export default function ShopPage() {
     <div className="flex flex-col min-h-screen pt-32 pb-24 px-6 lg:px-12">
       <div className="max-w-[1400px] mx-auto w-full">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+        <div className="flex flex-col items-center justify-center mb-32 gap-8 text-center pt-12">
+          <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-stone-400">Shop</span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-serif mb-12 font-light"
+            className="text-5xl md:text-8xl font-serif font-light tracking-tight uppercase"
           >
-            Collection
+            FLEÑJURE <span className="italic text-stone-400">ESSENTIALS</span>
           </motion.h1>
+        </div>
+
+        {/* Asymmetric Parallax Grid (Featured Essentials) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-20 md:gap-32 items-center mb-48 border-b border-stone-200 pb-32">
+          {/* 1. Rolling Papers (Left - Medium) */}
+          <div className="md:col-span-1" />
+          <div className="md:col-span-4 group">
+            <ParallaxProductCard
+              product={products.find(p => p.id === "flenjure-cali-rolling-papers") || products[0]}
+              addItem={addItem}
+              speed={-40}
+              aspect="aspect-[3/4]"
+            />
+          </div>
+
+          {/* 2. Bag Packs (Center/Right - Large) */}
+          <div className="md:col-span-6 md:translate-y-24 group">
+            <ParallaxProductCard
+              product={products.find(p => p.id === "flenjure-snack-packs") || products[1]}
+              addItem={addItem}
+              speed={60}
+              aspect="aspect-[4/5]"
+            />
+          </div>
+          <div className="md:col-span-1" />
+
+          {/* Gap */}
+          <div className="col-span-full h-24 md:h-12" />
+
+          {/* 3. OG Jersey (Full width / Asymmetric Right) */}
+          <div className="md:col-span-3" />
+          <div className="md:col-span-7 group">
+            <ParallaxProductCard
+              product={products.find(p => p.id === "flenjure-og-jersey") || products[2]}
+              addItem={addItem}
+              speed={-20}
+              aspect="aspect-[16/10]"
+            />
+          </div>
+          <div className="md:col-span-2" />
+        </div>
+        
+        {/* Full Collection Header */}
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <h2 className="text-3xl md:text-5xl font-serif font-light">Full Collection</h2>
           
           {/* Filtering */}
-          <div className="flex flex-wrap items-center gap-6 md:gap-12 mb-16 border-b border-stone-200 pb-6">
+          <div className="flex flex-wrap items-center gap-6 md:gap-12 border-b border-stone-200 pb-4">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
                 className={clsx(
-                  "text-xs uppercase tracking-[0.15em] transition-all duration-700 ease-in-out pb-1 border-b min-h-[44px]",
+                  "text-[10px] uppercase tracking-[0.2em] transition-all duration-700 ease-in-out pb-2 min-h-[30px]",
                   activeCategory === category 
-                    ? "border-stone-900 text-stone-900 font-normal" 
-                    : "border-transparent text-stone-400 hover:text-stone-900 font-light"
+                    ? "border-b border-stone-900 text-stone-900 font-bold" 
+                    : "border-b border-transparent text-stone-400 hover:text-stone-900 font-medium"
                 )}
               >
                 {category}
@@ -193,5 +240,127 @@ function QuickAddTrigger({ product, addItem }: { product: any; addItem: any }) {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any; addItem: any; speed: number; aspect: string }) {
+  const containerRef = useRef(null);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, speed]);
+
+  if (!product) return null;
+
+  return (
+    <div ref={containerRef} className="relative flex flex-col gap-8">
+      <div className={clsx(
+        "relative overflow-hidden bg-[#f4f4f4] transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group",
+        aspect
+      )}>
+        <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
+          <motion.div style={{ y }} className="absolute inset-8 md:inset-16 h-full w-full">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-contain mix-blend-multiply transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </motion.div>
+        </Link>
+
+        {/* Quick Add Icon Trigger */}
+        <button
+          onClick={() => setIsQuickAddOpen(true)}
+          className="absolute top-8 right-8 z-20 w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm border border-stone-100 flex items-center justify-center text-stone-900 opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-700 hover:bg-stone-900 hover:text-white shadow-lg"
+          aria-label="Quick add"
+        >
+          <Plus size={24} strokeWidth={1} />
+        </button>
+
+        <AnimatePresence>
+          {isQuickAddOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="absolute inset-0 z-30 bg-white/95 backdrop-blur-md p-8 flex flex-col justify-center items-center gap-8"
+            >
+              <button
+                onClick={() => setIsQuickAddOpen(false)}
+                className="absolute top-8 right-8 text-stone-400 hover:text-stone-900 transition-colors"
+                aria-label="Close"
+              >
+                <X size={24} strokeWidth={1} />
+              </button>
+
+              <div className="text-center">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Options</span>
+                <h4 className="text-xl font-serif font-light mt-2 text-stone-900">{product.name}</h4>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 w-full max-w-sm">
+                {product.sizes.length > 0 ? (
+                  product.sizes.map((size: string) => (
+                    <button
+                      key={size}
+                      onClick={() => {
+                        addItem({
+                          id: product.id,
+                          name: product.name,
+                          price: product.price,
+                          size: size,
+                          image: product.image,
+                          quantity: 1,
+                        });
+                        setIsQuickAddOpen(false);
+                      }}
+                      className="px-6 py-3 border border-stone-200 text-[10px] tracking-[0.2em] uppercase hover:bg-stone-900 hover:text-white transition-all duration-300 min-w-[80px] font-medium"
+                    >
+                      {size}
+                    </button>
+                  ))
+                ) : (
+                  <button
+                    onClick={() => {
+                      addItem({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        size: "One Size",
+                        image: product.image,
+                        quantity: 1,
+                      });
+                      setIsQuickAddOpen(false);
+                    }}
+                    className="px-10 py-4 border border-stone-900 text-[10px] tracking-[0.3em] uppercase bg-stone-900 text-white hover:bg-transparent hover:text-stone-900 transition-all duration-300 font-bold"
+                  >
+                    Add to Cart
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-start">
+          <Link href={`/shop/${product.id}`}>
+            <h4 className="font-serif text-2xl font-light tracking-wide max-w-[70%] hover:text-stone-400 transition-colors">{product.name}</h4>
+          </Link>
+          <span className="font-semibold text-stone-900 text-sm mt-1">{product.price}</span>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-stone-400">
+          <span className="w-8 h-[1px] bg-stone-200" />
+          <span>Shop Essential</span>
+        </div>
+      </div>
+    </div>
   );
 }
