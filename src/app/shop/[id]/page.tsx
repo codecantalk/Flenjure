@@ -53,7 +53,7 @@ export default function ProductPage() {
         id: productData.id,
         name: productData.name,
         price: productData.price,
-        size: selectedSize,
+        size: selectedSize!,
         image: productData.images[0],
         quantity: quantity,
       });
