@@ -2,17 +2,20 @@ import { getProductById } from "@/lib/sanity";
 import ProductDetailClient from "@/components/shop/ProductDetailClient";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+type Props = {
+  params: Promise<{ id: string }>
+};
 
-export default async function ShopProductDetail({ params }: { params: { id: string } }) {
+export default async function ShopProductDetail({ params }: Props) {
   try {
-    const productData = await getProductById(params.id);
+    const { id } = await params;
+    const productData = await getProductById(id);
     
     if (!productData) {
       return (
         <div className="pt-32 px-12 pb-32">
           <h1>Debug: Sanity returned null</h1>
-          <pre>Requested Slug: {params.id}</pre>
+          <pre>Requested Slug: {id}</pre>
         </div>
       );
     }
