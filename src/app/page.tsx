@@ -29,7 +29,7 @@ export default function Home() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
         onClick={() => setIsMuted(!isMuted)}
-        className="absolute bottom-8 right-8 md:bottom-32 md:right-12 z-30 p-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-500"
+        className="absolute bottom-8 right-8 md:bottom-32 md:right-16 z-30 p-4 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-500"
         aria-label={isMuted ? "Unmute" : "Mute"}
       >
         <AnimatePresence mode="wait">

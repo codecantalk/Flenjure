@@ -27,19 +27,41 @@ export async function getProducts() {
   const query = `*[_type == "product"]{
     _id,
     "id": slug.current,
-    title,
+    name,
     price,
     "image": image.asset->url,
     "hoverImage": hoverImage.asset->url,
-    "category": category->title,
-    variants
+    category,
+    sizes
   }`;
   
   try {
     const products = await client.fetch(query);
-    return products;
+    return products || [];
   } catch (error) {
     console.error("Error fetching products from Sanity:", error);
     return [];
+  }
+}
+
+export async function getProductById(id: string) {
+  const query = `*[_type == "product" && slug.current == $id][0]{
+    _id,
+    "id": slug.current,
+    name,
+    price,
+    description,
+    "image": image.asset->url,
+    "hoverImage": hoverImage.asset->url,
+    category,
+    sizes
+  }`;
+  
+  try {
+    const product = await client.fetch(query, { id });
+    return product;
+  } catch (error) {
+    console.error(`Error fetching product ${id} from Sanity:`, error);
+    return null;
   }
 }
