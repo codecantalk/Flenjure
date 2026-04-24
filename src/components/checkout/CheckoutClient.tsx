@@ -9,7 +9,10 @@ import { ChevronLeft, Lock, ArrowRight, Bitcoin, CreditCard } from "lucide-react
 
 export default function CheckoutClient() {
   const { items } = useCartStore();
-  const cartTotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartTotal = items.reduce((total, item) => {
+    const priceNum = parseFloat(item.price.replace("$", ""));
+    return total + priceNum * item.quantity;
+  }, 0);
   const [step, setStep] = useState<"information" | "payment">("information");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -224,7 +227,7 @@ export default function CheckoutClient() {
                       <span className="text-sm font-medium pr-4">{item.name}</span>
                       <span className="text-xs text-stone-500 uppercase tracking-wider">{item.size}</span>
                     </div>
-                    <span className="text-sm font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="text-sm font-medium">${(parseFloat(item.price.replace("$", "")) * item.quantity).toFixed(2)}</span>
                   </div>
                 ))
               )}
