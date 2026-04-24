@@ -125,7 +125,7 @@ export default function ShopClient({ products }: { products: any[] }) {
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
                     <Image
-                      src={product.hoverImage}
+                      src={product.hoverImage || product.image}
                       alt={`${product.name} alternate view`}
                       fill
                       className="object-contain mix-blend-multiply absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
