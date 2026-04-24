@@ -9,7 +9,8 @@ type Props = {
 export default async function ShopProductDetail({ params }: Props) {
   try {
     const { id } = await params;
-    const productData = await getProductById(id);
+    const decodedId = decodeURIComponent(id);
+    const productData = await getProductById(decodedId);
     
     if (!productData) {
       return (
