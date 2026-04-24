@@ -132,9 +132,9 @@ export default function CartDrawer() {
                   <span className="uppercase tracking-widest text-stone-500">Subtotal</span>
                   <span className="text-lg font-medium text-stone-900">${cartTotal.toFixed(2)}</span>
                 </div>
-                <button className="w-full py-4 bg-stone-900 text-stone-50 text-sm uppercase tracking-widest font-medium hover:bg-stone-800 transition-colors">
+                <Link href="/checkout" onClick={closeCart} className="w-full flex items-center justify-center py-4 bg-stone-900 text-stone-50 text-sm uppercase tracking-widest font-medium hover:bg-stone-800 transition-colors">
                   Checkout
-                </button>
+                </Link>
               </div>
             )}
           </motion.div>
