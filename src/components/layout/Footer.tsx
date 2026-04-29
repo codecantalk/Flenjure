@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Globe, Lock, ShieldCheck, Truck } from "lucide-react";
+import { Globe, Lock, ShieldCheck } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -14,9 +14,9 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-[#f2f2f2] border-t border-stone-200 mt-auto">
+    <footer className="relative bg-[#f8f8f8] dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 mt-auto transition-colors duration-1000">
       {/* High-end Value Props Bar */}
-      <div className="bg-stone-900 py-4 px-6">
+      <div className="bg-stone-950 dark:bg-black py-4 px-6 border-b border-stone-800 transition-colors duration-1000">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-16 text-center">
           <div className="flex items-center gap-3 text-white">
             <Globe size={16} strokeWidth={1.5} className="text-stone-400" />
@@ -40,7 +40,7 @@ export default function Footer() {
         
         {/* Brand Column */}
         <div className="md:col-span-4 flex flex-col gap-6">
-          <Link href="/" className="relative h-10 w-32 invert">
+          <Link href="/" className="relative h-10 w-32 invert dark:invert-0">
             <Image
               src="/logo.png"
               alt="Fleñjure Logo"
@@ -56,39 +56,39 @@ export default function Footer() {
 
         {/* Links Columns */}
         <div className="md:col-span-2 flex flex-col gap-4">
-          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-2">Shop</h4>
-          <Link href="/shop" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">All Products</Link>
-          <Link href="/custom-packaging" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Custom Packaging</Link>
+          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500 mb-2">Shop</h4>
+          <Link href="/shop" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">All Products</Link>
+          <Link href="/custom-packaging" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Custom Packaging</Link>
         </div>
 
         <div className="md:col-span-2 flex flex-col gap-4">
-          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-2">Company</h4>
-          <Link href="/" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Home</Link>
-          <Link href="/contact" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Contact</Link>
+          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500 mb-2">Company</h4>
+          <Link href="/" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Home</Link>
+          <Link href="/contact" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Contact</Link>
         </div>
 
         <div className="md:col-span-2 flex flex-col gap-4">
-          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-2">Support</h4>
-          <Link href="/shipping" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Shipping & Returns</Link>
-          <Link href="/faq" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">FAQ</Link>
-          <Link href="/privacy" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Privacy Policy</Link>
+          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500 mb-2">Support</h4>
+          <Link href="/shipping" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Shipping & Returns</Link>
+          <Link href="/faq" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">FAQ</Link>
+          <Link href="/privacy" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>
         </div>
 
-        {/* Newsletter / Socials */}
+        {/* Socials */}
         <div className="md:col-span-2 flex flex-col gap-4">
-          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-2">Social</h4>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Instagram</a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">Twitter</a>
-          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="text-sm font-light text-stone-600 hover:text-stone-900 transition-colors">TikTok</a>
+          <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500 mb-2">Social</h4>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Instagram</a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Twitter</a>
+          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">TikTok</a>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-8 border-t border-stone-200 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-[10px] uppercase tracking-widest text-stone-400">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-8 border-t border-stone-200 dark:border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4 transition-colors duration-1000">
+        <p className="text-[10px] uppercase tracking-widest text-stone-400 dark:text-stone-600">
           © {new Date().getFullYear()} FLEÑJURE. All Rights Reserved.
         </p>
-        <div className="flex items-center gap-6 text-[10px] uppercase tracking-widest text-stone-400">
+        <div className="flex items-center gap-6 text-[10px] uppercase tracking-widest text-stone-400 dark:text-stone-600">
           <span>Est. 2024</span>
           <span>Smyrna, GA</span>
         </div>

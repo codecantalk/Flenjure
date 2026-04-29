@@ -9,12 +9,30 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCartStore } from "@/lib/store";
 import SearchOverlay from "../search/SearchOverlay";
+import { useTheme } from "next-themes";
 
-const navLinks = [
-  { name: "Home", href: "/" },
+const mainLinks = [
   { name: "Shop", href: "/shop" },
-  { name: "Custom Packaging", href: "/custom-packaging" },
-  { name: "Contact", href: "/contact" },
+  { name: "Café", href: "/cafe" },
+  { name: "Lookbook", href: "/lookbook" },
+  { name: "Sights and Sounds", href: "/sights-and-sounds" },
+  { name: "Announcements", href: "/announcements" },
+  { name: "Account", href: "/account" },
+];
+
+const discoverLinks = [
+  { name: "New Arrivals", href: "/shop" },
+  { name: "Cafe", href: "/cafe" },
+  { name: "Collections", href: "/collections" },
+  { name: "Shop All", href: "/shop" },
+];
+
+const categoryLinks = [
+  { name: "T-Shirts", href: "/shop" },
+  { name: "Shorts", href: "/shop" },
+  { name: "Tank Tops", href: "/shop" },
+  { name: "Hats and Headgear", href: "/shop" },
+  { name: "Candy Shop", href: "/cafe" },
 ];
 
 export default function Navbar() {
@@ -26,6 +44,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { items, setIsOpen: setCartOpen } = useCartStore();
+  const { theme, setTheme } = useTheme();
   
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -85,8 +104,8 @@ export default function Navbar() {
         className={clsx(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]",
           isScrolled
-            ? "bg-white/80 backdrop-blur-lg py-4 border-b border-stone-100"
-            : (isHome ? "bg-transparent py-8" : "bg-white py-6 border-b border-stone-50"),
+            ? "bg-white/80 dark:bg-stone-900/80 backdrop-blur-lg py-4 border-b border-stone-100 dark:border-stone-800"
+            : (isHome ? "bg-transparent py-8" : "bg-[#fcfcfc] dark:bg-stone-900 py-6 border-b border-stone-50 dark:border-stone-800"),
           isHome && !isMouseActive && !isScrolled && !isMenuOpen && !isSearchOpen
             ? "-translate-y-full opacity-0 pointer-events-none"
             : "translate-y-0 opacity-100 pointer-events-auto"
@@ -99,7 +118,7 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(true)}
               className={clsx(
                 "group flex items-center gap-3 transition-all duration-300 hover:opacity-50",
-                isHome && !isScrolled ? "text-white" : "text-stone-900"
+                isHome && !isScrolled ? "text-white" : "text-stone-900 dark:text-stone-50"
               )}
               aria-label="Open menu"
             >
@@ -136,7 +155,7 @@ export default function Navbar() {
           {/* Right: Tools */}
           <div className={clsx(
             "flex items-center justify-end gap-2 md:gap-4 transition-colors duration-700",
-            isHome && !isScrolled ? "text-white" : "text-stone-900"
+            isHome && !isScrolled ? "text-white" : "text-stone-900 dark:text-stone-50"
           )}>
             <div className="hidden md:flex items-center gap-2">
               <button 
@@ -188,7 +207,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-50 lg:hidden"
+              className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50"
               onClick={() => setIsMenuOpen(false)}
             />
             <motion.div
@@ -196,11 +215,11 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-              className="fixed top-0 left-0 bottom-0 w-[95vw] sm:w-[450px] bg-white z-[100] shadow-2xl flex flex-col pt-24 px-8 sm:px-12 pb-12 overflow-y-auto"
+              className="fixed top-0 left-0 bottom-0 w-[95vw] sm:w-[600px] bg-white/70 dark:bg-black/70 backdrop-blur-2xl z-[100] shadow-2xl flex flex-col pt-24 px-8 sm:px-16 pb-12 overflow-y-auto"
             >
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="absolute top-8 left-8 sm:left-12 text-stone-900 group flex items-center gap-3 transition-opacity duration-300 hover:opacity-50"
+                className="absolute top-8 left-8 sm:left-16 text-stone-900 dark:text-stone-50 group flex items-center gap-3 transition-opacity duration-300 hover:opacity-50"
                 aria-label="Close menu"
               >
                 <X size={24} strokeWidth={1} />
@@ -209,43 +228,68 @@ export default function Navbar() {
                 </span>
               </button>
 
-              <nav className="flex flex-col mt-12 flex-1">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05, duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                    className="border-b border-stone-100 last:border-none"
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="block py-6 text-3xl sm:text-4xl font-serif font-light text-stone-900 hover:pl-2 transition-all duration-500 ease-in-out"
+              <div className="flex-1 mt-12 grid grid-cols-1 sm:grid-cols-2 gap-12 sm:gap-24">
+                {/* Primary Column */}
+                <nav className="flex flex-col gap-6">
+                  {mainLinks.map((link, i) => (
+                    <motion.div
+                      key={link.name}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + i * 0.05, duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                     >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
-              </nav>
+                      <Link
+                        href={link.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="block text-3xl font-serif font-light text-stone-900 dark:text-stone-50 hover:opacity-50 transition-all duration-300 ease-in-out"
+                      >
+                        {link.name}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </nav>
 
-              <div className="mt-12 flex flex-col gap-8 pt-12 border-t border-stone-200">
-                <div className="grid grid-cols-2 gap-8">
+                {/* Secondary Mega Column */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
+                  className="flex flex-col gap-12"
+                >
                   <div className="flex flex-col gap-4">
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-400">Account</span>
-                    <Link href="/account" onClick={() => setIsMenuOpen(false)} className="text-xs font-light text-stone-600 hover:text-stone-900 transition-colors tracking-widest">Login / Register</Link>
-                    <Link href="/orders" onClick={() => setIsMenuOpen(false)} className="text-xs font-light text-stone-600 hover:text-stone-900 transition-colors tracking-widest">Order History</Link>
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-400 dark:text-stone-500">Discover</h3>
+                    <div className="flex flex-col gap-3">
+                      {discoverLinks.map(link => (
+                        <Link key={link.name} href={link.href} onClick={() => setIsMenuOpen(false)} className="text-sm font-light text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors tracking-widest">{link.name}</Link>
+                      ))}
+                    </div>
                   </div>
+
                   <div className="flex flex-col gap-4">
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-400">Support</span>
-                    <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-xs font-light text-stone-600 hover:text-stone-900 transition-colors tracking-widest">Contact Us</Link>
-                    <Link href="/shipping" onClick={() => setIsMenuOpen(false)} className="text-xs font-light text-stone-600 hover:text-stone-900 transition-colors tracking-widest">Shipping & Returns</Link>
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-400 dark:text-stone-500">Shop By Category</h3>
+                    <div className="flex flex-col gap-3">
+                      {categoryLinks.map(link => (
+                        <Link key={link.name} href={link.href} onClick={() => setIsMenuOpen(false)} className="text-sm font-light text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors tracking-widest">{link.name}</Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <Link href="https://instagram.com" className="text-stone-400 hover:text-stone-900 transition-colors"><span className="text-[10px] uppercase tracking-widest">Instagram</span></Link>
-                  <Link href="https://twitter.com" className="text-stone-400 hover:text-stone-900 transition-colors"><span className="text-[10px] uppercase tracking-widest">Twitter</span></Link>
+                </motion.div>
+              </div>
+
+              <div className="mt-12 flex flex-col gap-8 pt-8 border-t border-stone-200/50">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-6">
+                    <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Support</Link>
+                    <Link href="/shipping" onClick={() => setIsMenuOpen(false)} className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Shipping & Returns</Link>
+                  </div>
+                  
+                  {/* Local Theme Toggle inside Menu */}
+                  <button 
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
+                  >
+                    <span>{theme === "dark" ? "Toggle Light" : "Toggle Dark"}</span>
+                  </button>
                 </div>
               </div>
             </motion.div>

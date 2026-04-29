@@ -3,207 +3,275 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Plus, Minus } from "lucide-react";
+import { Plus, Minus, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import clsx from "clsx";
-import { useParams } from "next/navigation";
 import { useCartStore } from "@/lib/store";
-
-import shopifyData from "@/data/products.json";
+import clsx from "clsx";
 
 export default function ProductDetailClient({ productData }: { productData: any }) {
-
-  const [selectedSize, setSelectedSize] = useState<string | null>(
-    productData.sizes.length > 0 ? null : "One Size"
-  );
-  const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [adding, setAdding] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<string | null>("details");
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
     if (productData.sizes.length > 0 && !selectedSize) {
-      alert("Please select a size");
+      setIsDropdownOpen(true);
       return;
     }
     setAdding(true);
+    addItem({
+      id: productData.id,
+      name: productData.name,
+      price: productData.price,
+      size: selectedSize || "One Size",
+      image: productData.images[0],
+      quantity: 1,
+    });
     setTimeout(() => {
-      addItem({
-        id: productData.id,
-        name: productData.name,
-        price: productData.price,
-        size: selectedSize!,
-        image: productData.images[0],
-        quantity: quantity,
-      });
       setAdding(false);
-    }, 600);
+    }, 1000);
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-24 lg:pt-32 pb-24 px-6 lg:px-12 bg-stone-50">
-      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+    <div className="flex flex-col min-h-screen pt-24 lg:pt-32 pb-24 bg-white dark:bg-stone-950 transition-colors duration-1000">
+      <div className="max-w-[1800px] mx-auto w-full px-6 lg:px-12">
         
-        {/* Left: Sticky Details (on desktop) */}
-        <div className="order-2 lg:order-1 flex flex-col gap-8 lg:sticky lg:top-32 lg:h-[calc(100vh-8rem)]">
-          {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-stone-500 mb-4">
-            <Link href="/" className="hover:text-stone-900 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/shop" className="hover:text-stone-900 transition-colors">Shop</Link>
-            <ChevronRight size={12} />
-            <span className="text-stone-900">Apparel</span>
-          </div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex flex-col gap-4"
-          >
-            <h1 className="text-3xl md:text-5xl font-serif font-light mb-2">{productData.name}</h1>
-            <p className="text-xl text-stone-500 font-light mb-8">{productData.price}</p>
-            
-            <div className="prose prose-stone mb-10 font-light text-sm leading-relaxed tracking-wide text-stone-600">
-              <p>{productData.description}</p>
-            </div>
-
-            {productData.sizes.length > 0 && (
-              <div className="mb-10">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xs uppercase tracking-[0.15em] font-normal">Size</h3>
-                  <button className="text-xs text-stone-500 hover:text-stone-900 underline transition-colors duration-500 min-h-[44px]">Size Guide</button>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                   {productData.sizes.map((size: string) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={clsx(
-                        "py-3 border text-xs tracking-widest transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] min-h-[44px]",
-                        selectedSize === size 
-                          ? "border-stone-900 bg-stone-900 text-stone-50" 
-                          : "border-stone-200 text-stone-600 hover:border-stone-900"
-                      )}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center justify-between border border-stone-200 min-h-[50px] w-32 px-4 shadow-sm">
-                <button 
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="text-stone-400 hover:text-stone-900 transition-colors p-2 -ml-2"
-                >
-                  <Minus size={14} strokeWidth={1} />
-                </button>
-                <span className="text-sm font-light">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="text-stone-400 hover:text-stone-900 transition-colors p-2 -mr-2"
-                >
-                  <Plus size={14} strokeWidth={1} />
-                </button>
-              </div>
-
-              <button 
-                onClick={handleAddToCart}
-                className="flex-1 bg-stone-900 text-stone-50 text-xs font-normal uppercase tracking-[0.15em] min-h-[50px] transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-xl"
-                disabled={adding}
-              >
-                {adding ? "Adding..." : "Add to Cart"}
-              </button>
+        {/* 3-Column ALD Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          
+          {/* COLUMN 1: Info & Editorial (Left) */}
+          <div className="lg:col-span-3 flex flex-col order-1">
+             <div className="flex flex-col gap-2 mb-12">
+              <h1 className="text-xl font-medium text-stone-900 dark:text-white uppercase tracking-tight">{productData.name}</h1>
+              <p className="text-base text-stone-900 dark:text-stone-300 font-light">{productData.price}</p>
             </div>
 
             {/* Accordions */}
-            <div className="border-t border-stone-200">
-              {/* Details Accordion */}
-              <div className="border-b border-stone-200">
-                <button 
-                  onClick={() => setOpenAccordion(openAccordion === 'details' ? null : 'details')}
-                  className="w-full flex justify-between items-center py-6 text-xs uppercase tracking-[0.15em] font-normal text-stone-900 hover:text-stone-500 transition-colors duration-500"
-                >
-                  <span>Details & Care</span>
-                  {openAccordion === 'details' ? <Minus size={16} strokeWidth={1} /> : <Plus size={16} strokeWidth={1} />}
-                </button>
-                <AnimatePresence>
-                  {openAccordion === 'details' && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <ul className="list-disc pl-4 space-y-2 text-sm text-stone-600 font-light pb-6">
-                        {productData.details.map((detail: string, i: number) => (
-                          <li key={i}>{detail}</li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+            <div className="border-t border-stone-200 dark:border-stone-800">
+              <DetailAccordion title="Product Details" defaultOpen={true}>
+                <ul className="list-disc pl-4 space-y-1.5 text-[11px] lg:text-[12px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed">
+                  {productData.details.map((detail: string, i: number) => (
+                    <li key={i}>{detail}</li>
+                  ))}
+                </ul>
+              </DetailAccordion>
 
-              {/* Shipping Accordion */}
-              <div className="border-b border-stone-200">
-                <button 
-                  onClick={() => setOpenAccordion(openAccordion === 'shipping' ? null : 'shipping')}
-                  className="w-full flex justify-between items-center py-6 text-xs uppercase tracking-[0.15em] font-normal text-stone-900 hover:text-stone-500 transition-colors duration-500"
-                >
-                  <span>Shipping & Returns</span>
-                  {openAccordion === 'shipping' ? <Minus size={16} strokeWidth={1} /> : <Plus size={16} strokeWidth={1} />}
-                </button>
-                <AnimatePresence>
-                  {openAccordion === 'shipping' && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-                      className="overflow-hidden"
-                    >
-                      <div className="text-sm text-stone-600 font-light pb-6 space-y-4 leading-relaxed">
-                        <p>Complimentary shipping on all orders over $200. Orders are processed within 1-2 business days.</p>
-                        <p>Returns are accepted within 14 days of delivery for store credit or refund. Items must be unworn with original tags attached.</p>
-                      </div>
-                    </motion.div>
+              <DetailAccordion title="Sizing">
+                <div className="pb-6">
+                  {productData.sizing && productData.sizing.type !== 'one-size' ? (
+                    <>
+                      <p className="text-[11px] text-stone-500 mb-4 font-light uppercase tracking-widest">Global Sizing Standard</p>
+                      <table className="w-full text-[10px] text-left text-stone-500 dark:text-stone-400 uppercase tracking-widest">
+                        <thead>
+                          <tr className="border-b border-stone-100 dark:border-stone-800">
+                            <th className="pb-2 font-medium">SIZE</th>
+                            <th className="pb-2 font-medium">WIDTH</th>
+                            <th className="pb-2 font-medium">LENGTH</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {productData.sizing.metrics.map((m: any, idx: number) => (
+                            <tr key={idx} className="border-b border-stone-50 dark:border-stone-900/50 last:border-0">
+                              <td className="py-2.5 text-[11px] font-medium text-stone-900 dark:text-stone-300">{m.size}</td>
+                              <td className="py-2.5">{m.width}</td>
+                              <td className="py-2.5">{m.length}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
+                  ) : (
+                    <p className="text-[11px] text-stone-500 font-light tracking-wide">
+                      This item is uniformly produced. One size fits most standard applications.
+                    </p>
                   )}
-                </AnimatePresence>
-              </div>
+                </div>
+              </DetailAccordion>
+
+              <DetailAccordion title="Delivery and Returns">
+                <div className="text-[11px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed space-y-3">
+                  <p>Orders are processed at our distribution center within five business days. Shipping timelines and charges vary based on the method selected at checkout and destination.</p>
+                  <p>Returns are accepted within 14 days of delivery for store credit or refund.</p>
+                </div>
+              </DetailAccordion>
             </div>
-          </motion.div>
+
+            {/* Curated Pairings - Contextual Relevancy */}
+            {productData.relatedProducts && productData.relatedProducts.length > 0 && (
+              <div className="mt-12">
+                 <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-6 tracking-[0.3em]">Curated Pairings</h4>
+                 <div className="grid grid-cols-2 gap-3">
+                    {productData.relatedProducts.map((relatedProduct: any) => (
+                      <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-2 group cursor-pointer">
+                        <div className="aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 border border-stone-100 dark:border-stone-800 relative overflow-hidden transition-all duration-700">
+                           <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-contain p-4 mix-blend-multiply dark:mix-blend-normal opacity-80 group-hover:opacity-100" />
+                        </div>
+                        <span className="text-[9px] uppercase tracking-[0.2em] text-stone-900 dark:text-white truncate mt-1 underline decoration-transparent group-hover:decoration-stone-200 transition-all">
+                           {relatedProduct.name}
+                        </span>
+                        <span className="text-[9px] text-stone-400 font-medium tracking-widest">{relatedProduct.price}</span>
+                      </Link>
+                    ))}
+                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* COLUMN 2: Large Visual Focus (Center) */}
+          <div className="lg:col-span-6 order-2">
+            <div className="flex flex-col gap-4">
+              {productData.images.map((img: string, idx: number) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 1.2 }}
+                  className="relative aspect-square sm:aspect-[4/5] w-full bg-[#f8f8f8] dark:bg-stone-900 group overflow-hidden"
+                >
+                  <Image
+                    src={img}
+                    alt={`${productData.name} - ${idx}`}
+                    fill
+                    priority={idx === 0}
+                    className="object-contain p-8 lg:p-16 mix-blend-multiply dark:mix-blend-normal transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* COLUMN 3: Selection & CTA (Right) */}
+          <div className="lg:col-span-3 lg:sticky lg:top-32 flex flex-col gap-8 order-3">
+             {/* Color Selection */}
+             <div className="flex flex-col gap-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">Color: <span className="text-stone-400 font-light italic uppercase">Natural</span></span>
+                <div className="flex gap-2">
+                   <div className="w-12 h-16 bg-[#f8f8f8] dark:bg-stone-800 border border-stone-900 dark:border-white p-1 shadow-sm">
+                      <div className="w-full h-full relative">
+                         <Image src={productData.images[0]} alt="col" fill className="object-contain" />
+                      </div>
+                   </div>
+                </div>
+             </div>
+
+             {/* Size Selection - Nice Modern Dropdown */}
+             <div className="flex flex-col gap-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">
+                  {productData.sizes.length > 0 ? "Select Size" : "Availability"}
+                </span>
+                
+                {productData.sizes.length > 0 ? (
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className={clsx(
+                        "w-full flex justify-between items-center border p-4 text-[11px] uppercase tracking-[0.2em] transition-all duration-500",
+                        isDropdownOpen 
+                          ? "border-stone-900 dark:border-white text-stone-900 dark:text-white" 
+                          : "border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-900 dark:hover:border-white"
+                      )}
+                    >
+                      <span className="font-medium">{selectedSize || "Choose a Size"}</span>
+                      <ChevronDown size={14} className={clsx("transition-transform duration-500", isDropdownOpen && "rotate-180")} />
+                    </button>
+                    
+                    <AnimatePresence>
+                      {isDropdownOpen && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute bottom-full mb-2 w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 z-50 shadow-2xl py-2"
+                        >
+                           {productData.sizes.map((size: string) => (
+                             <button
+                               key={size}
+                               onClick={() => {
+                                 setSelectedSize(size);
+                                 setIsDropdownOpen(false);
+                               }}
+                               className={clsx(
+                                 "w-full px-6 py-4 text-left text-[11px] uppercase tracking-[0.2em] transition-colors",
+                                 selectedSize === size 
+                                  ? "bg-stone-900 text-white dark:bg-white dark:text-black" 
+                                  : "hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-500 dark:text-stone-400"
+                               )}
+                             >
+                               {size}
+                             </button>
+                           ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <div className="w-full border border-stone-100 dark:border-stone-900 p-4 text-[11px] uppercase tracking-[0.2em] text-stone-900/40 dark:text-white/30 italic">
+                     Unified Size
+                  </div>
+                )}
+             </div>
+
+             <button 
+                onClick={handleAddToCart}
+                disabled={adding}
+                className="w-full bg-black dark:bg-white text-white dark:text-black py-5 text-[11px] font-bold uppercase tracking-[0.3em] hover:opacity-80 transition-all disabled:opacity-50 shadow-xl"
+             >
+                {adding ? "Adding..." : "Add to Bag"}
+             </button>
+          </div>
         </div>
 
-        {/* Right: Scrolling Image Gallery */}
-        <div className="order-1 lg:order-2 flex flex-col gap-4 lg:gap-8">
-          {productData.images.map((img: string, idx: number) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="relative aspect-[4/5] w-full bg-[#f4f4f4] group overflow-hidden cursor-zoom-in"
-            >
-              <div className="absolute inset-8 lg:inset-16">
-                <Image
-                  src={img}
-                  alt={`${productData.name} - Image ${idx + 1}`}
-                  fill
-                  priority={idx === 0}
-                  className="object-contain mix-blend-multiply transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-125"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {/* Recently Viewed Footer Section */}
+        {productData.relatedProducts && productData.relatedProducts.length > 0 && (
+          <div className="mt-32 border-t border-stone-200 dark:border-stone-800 pt-12">
+             <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-900 dark:text-white mb-12">Recently Viewed</h4>
+             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {productData.relatedProducts.map((relatedProduct: any) => (
+                  <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-3 group">
+                     <div className="aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 border border-stone-100 dark:border-stone-800 relative shadow-sm">
+                        <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-contain p-4 grayscale group-hover:grayscale-0 transition-all duration-700 mix-blend-multiply dark:mix-blend-normal" />
+                     </div>
+                     <div className="flex justify-between text-[9px] uppercase tracking-widest mt-1 font-bold">
+                        <span className="text-stone-900 dark:text-white">{relatedProduct.name}</span>
+                        <span className="text-stone-400">{relatedProduct.price}</span>
+                     </div>
+                  </Link>
+                ))}
+             </div>
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+function DetailAccordion({ title, children, defaultOpen = false }: any) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-stone-200 dark:border-stone-800">
+      <button 
+        onClick={() => setOpen(!open)}
+        className="w-full flex justify-between items-center py-5 text-[11px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-100 hover:text-stone-500 transition-colors"
+      >
+        <span>{title}</span>
+        {open ? <Minus size={12} strokeWidth={1.5} /> : <Plus size={12} strokeWidth={1.5} />}
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+            className="overflow-hidden"
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

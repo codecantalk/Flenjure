@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X, Volume2, VolumeX } from "lucide-react";
@@ -9,14 +9,23 @@ import Image from "next/image";
 export default function Home() {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Sync state with DOM ref to bypass aggressive iOS Safari autoplay blocks
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-stone-900">
       {/* Video Background */}
       <video
+        ref={videoRef}
         autoPlay
         loop
-        muted={isMuted}
+        muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
       >

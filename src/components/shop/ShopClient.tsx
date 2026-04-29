@@ -6,12 +6,13 @@ import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import clsx from "clsx";
-import { Plus, X } from "lucide-react";
+import { Plus, X, LayoutGrid, SquareSquare } from "lucide-react";
 import { useCartStore } from "@/lib/store";
 
 // Client component that orchestrates the UI using the fresh Sanity data
 export default function ShopClient({ products }: { products: any[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [viewMode, setViewMode] = useState<"grid" | "single">("grid");
 
   // Derive categories dynamically from the actual live dataset
   const rawTypes = products.map(p => p.category).filter(Boolean);
@@ -81,10 +82,26 @@ export default function ShopClient({ products }: { products: any[] }) {
         
         {/* Full Collection Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-          <h2 className="text-3xl md:text-5xl font-serif font-light">Full Collection</h2>
+          <div className="flex items-center gap-6">
+            <h2 className="text-3xl md:text-5xl font-serif font-light">Full Collection</h2>
+            <div className="hidden md:flex gap-4 border border-stone-200 p-2 rounded-sm bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800">
+              <button 
+                onClick={() => setViewMode("grid")}
+                className={clsx("transition-colors", viewMode === "grid" ? "text-stone-900 dark:text-white" : "text-stone-300 dark:text-stone-700 hover:text-stone-500")}
+              >
+                <LayoutGrid size={18} strokeWidth={1.5} />
+              </button>
+              <button 
+                onClick={() => setViewMode("single")}
+                className={clsx("transition-colors", viewMode === "single" ? "text-stone-900 dark:text-white" : "text-stone-300 dark:text-stone-700 hover:text-stone-500")}
+              >
+                <SquareSquare size={18} strokeWidth={1.5} />
+              </button>
+            </div>
+          </div>
           
           {/* Filtering */}
-          <div className="flex flex-wrap items-center gap-6 md:gap-12 border-b border-stone-200 pb-4">
+          <div className="flex flex-wrap items-center gap-6 md:gap-12 border-b border-stone-200 dark:border-stone-800 pb-4">
             {categories.map((category) => (
               <button
                 key={category}
@@ -92,8 +109,8 @@ export default function ShopClient({ products }: { products: any[] }) {
                 className={clsx(
                   "text-[10px] uppercase tracking-[0.2em] transition-all duration-700 ease-in-out pb-2 min-h-[30px]",
                   activeCategory === category 
-                    ? "border-b border-stone-900 text-stone-900 font-bold" 
-                    : "border-b border-transparent text-stone-400 hover:text-stone-900 font-medium"
+                    ? "border-b border-stone-900 dark:border-white text-stone-900 dark:text-white font-bold" 
+                    : "border-b border-transparent text-stone-400 hover:text-stone-900 dark:hover:text-white font-medium"
                 )}
               >
                 {category}
@@ -102,8 +119,13 @@ export default function ShopClient({ products }: { products: any[] }) {
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-6 md:gap-y-16">
+        {/* Product Layout Engine */}
+        <div className={clsx(
+          "transition-all duration-1000",
+          viewMode === "grid" 
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-6 md:gap-y-16"
+            : "flex flex-col gap-24 md:gap-48 items-center"
+        )}>
           {filteredProducts.map((product, idx) => (
             <motion.div
               layout
@@ -112,23 +134,26 @@ export default function ShopClient({ products }: { products: any[] }) {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
               key={product.id}
-              className="group flex flex-col cursor-pointer"
+              className={clsx("group flex flex-col cursor-pointer w-full", viewMode === "single" ? "max-w-4xl" : "")}
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#f4f4f4] mb-5 transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group">
+              <div className={clsx(
+                "relative w-full overflow-hidden mb-5 transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group border border-transparent dark:border-stone-900",
+                viewMode === "grid" ? "aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-sm" : "aspect-square sm:aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-sm"
+              )}>
                 <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
                   <div className="absolute inset-6">
                     <Image
                       src={product.image}
                       alt={product.name}
                       fill
-                      className="object-contain mix-blend-multiply transition-opacity duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0"
+                      className="object-contain mix-blend-multiply dark:mix-blend-normal transition-opacity duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
                     <Image
                       src={product.hoverImage || product.image}
                       alt={`${product.name} alternate view`}
                       fill
-                      className="object-contain mix-blend-multiply absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
+                      className="object-contain mix-blend-multiply dark:mix-blend-normal absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
                   </div>
@@ -138,10 +163,10 @@ export default function ShopClient({ products }: { products: any[] }) {
                 <QuickAddTrigger product={product} addItem={addItem} />
               </div>
               <div className="flex justify-between items-start text-xs tracking-wide">
-                <Link href={`/shop/${product.id}`} className="font-light text-stone-900 transition-colors duration-500 ease-in-out hover:text-stone-400">
+                <Link href={`/shop/${product.id}`} className="font-light text-stone-900 dark:text-stone-100 transition-colors duration-500 ease-in-out hover:text-stone-400">
                   {product.name}
                 </Link>
-                <span className="text-stone-500 font-light">{product.price}</span>
+                <span className="text-stone-500 dark:text-stone-400 font-light">{product.price}</span>
               </div>
             </motion.div>
           ))}
@@ -250,7 +275,7 @@ function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any
   return (
     <div ref={containerRef} className="relative flex flex-col gap-8">
       <div className={clsx(
-        "relative overflow-hidden bg-[#f4f4f4] transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group",
+        "relative overflow-hidden bg-[#f8f8f8] dark:bg-black transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group border border-transparent dark:border-stone-900 shadow-sm",
         aspect
       )}>
         <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
@@ -259,7 +284,7 @@ function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain mix-blend-multiply transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
+              className="object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </motion.div>
@@ -294,7 +319,7 @@ function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any
                 {product.sizes.length > 0 && (
                   <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Options</span>
                 )}
-                <h4 className="text-xl font-serif font-light mt-2 text-stone-900">{product.name}</h4>
+                <h4 className="text-xl font-serif font-light mt-2 text-stone-900 dark:text-white">{product.name}</h4>
               </div>
 
               <div className="flex flex-wrap justify-center gap-4 w-full max-w-sm">
@@ -345,9 +370,9 @@ function ParallaxProductCard({ product, addItem, speed, aspect }: { product: any
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-start">
           <Link href={`/shop/${product.id}`}>
-            <h4 className="font-serif text-2xl font-light tracking-wide max-w-[70%] hover:text-stone-400 transition-colors">{product.name}</h4>
+            <h4 className="font-serif text-2xl font-light tracking-wide max-w-[70%] text-stone-900 dark:text-stone-100 hover:text-stone-400 transition-colors">{product.name}</h4>
           </Link>
-          <span className="font-semibold text-stone-900 text-sm mt-1">{product.price}</span>
+          <span className="font-semibold text-stone-900 dark:text-white text-sm mt-1">{product.price}</span>
         </div>
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-stone-400">
           <span className="w-8 h-[1px] bg-stone-200" />

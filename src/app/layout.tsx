@@ -6,6 +6,8 @@ import Navbar from "@/components/layout/Navbar";
 import CartDrawer from "@/components/cart/CartDrawer";
 import LoadingScreen from "@/components/layout/LoadingScreen";
 import Footer from "@/components/layout/Footer";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import ThemeSplash from "@/components/layout/ThemeSplash";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -52,15 +54,19 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#fcfcfc] text-stone-900 font-sans font-light tracking-[0.015em] selection:bg-stone-900 selection:text-white transition-colors duration-700 ease-in-out">
-        <LoadingScreen />
-        <SmoothScroller>
-          <Navbar />
-          <CartDrawer />
-          <main className="flex-1 flex flex-col min-h-[calc(100vh-200px)]">{children}</main>
-          <Footer />
-        </SmoothScroller>
+      <body className="min-h-full flex flex-col bg-[#fcfcfc] dark:bg-stone-900 text-stone-900 dark:text-stone-50 font-sans font-light tracking-[0.015em] selection:bg-stone-900 selection:text-white dark:selection:bg-white dark:selection:text-stone-900 transition-colors duration-700 ease-in-out">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeSplash />
+          <LoadingScreen />
+          <SmoothScroller>
+            <Navbar />
+            <CartDrawer />
+            <main className="flex-1 flex flex-col min-h-[calc(100vh-200px)]">{children}</main>
+            <Footer />
+          </SmoothScroller>
+        </ThemeProvider>
       </body>
     </html>
   );
