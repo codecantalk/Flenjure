@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import clsx from "clsx";
@@ -11,8 +12,21 @@ import { useCartStore } from "@/lib/store";
 
 // Client component that orchestrates the UI using the fresh Sanity data
 export default function ShopClient({ products }: { products: any[] }) {
+  const searchParams = useSearchParams();
   const [activeCategory, setActiveCategory] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "single">("grid");
+
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat) {
+      if (cat === "t-shirts") setActiveCategory("T-Shirts");
+      else if (cat === "shorts") setActiveCategory("Shorts");
+      else if (cat === "tank-tops") setActiveCategory("Tank Tops");
+      else if (cat === "headgear") setActiveCategory("Hats and Headgear");
+      else if (cat === "new-arrivals") setActiveCategory("New Arrivals");
+      else setActiveCategory(cat);
+    }
+  }, [searchParams]);
 
   // Derive categories dynamically from the actual live dataset
   const rawTypes = products.map(p => p.category).filter(Boolean);

@@ -1,143 +1,127 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/lib/store";
 import { Plus } from "lucide-react";
 
+const MENU_DATA = {
+  desserts: [
+    { id: "f-fruit-snacks", name: "Fleñjure Fruit Snacks (P S/S 26, L F/W 26)", price: "$100", image: "/images/cafe_placeholder.png" },
+    { id: "f-mazzines", name: "Fleñjure Mazzines", price: "$100", image: "/images/cafe_placeholder.png" },
+  ],
+  munchies: [
+    { id: "m-lays", name: "Lays", price: "$10", image: "/images/cafe_placeholder.png" },
+    { id: "m-doritos", name: "Doritos", price: "$10", image: "/images/cafe_placeholder.png" },
+    { id: "m-cheetos", name: "Cheetos", price: "$10", image: "/images/cafe_placeholder.png" },
+    { id: "m-sour-patch", name: "Sour Patch", price: "$10", image: "/images/cafe_placeholder.png" },
+    { id: "m-welches", name: "Welches", price: "$10", image: "/images/cafe_placeholder.png" },
+    { id: "m-haribos", name: "Haribos", price: "$10", image: "/images/cafe_placeholder.png" },
+  ]
+};
+
 export default function CafeClient({ products }: { products: any[] }) {
-  const addItem = useCartStore((state) => state.addItem);
-
-  // Filter ONLY snacks (including candy/chips)
-  const cafeItems = products.filter(p => !p.category || p.category.toLowerCase().includes("snack") || p.category.toLowerCase().includes("candy"));
-
-  // Sort into Restaurant Tiers based on brand
-  const desserts = cafeItems.filter(p => p.name.toLowerCase().includes("flenjure"));
-  const munchies = cafeItems.filter(p => !p.name.toLowerCase().includes("flenjure"));
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] } }
-  };
-
+  // We ignore dynamic products to enforce the strict, hardcoded Michelin-star menu aesthetic.
+  
   return (
-    <div className="flex flex-col min-h-screen pt-40 pb-32 px-6 lg:px-12 bg-[#fcfcfc] dark:bg-stone-900 transition-colors duration-1000">
-      <div className="max-w-4xl mx-auto w-full">
+    <div className="flex flex-col min-h-screen pt-40 pb-40 px-6 lg:px-12 bg-white dark:bg-[#0a0a0a] transition-colors duration-1000">
+      <div className="max-w-6xl mx-auto w-full">
+        
         {/* Restaurant Header */}
         <div className="flex flex-col items-center justify-center mb-32 gap-6 text-center">
-          <span className="text-[10px] uppercase tracking-[0.4em] font-medium text-stone-400 dark:text-stone-500">Menu</span>
+          <motion.span 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="text-[10px] uppercase tracking-[0.4em] font-medium text-stone-400 dark:text-stone-500"
+          >
+            Le Menu
+          </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
             className="text-6xl md:text-8xl font-serif font-light tracking-tight text-stone-900 dark:text-white"
           >
             LE CAFÉ
           </motion.h1>
-          <div className="w-12 h-[1px] bg-stone-300 dark:bg-stone-700 mt-4" />
+          <motion.div 
+            initial={{ height: 0 }}
+            animate={{ height: 40 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            className="w-[1px] bg-stone-300 dark:bg-stone-800 mt-8" 
+          />
         </div>
 
         <motion.div 
-          variants={containerVariants} 
-          initial="hidden" 
-          animate="show"
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.8 }}
           className="flex flex-col gap-32"
         >
-          {/* Section: Desserts */}
-          {desserts.length > 0 && (
-            <section className="flex flex-col items-center w-full">
-              <h2 className="text-3xl md:text-4xl font-serif font-light italic text-stone-900 dark:text-stone-50 mb-16 text-center">
-                Desserts
-              </h2>
-              <div className="w-full flex flex-col gap-12">
-                {desserts.map((item) => (
-                  <RestaurantItem key={item.id} item={item} addItem={addItem} />
-                ))}
+           {/* Section: Desserts */}
+           <section>
+              <h2 className="text-lg md:text-xl tracking-[0.3em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center">Desserts</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto">
+                 {MENU_DATA.desserts.map(item => <MenuItem key={item.id} item={item} aspect="aspect-[4/5]" />)}
               </div>
-            </section>
-          )}
+           </section>
 
-          {/* Section: Munchies */}
-          {munchies.length > 0 && (
-            <section className="flex flex-col items-center w-full">
-              <div className="flex items-center gap-4 w-full justify-center mb-16">
-                <div className="flex-1 h-[1px] bg-stone-200 dark:bg-stone-800" />
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 dark:text-stone-50 px-8">
-                  Munchies
-                </h2>
-                <div className="flex-1 h-[1px] bg-stone-200 dark:bg-stone-800" />
+           <div className="w-full flex justify-center">
+              <div className="w-[1px] h-32 bg-stone-200 dark:bg-stone-800" />
+           </div>
+
+           {/* Section: Munchies */}
+           <section>
+              <h2 className="text-lg md:text-xl tracking-[0.3em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center">Munchies</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                 {MENU_DATA.munchies.map(item => <MenuItem key={item.id} item={item} aspect="aspect-square" />)}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 w-full">
-                {munchies.map((item) => (
-                  <RestaurantItem key={item.id} item={item} addItem={addItem} />
-                ))}
-              </div>
-            </section>
-          )}
+           </section>
         </motion.div>
+
       </div>
     </div>
   );
 }
 
-// Reusable Restaurant Item Component with Photo
-function RestaurantItem({ item, addItem }: { item: any, addItem: any }) {
+// Minimalist, high-end gallery item
+function MenuItem({ item, aspect }: { item: any, aspect: string }) {
+  const addItem = useCartStore((state) => state.addItem);
+  
   return (
-    <motion.div 
-      variants={{
-        hidden: { opacity: 0, y: 10 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] } }
-      }}
-      className="group relative flex flex-row items-center gap-6 pb-6 border-b border-stone-100 dark:border-stone-800/50"
+    <div 
+      className="flex flex-col group cursor-pointer" 
+      onClick={() => addItem({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        size: 'OS',
+        quantity: 1
+      })}
     >
-      <Link href={`/shop/${item.id}`} className="block relative w-24 h-24 md:w-32 md:h-32 bg-stone-100 dark:bg-stone-800 overflow-hidden rounded-sm flex-shrink-0">
-        <Image 
-          src={item.image} 
-          alt={item.name} 
-          fill 
-          className="object-contain mix-blend-multiply dark:mix-blend-normal hover:scale-105 transition-transform duration-700" 
-        />
-      </Link>
-      
-      <div className="flex flex-col flex-1 justify-center gap-2">
-        <div className="flex justify-between items-start gap-4">
-          <Link href={`/shop/${item.id}`} className="text-lg md:text-xl font-serif text-stone-900 dark:text-stone-100 hover:text-stone-500 transition-colors">
+       <div className={`relative ${aspect} w-full bg-[#f8f8f8] dark:bg-stone-900 mb-6 overflow-hidden`}>
+          <Image 
+            src={item.image} 
+            alt={item.name} 
+            fill 
+            className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal opacity-90 group-hover:opacity-100" 
+          />
+       </div>
+       <div className="flex justify-between items-start gap-4 px-1">
+          <h3 className="text-[11px] md:text-[12px] font-medium uppercase tracking-[0.15em] text-stone-900 dark:text-stone-200 leading-relaxed max-w-[80%]">
             {item.name}
-          </Link>
-          <span className="text-base md:text-lg font-light tracking-widest text-stone-900 dark:text-white flex-shrink-0">
+          </h3>
+          <span className="text-[11px] md:text-[12px] text-stone-500 font-light flex-shrink-0 tracking-widest">
             {item.price}
           </span>
-        </div>
-        <p className="text-sm font-light text-stone-500 dark:text-stone-400 line-clamp-2 pr-8 leading-relaxed">
-          {item.description || "A delectable selection from our exclusive catalog."}
-        </p>
-        <button 
-          onClick={(e) => {
-            e.preventDefault();
-            addItem({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              image: item.image,
-              size: item.sizes?.[0] || 'OS',
-              quantity: 1
-            });
-          }}
-          className="flex items-center gap-2 mt-4 text-[10px] uppercase font-bold tracking-[0.2em] text-stone-900 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
-          <Plus size={12} strokeWidth={2} /> Add to Order
-        </button>
-      </div>
-    </motion.div>
-  );
+       </div>
+       <div className="px-1 mt-3 overflow-hidden h-[20px]">
+          <span className="block text-[9px] uppercase tracking-widest font-bold text-stone-400 dark:text-stone-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2">
+             <Plus size={10} /> Add to Order
+          </span>
+       </div>
+    </div>
+  )
 }

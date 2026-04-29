@@ -21,17 +21,17 @@ const mainLinks = [
 ];
 
 const discoverLinks = [
-  { name: "New Arrivals", href: "/shop" },
+  { name: "New Arrivals", href: "/shop?category=new-arrivals" },
   { name: "Cafe", href: "/cafe" },
   { name: "Collections", href: "/collections" },
   { name: "Shop All", href: "/shop" },
 ];
 
 const categoryLinks = [
-  { name: "T-Shirts", href: "/shop" },
-  { name: "Shorts", href: "/shop" },
-  { name: "Tank Tops", href: "/shop" },
-  { name: "Hats and Headgear", href: "/shop" },
+  { name: "T-Shirts", href: "/shop?category=t-shirts" },
+  { name: "Shorts", href: "/shop?category=shorts" },
+  { name: "Tank Tops", href: "/shop?category=tank-tops" },
+  { name: "Hats and Headgear", href: "/shop?category=headgear" },
   { name: "Candy Shop", href: "/cafe" },
 ];
 
