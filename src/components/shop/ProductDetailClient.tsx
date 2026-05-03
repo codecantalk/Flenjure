@@ -40,7 +40,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
         {/* ========================================= */}
         {/* MOBILE LAYOUT (Stack)                     */}
         {/* ========================================= */}
-        <div className="flex flex-col lg:hidden w-full">
+        <div className="flex flex-col lg:hidden w-full pb-64">
            {/* Images Carousel */}
            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 w-full no-scrollbar scroll-smooth">
               {productData.images.map((img: string, idx: number) => (
@@ -48,65 +48,6 @@ export default function ProductDetailClient({ productData }: { productData: any 
                   <Image src={img} alt={`${productData.name} - ${idx}`} fill priority={idx === 0} className="object-contain p-8 mix-blend-multiply dark:mix-blend-normal" />
                 </div>
               ))}
-           </div>
-
-           {/* Title & Price */}
-           <div className="flex flex-col gap-1 mt-2 mb-8">
-              <h1 className="text-[18px] font-medium text-stone-900 dark:text-white uppercase tracking-tight">{productData.name}</h1>
-              <p className="text-[13px] text-stone-600 dark:text-stone-400 font-light">{productData.price}</p>
-           </div>
-
-           {/* Color */}
-           <div className="flex flex-col gap-3 mb-6">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">Color: <span className="text-stone-400 font-light italic uppercase">Natural</span></span>
-              <div className="flex gap-2">
-                 <div className="w-10 h-14 bg-[#f8f8f8] dark:bg-stone-800 border border-stone-900 dark:border-white p-1 shadow-sm relative">
-                    <Image src={productData.images[0]} alt="col" fill className="object-contain" />
-                 </div>
-              </div>
-           </div>
-
-           {/* Size */}
-           <div className="flex flex-col gap-3 mb-8">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">
-                {productData.sizes && productData.sizes.length > 0 ? "Select Size" : "Availability"}
-              </span>
-              {productData.sizes && productData.sizes.length > 0 ? (
-                <div className="relative z-20">
-                  <button 
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={clsx(
-                      "w-full flex justify-between items-center border p-4 text-[11px] uppercase tracking-[0.2em] transition-all",
-                      isDropdownOpen 
-                        ? "border-stone-900 dark:border-white text-stone-900 dark:text-white" 
-                        : "border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400"
-                    )}
-                  >
-                    <span className="font-medium">{selectedSize || "Choose a Size"}</span>
-                    <ChevronDown size={14} className={clsx("transition-transform duration-300", isDropdownOpen && "rotate-180")} />
-                  </button>
-                  <AnimatePresence>
-                    {isDropdownOpen && (
-                      <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="absolute top-full mt-1 w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 shadow-xl py-2">
-                         {productData.sizes.map((size: string) => (
-                           <button key={size} onClick={() => { setSelectedSize(size); setIsDropdownOpen(false); }} className={clsx("w-full px-6 py-4 text-left text-[11px] uppercase tracking-[0.2em] transition-colors", selectedSize === size ? "bg-stone-900 text-white dark:bg-white dark:text-black" : "hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-500 dark:text-stone-400")}>
-                             {size}
-                           </button>
-                         ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <div className="w-full border border-stone-100 dark:border-stone-900 p-4 text-[11px] uppercase tracking-[0.2em] text-stone-900/40 dark:text-white/30 italic">Unified Size</div>
-              )}
-           </div>
-
-           {/* Add to Bag */}
-           <div className="mb-12">
-              <button onClick={handleAddToCart} disabled={adding} className="w-full bg-black dark:bg-white text-white dark:text-black py-5 text-[11px] font-bold uppercase tracking-[0.3em] hover:opacity-80 transition-all disabled:opacity-50">
-                 {adding ? "Adding..." : "Add to Bag"}
-              </button>
            </div>
 
            {/* Accordions */}
@@ -150,6 +91,61 @@ export default function ProductDetailClient({ productData }: { productData: any 
                  </div>
               </div>
            )}
+
+           {/* STICKY BOTTOM BAR (Mobile Only) */}
+           <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 p-4 z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] lg:hidden">
+              <div className="max-w-[1800px] mx-auto w-full px-2 sm:px-4">
+                 <div className="flex justify-between items-center mb-3">
+                    <span className="text-[12px] text-[#323232] dark:text-white">{productData.name}</span>
+                    <span className="text-[12px] text-[#323232] dark:text-white">{productData.price}</span>
+                 </div>
+                 
+                 <div className="grid grid-cols-2 gap-3 mb-3">
+                    {/* Color Toggle (Static for now to match ALD Natural/Jet Set style) */}
+                    <div className="border border-[#d9d9d9] dark:border-stone-800 p-[12px] flex justify-between items-center bg-white dark:bg-stone-950 cursor-pointer">
+                       <span className="text-[11px] text-[#323232] dark:text-white font-medium">Natural</span>
+                       <ChevronDown size={14} className="text-[#737373]" />
+                    </div>
+                    
+                    {/* Size Selector */}
+                    <div className="relative">
+                       <button 
+                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                         className="w-full h-full border border-[#d9d9d9] dark:border-stone-800 p-[12px] flex justify-between items-center bg-white dark:bg-stone-950 transition-colors"
+                       >
+                         <span className="text-[11px] text-[#323232] dark:text-white font-medium">
+                           {productData.sizes && productData.sizes.length > 0 ? (selectedSize || "Select Size") : "Unified Size"}
+                         </span>
+                         <ChevronDown size={14} className={clsx("text-[#737373] transition-transform duration-300", isDropdownOpen && "rotate-180")} />
+                       </button>
+                       
+                       <AnimatePresence>
+                         {isDropdownOpen && productData.sizes && productData.sizes.length > 0 && (
+                           <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="absolute bottom-full mb-2 w-full bg-white dark:bg-stone-950 border border-[#d9d9d9] dark:border-stone-800 shadow-xl z-50">
+                              {productData.sizes.map((size: string) => (
+                                <button 
+                                  key={size} 
+                                  onClick={() => { setSelectedSize(size); setIsDropdownOpen(false); }} 
+                                  className={clsx("w-full px-4 py-3 text-left text-[11px] font-medium transition-colors", selectedSize === size ? "bg-stone-100 dark:bg-stone-900 text-[#323232] dark:text-white" : "hover:bg-stone-50 dark:hover:bg-stone-900 text-[#737373] dark:text-stone-400")}
+                                >
+                                  {size}
+                                </button>
+                              ))}
+                           </motion.div>
+                         )}
+                       </AnimatePresence>
+                    </div>
+                 </div>
+
+                 <button 
+                    onClick={handleAddToCart} 
+                    disabled={adding} 
+                    className="w-full bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50"
+                 >
+                    {adding ? "Adding..." : "Add to Bag"}
+                 </button>
+              </div>
+           </div>
         </div>
 
 

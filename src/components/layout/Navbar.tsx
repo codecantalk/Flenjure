@@ -103,6 +103,18 @@ export default function Navbar() {
 
   if (isStudio) return null;
 
+  if (pathname === "/checkout") {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-stone-950 py-6 border-b border-stone-200 dark:border-stone-800 transition-colors duration-1000">
+        <div className="w-full px-6 flex justify-center">
+          <Link href="/" className="relative h-8 w-32 sm:h-10 sm:w-40 transition-all duration-1000 invert dark:invert-0">
+            <Image src="/logo.png" alt="Fleñjure Logo" fill className="object-contain" priority />
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
       <header

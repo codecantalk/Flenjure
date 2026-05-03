@@ -11,7 +11,7 @@ import { useCartStore } from "@/lib/store";
 import { useTheme } from "next-themes";
 
 const DISCOVER_LINKS = [
-  { name: "New Arrivals", value: "new-arrivals" },
+  { name: "New Arrivals", value: "New Arrivals" },
   { name: "Cafe", href: "/cafe" },
   { name: "Collections", href: "/collections" },
   { name: "Shop All", value: "All" },

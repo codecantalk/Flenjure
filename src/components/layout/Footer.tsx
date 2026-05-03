@@ -8,8 +8,8 @@ import { Globe, Lock, ShieldCheck } from "lucide-react";
 export default function Footer() {
   const pathname = usePathname();
 
-  // Do not render the footer on the homepage "Digital Doorway" or inside the CMS Studio
-  if (pathname === "/" || pathname.startsWith("/studio")) {
+  // Do not render the footer on the homepage "Digital Doorway", inside the CMS Studio, or on the Checkout page
+  if (pathname === "/" || pathname.startsWith("/studio") || pathname === "/checkout") {
     return null;
   }
 

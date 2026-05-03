@@ -81,11 +81,11 @@ export default function CheckoutClient() {
                {/* Express Checkout */}
                <div className="mb-10 mt-8">
                   <p className="text-center text-[12px] text-[#737373] mb-3">Express checkout</p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                     <button type="button" className="flex-1 h-12 bg-[#ffc439] rounded-[4px] flex items-center justify-center hover:opacity-90 transition-opacity">
+                  <div className="flex flex-col gap-3 w-full">
+                     <button type="button" className="w-full h-12 bg-[#ffc439] rounded-[4px] flex items-center justify-center hover:opacity-90 transition-opacity">
                         <Image src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/PP_logo_h_150x38.png" alt="PayPal" width={85} height={20} className="object-contain" />
                      </button>
-                     <button type="button" className="flex-1 h-12 bg-black rounded-[4px] flex items-center justify-center hover:opacity-90 transition-opacity">
+                     <button type="button" className="w-full h-12 bg-black rounded-[4px] flex items-center justify-center hover:opacity-90 transition-opacity">
                         <div className="flex items-center gap-2 text-white">
                            <span className="text-lg font-medium tracking-tight">G Pay</span>
                         </div>
@@ -385,8 +385,8 @@ export default function CheckoutClient() {
             </div>
          </div>
 
-         {/* RIGHT: Order Summary (Dark Green Background) */}
-         <div className="w-full lg:w-[45%] bg-[#18261e] lg:min-h-screen pt-16 lg:pt-24 pb-12 px-6 lg:pl-[4%] lg:pr-12">
+         {/* RIGHT: Order Summary (Dark Green Background - Hidden on Mobile) */}
+         <div className="hidden lg:block w-[45%] bg-[#18261e] lg:min-h-screen pt-16 lg:pt-24 pb-12 px-6 lg:pl-[4%] lg:pr-12">
             <div className="w-full max-w-[420px] flex flex-col lg:sticky lg:top-37">
                {/* Header */}
                <div className="flex justify-between items-center mb-10">
