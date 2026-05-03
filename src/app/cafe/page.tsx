@@ -1,4 +1,3 @@
-import { getProducts } from "@/lib/sanity";
 import CafeClient from "@/components/cafe/CafeClient";
 
 export const metadata = {
@@ -6,8 +5,6 @@ export const metadata = {
   description: "Exquisite desserts and munchies for the elevated palette.",
 };
 
-export default async function CafePage() {
-  const products = await getProducts();
-  
-  return <CafeClient products={products} />;
+export default function CafePage() {
+  return <CafeClient />;
 }
