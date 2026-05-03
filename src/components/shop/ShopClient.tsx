@@ -13,7 +13,7 @@ import { useTheme } from "next-themes";
 const DISCOVER_LINKS = [
   { name: "New Arrivals", value: "New Arrivals" },
   { name: "Cafe", href: "/cafe" },
-  { name: "Collections", href: "/collections" },
+  { name: "Collections", value: "Collections" },
   { name: "Shop All", value: "All" },
 ];
 
@@ -58,6 +58,7 @@ export default function ShopClient({ products }: { products: any[] }) {
       else if (cat === "tank-tops") setActiveCategory("Tank Tops");
       else if (cat === "headgear") setActiveCategory("Hats and Headgear");
       else if (cat === "new-arrivals") setActiveCategory("New Arrivals");
+      else if (cat === "collections") setActiveCategory("Collections");
       else setActiveCategory(cat);
     }
   }, [searchParams]);
@@ -70,6 +71,9 @@ export default function ShopClient({ products }: { products: any[] }) {
       if (activeCategory === "New Arrivals") {
         // Show actual New Arrivals if category matches, otherwise mock with first 4 products
         return p.category?.toLowerCase() === "new arrivals" || products.indexOf(p) < 4;
+      }
+      if (activeCategory === "Collections") {
+        return true; // Show all products under Collections for now
       }
       return p.category?.toLowerCase() === activeCategory.toLowerCase();
     })
@@ -349,6 +353,11 @@ export default function ShopClient({ products }: { products: any[] }) {
 
         {/* Product Grid */}
         <main className="flex-1 w-full relative z-10 pt-0">
+          {activeCategory === "Collections" && (
+            <div className="mb-10 text-stone-900 dark:text-white">
+              <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Spring / Summer 2026</h2>
+            </div>
+          )}
           <div className={clsx(
             "transition-all duration-1000",
             viewMode === "grid" 

@@ -23,7 +23,7 @@ const mainLinks = [
 const discoverLinks = [
   { name: "New Arrivals", href: "/shop?category=new-arrivals" },
   { name: "Cafe", href: "/cafe" },
-  { name: "Collections", href: "/collections" },
+  { name: "Collections", href: "/shop?category=collections" },
   { name: "Shop All", href: "/shop" },
 ];
 
