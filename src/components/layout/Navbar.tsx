@@ -228,9 +228,8 @@ export default function Navbar() {
                 </span>
               </button>
 
-              <div className="flex-1 mt-12 grid grid-cols-1 sm:grid-cols-2 gap-12 sm:gap-24">
-                {/* Primary Column */}
-                <nav className="flex flex-col gap-6">
+              <div className="flex-1 mt-12 sm:mt-24">
+                <nav className="flex flex-col gap-8">
                   {mainLinks.map((link, i) => (
                     <motion.div
                       key={link.name}
@@ -241,39 +240,13 @@ export default function Navbar() {
                       <Link
                         href={link.href}
                         onClick={() => setIsMenuOpen(false)}
-                        className="block text-3xl font-serif font-light text-stone-900 dark:text-stone-50 hover:opacity-50 transition-all duration-300 ease-in-out"
+                        className="block text-4xl sm:text-5xl font-serif font-light text-stone-900 dark:text-stone-50 hover:opacity-50 transition-all duration-300 ease-in-out"
                       >
                         {link.name}
                       </Link>
                     </motion.div>
                   ))}
                 </nav>
-
-                {/* Secondary Mega Column */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
-                  className="flex flex-col gap-12"
-                >
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-400 dark:text-stone-500">Discover</h3>
-                    <div className="flex flex-col gap-3">
-                      {discoverLinks.map(link => (
-                        <Link key={link.name} href={link.href} onClick={() => setIsMenuOpen(false)} className="text-sm font-light text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors tracking-widest">{link.name}</Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-semibold text-stone-400 dark:text-stone-500">Shop By Category</h3>
-                    <div className="flex flex-col gap-3">
-                      {categoryLinks.map(link => (
-                        <Link key={link.name} href={link.href} onClick={() => setIsMenuOpen(false)} className="text-sm font-light text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors tracking-widest">{link.name}</Link>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
               </div>
 
               <div className="mt-12 flex flex-col gap-8 pt-8 border-t border-stone-200/50">
