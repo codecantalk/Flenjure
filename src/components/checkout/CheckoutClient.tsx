@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Info, ShoppingBag, Lock } from "lucide-react";
+import clsx from "clsx";
 
 export default function CheckoutClient() {
    const { items } = useCartStore();
@@ -17,11 +18,64 @@ export default function CheckoutClient() {
    const [email, setEmail] = useState("");
    const [showBilling, setShowBilling] = useState(false);
    const [paymentMethod, setPaymentMethod] = useState("credit");
+   const [showOrderSummary, setShowOrderSummary] = useState(false);
 
    return (
       <div className="flex flex-col lg:flex-row min-h-screen font-sans bg-white selection:bg-[#18261e] selection:text-white">
+         {/* Mobile Order Summary Toggle */}
+         <div className="lg:hidden w-full bg-[#fcfcfc] border-b border-[#e6e6e6] py-4 px-6 sticky top-0 z-40">
+            <button 
+               onClick={() => setShowOrderSummary(!showOrderSummary)}
+               className="w-full flex justify-between items-center text-[14px] text-[#323232]"
+            >
+               <div className="flex items-center gap-2 text-[#2a3d31]">
+                  <ShoppingBag size={18} strokeWidth={1.5} />
+                  <span>{showOrderSummary ? 'Hide order summary' : 'Show order summary'}</span>
+                  <ChevronDown size={14} className={clsx("transition-transform duration-300", showOrderSummary && "rotate-180")} />
+               </div>
+               <span className="font-semibold text-lg text-stone-900">${cartTotal.toFixed(2)}</span>
+            </button>
+            
+            <AnimatePresence>
+               {showOrderSummary && (
+                  <motion.div 
+                     initial={{ height: 0, opacity: 0 }}
+                     animate={{ height: 'auto', opacity: 1 }}
+                     exit={{ height: 0, opacity: 0 }}
+                     className="overflow-hidden"
+                  >
+                     <div className="pt-6 pb-2 flex flex-col gap-6">
+                        {items.map((item, idx) => (
+                           <div key={idx} className="flex items-center gap-4">
+                              <div className="relative w-16 h-16 bg-white border border-[#e6e6e6] rounded-[6px] overflow-hidden flex-shrink-0">
+                                 <Image src={item.image} alt={item.name} fill className="object-contain p-2" />
+                                 <div className="absolute -top-2 -right-2 w-[22px] h-[22px] bg-[rgba(114,114,114,0.9)] rounded-full flex items-center justify-center text-[11px] text-white font-medium z-10">{item.quantity}</div>
+                              </div>
+                              <div className="flex-1">
+                                 <p className="text-[14px] font-medium text-stone-900">{item.name}</p>
+                                 <p className="text-[12px] text-[#737373]">{item.size}</p>
+                              </div>
+                              <span className="text-[14px] font-medium text-stone-900">${(parseFloat(item.price.replace("$", "")) * item.quantity).toFixed(2)}</span>
+                           </div>
+                        ))}
+                        <div className="border-t border-[#e6e6e6] pt-4 mt-2">
+                           <div className="flex justify-between text-[14px] mb-2">
+                              <span className="text-[#737373]">Subtotal</span>
+                              <span className="font-medium text-stone-900">${cartTotal.toFixed(2)}</span>
+                           </div>
+                           <div className="flex justify-between text-[14px]">
+                              <span className="text-[#737373]">Shipping</span>
+                              <span className="text-[#737373]">Calculated at next step</span>
+                           </div>
+                        </div>
+                     </div>
+                  </motion.div>
+               )}
+            </AnimatePresence>
+         </div>
+
          {/* LEFT: Checkout Information (White Background) */}
-         <div className="w-full lg:w-[55%] flex flex-col items-center lg:items-end pt-12 lg:pt-24 pb-24 px-6 lg:pl-12 lg:pr-[5%] bg-white border-r border-[#e6e6e6]">
+         <div className="w-full lg:w-[55%] flex flex-col items-center lg:items-end pt-8 lg:pt-24 pb-24 px-6 lg:pl-12 lg:pr-[5%] bg-white border-r border-[#e6e6e6]">
             <div className="w-full max-w-[560px] flex flex-col">
 
                {/* Express Checkout */}

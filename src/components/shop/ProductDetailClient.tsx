@@ -15,7 +15,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
-    if (productData.sizes.length > 0 && !selectedSize) {
+    if (productData.sizes && productData.sizes.length > 0 && !selectedSize) {
       setIsDropdownOpen(true);
       return;
     }
@@ -160,10 +160,10 @@ export default function ProductDetailClient({ productData }: { productData: any 
              {/* Size Selection - Nice Modern Dropdown */}
              <div className="flex flex-col gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">
-                  {productData.sizes.length > 0 ? "Select Size" : "Availability"}
+                  {productData.sizes && productData.sizes.length > 0 ? "Select Size" : "Availability"}
                 </span>
                 
-                {productData.sizes.length > 0 ? (
+                {productData.sizes && productData.sizes.length > 0 ? (
                   <div className="relative">
                     <button 
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}

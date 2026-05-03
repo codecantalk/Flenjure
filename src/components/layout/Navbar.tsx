@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, Search, ShoppingBag, X, User } from "lucide-react";
+import { Menu, Search, ShoppingBag, X, User, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import Link from "next/link";
@@ -43,8 +43,13 @@ export default function Navbar() {
   const [isMouseActive, setIsMouseActive] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { items, setIsOpen: setCartOpen } = useCartStore();
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -215,53 +220,82 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-              className="fixed top-0 left-0 bottom-0 w-[95vw] sm:w-[600px] bg-white/70 dark:bg-black/70 backdrop-blur-2xl z-[100] shadow-2xl flex flex-col pt-24 px-8 sm:px-16 pb-12 overflow-y-auto"
+              className="fixed top-0 left-0 bottom-0 w-[95vw] sm:w-[450px] bg-white dark:bg-[#121212] z-[100] shadow-2xl flex flex-col overflow-y-auto"
             >
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="absolute top-8 left-8 sm:left-16 text-stone-900 dark:text-stone-50 group flex items-center gap-3 transition-opacity duration-300 hover:opacity-50"
-                aria-label="Close menu"
-              >
-                <X size={24} strokeWidth={1} />
-                <span className="text-[10px] uppercase tracking-[0.25em] font-light">
-                  Close
-                </span>
-              </button>
-
-              <div className="flex-1 mt-12 sm:mt-24">
-                <nav className="flex flex-col gap-8">
-                  {mainLinks.map((link, i) => (
-                    <motion.div
-                      key={link.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 + i * 0.05, duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={() => setIsMenuOpen(false)}
-                        className="block text-base sm:text-lg font-medium tracking-wide text-stone-900 dark:text-stone-50 hover:opacity-50 transition-all duration-300 ease-in-out"
-                      >
-                        {link.name}
-                      </Link>
-                    </motion.div>
-                  ))}
-                </nav>
+              {/* Background Watermark Logo */}
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.05] dark:opacity-[0.08] overflow-hidden">
+                <div className="relative w-[120%] h-[120%]">
+                  <Image src="/favicon.png" alt="watermark" fill className="object-contain" priority />
+                </div>
               </div>
 
-              <div className="mt-12 flex flex-col gap-8 pt-8 border-t border-stone-200/50">
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-6">
-                    <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Support</Link>
-                    <Link href="/shipping" onClick={() => setIsMenuOpen(false)} className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Shipping & Returns</Link>
+              {/* Content Container */}
+              <div className="relative z-10 flex flex-col h-full w-full">
+                {/* Header Area */}
+                <div className="flex justify-between items-center px-8 sm:px-12 pt-8 pb-8">
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-stone-900 dark:text-white">Menu</span>
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-stone-400 hover:text-stone-900 dark:text-stone-500 dark:hover:text-white transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X size={20} strokeWidth={1} />
+                  </button>
+                </div>
+
+                {/* Main Links */}
+                <div className="flex-1 px-8 sm:px-12 pt-4">
+                  <nav className="flex flex-col gap-6">
+                    {mainLinks.map((link, i) => (
+                      <motion.div
+                        key={link.name}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 + i * 0.05, duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                      >
+                        <Link
+                          href={link.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-[11px] uppercase tracking-[0.2em] font-medium text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </nav>
+                </div>
+
+                {/* Footer Area */}
+                <div className="px-8 sm:px-12 pb-12 mt-auto pt-12">
+                  {/* Subscription Input */}
+                  <div className="flex justify-between items-center border-b border-stone-300 dark:border-stone-500 pb-2 mb-8">
+                    <input 
+                      type="email" 
+                      placeholder="Enter your email" 
+                      className="bg-transparent outline-none border-none text-[12px] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-400 w-full"
+                    />
+                    <button className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4">
+                      Subscribe
+                    </button>
                   </div>
                   
-                  {/* Local Theme Toggle inside Menu */}
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 mb-8">
+                    By providing your email address, you agree to our <Link href="/contact" className="underline hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>.
+                  </p>
+
+                  <div className="flex flex-col gap-4">
+                    <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors">Client Services</Link>
+                    <Link href="/shipping" onClick={() => setIsMenuOpen(false)} className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors">Legal & Privacy</Link>
+                    <span className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer">Careers</span>
+                  </div>
+                  
+                  {/* Theme Toggle Button */}
                   <button 
                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
+                    className="mt-12 flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] font-medium text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
                   >
-                    <span>{theme === "dark" ? "Toggle Light" : "Toggle Dark"}</span>
+                    {mounted && (theme === "dark" ? <Sun size={12} strokeWidth={1.5} /> : <Moon size={12} strokeWidth={1.5} />)}
+                    <span>{mounted && (theme === "dark" ? "Toggle Light" : "Toggle Dark")}</span>
                   </button>
                 </div>
               </div>

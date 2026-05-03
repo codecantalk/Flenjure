@@ -32,8 +32,22 @@ export default function ShopClient({ products }: { products: any[] }) {
   const [viewMode, setViewMode] = useState<"grid" | "single">("grid");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [currentSort, setCurrentSort] = useState("Recommended");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+
+  // Scroll lock when drawers are open
+  useEffect(() => {
+    if (desktopSidebarOpen || isSortOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [desktopSidebarOpen, isSortOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -50,9 +64,33 @@ export default function ShopClient({ products }: { products: any[] }) {
 
   const addItem = useCartStore((state) => state.addItem);
 
-  const filteredProducts = activeCategory === "All" 
-    ? products 
-    : products.filter(p => p.category?.toLowerCase() === activeCategory.toLowerCase());
+  const filteredProducts = products
+    .filter(p => {
+      if (activeCategory === "All") return true;
+      if (activeCategory === "New Arrivals") {
+        // Show actual New Arrivals if category matches, otherwise mock with first 4 products
+        return p.category?.toLowerCase() === "new arrivals" || products.indexOf(p) < 4;
+      }
+      return p.category?.toLowerCase() === activeCategory.toLowerCase();
+    })
+    .sort((a, b) => {
+      if (currentSort === "Price: Low to high") {
+        const priceA = parseFloat(a.price.replace(/[^0-9.]/g, ""));
+        const priceB = parseFloat(b.price.replace(/[^0-9.]/g, ""));
+        return priceA - priceB;
+      }
+      if (currentSort === "Price: High to low") {
+        const priceA = parseFloat(a.price.replace(/[^0-9.]/g, ""));
+        const priceB = parseFloat(b.price.replace(/[^0-9.]/g, ""));
+        return priceB - priceA;
+      }
+      if (currentSort === "New arrivals") {
+        // Assuming original order is newest to oldest or vice versa. 
+        // For now, just reverse the array as a placeholder for 'newness'.
+        return -1; 
+      }
+      return 0; // Recommended / Default
+    });
 
   const handleCategoryClick = (val?: string, href?: string) => {
     if (href) {
@@ -60,6 +98,7 @@ export default function ShopClient({ products }: { products: any[] }) {
     } else if (val) {
       setActiveCategory(val);
       setMobileFilterOpen(false);
+      setDesktopSidebarOpen(false); // Close sidebar on click
     }
   };
 
@@ -76,7 +115,16 @@ export default function ShopClient({ products }: { products: any[] }) {
             onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
             className="font-medium text-stone-900 dark:text-stone-100 hidden md:flex items-center gap-2 hover:opacity-50 transition-opacity"
           >
-            {activeCategory === "All" ? "Shop All" : activeCategory} {desktopSidebarOpen ? <span className="text-base leading-none mb-[1px]">-</span> : <Plus size={10} />}
+            {activeCategory === "All" ? (
+              <span>Shop All</span>
+            ) : (
+              <>
+                <span className="text-stone-400">Shop All</span>
+                <span className="text-stone-300 dark:text-stone-700 mx-1">›</span>
+                <span>{activeCategory}</span>
+              </>
+            )}
+            <Plus size={10} className={clsx("transition-transform duration-300 ml-1", desktopSidebarOpen ? "rotate-45" : "")} />
           </button>
           
           {/* Mobile Filter Toggle / Current Category */}
@@ -84,8 +132,16 @@ export default function ShopClient({ products }: { products: any[] }) {
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
             className="font-medium text-stone-900 dark:text-stone-100 md:hidden flex items-center gap-2"
           >
-             {activeCategory === "All" ? "Shop All" : activeCategory}
-             <Plus size={10} className={clsx("transition-transform duration-300", mobileFilterOpen ? "rotate-45" : "")} />
+            {activeCategory === "All" ? (
+              <span>Shop All</span>
+            ) : (
+              <>
+                <span className="text-stone-400">Shop All</span>
+                <span className="text-stone-300 dark:text-stone-700 mx-1">›</span>
+                <span>{activeCategory}</span>
+              </>
+            )}
+            <Plus size={10} className={clsx("transition-transform duration-300 ml-1", mobileFilterOpen ? "rotate-45" : "")} />
           </button>
 
           {/* Grid & Theme Toggles (Beside Shop All) */}
@@ -110,12 +166,15 @@ export default function ShopClient({ products }: { products: any[] }) {
           </div>
         </div>
 
-        {/* Right Side: Sorting (Desktop only) */}
+        {/* Right Side: Sorting */}
         <div className="flex items-center gap-6 text-stone-500 dark:text-stone-400 font-medium">
-          <div className="hidden sm:flex items-center gap-6">
-            <span className="hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">Sort: Recommended</span>
-            <span className="hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">Refine</span>
-          </div>
+          <button 
+            onClick={() => setIsSortOpen(!isSortOpen)}
+            className="hover:text-stone-900 dark:hover:text-white transition-colors flex items-center gap-2"
+          >
+            Sort: <span className="text-stone-900 dark:text-white">{currentSort}</span>
+            <Plus size={10} className={clsx("transition-transform duration-300", isSortOpen ? "rotate-45" : "")} />
+          </button>
         </div>
       </div>
 
@@ -184,18 +243,18 @@ export default function ShopClient({ products }: { products: any[] }) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="hidden md:block absolute inset-0 bg-stone-900/30 dark:bg-black/50 backdrop-blur-[2px] z-30"
-                style={{ top: 0, height: '1000%' }} // Ensure it covers down
+                className="hidden md:block absolute inset-0 bg-stone-900/10 dark:bg-black/20 backdrop-blur-[1px] z-30"
+                style={{ height: '1000%' }}
                 onClick={() => setDesktopSidebarOpen(false)}
               />
 
-              {/* Slide-in Sidebar */}
+              {/* Sidebar Content */}
               <motion.div 
-                initial={{ x: "-100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-                className="hidden md:flex flex-col absolute top-0 left-0 w-64 lg:w-72 bg-[#fcfcfc] dark:bg-[#0a0a0a] z-40 gap-12 pt-8 pb-32 border-r border-transparent pr-8 min-h-[100vh]"
+                initial={{ x: "-100%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "-100%", opacity: 0 }}
+                transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                className="hidden md:flex flex-col absolute top-0 left-0 w-64 lg:w-72 bg-[#fcfcfc] dark:bg-[#0a0a0a] z-40 gap-12 pt-8 pb-32 border-r border-stone-100 dark:border-stone-900 pr-8 min-h-screen"
               >
                  <div className="flex flex-col gap-5">
                     <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-100">Discover</h3>
@@ -229,6 +288,55 @@ export default function ShopClient({ products }: { products: any[] }) {
                             )}
                           >
                             {link.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                 </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Right Sort Sidebar & Overlay */}
+        <AnimatePresence>
+          {isSortOpen && (
+            <>
+              {/* Overlay over the grid */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 bg-stone-900/10 dark:bg-black/20 backdrop-blur-[1px] z-30"
+                style={{ height: '1000%' }}
+                onClick={() => setIsSortOpen(false)}
+              />
+
+              {/* Slide-in Sort Sidebar */}
+              <motion.div 
+                initial={{ x: "100%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "100%", opacity: 0 }}
+                transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                className="flex flex-col absolute top-0 right-0 w-64 lg:w-72 bg-[#fcfcfc] dark:bg-[#0a0a0a] z-40 gap-12 pt-8 pb-32 border-l border-stone-100 dark:border-stone-900 pl-8 min-h-screen"
+              >
+                 <div className="flex flex-col gap-6">
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Sort By</h3>
+                    <ul className="flex flex-col gap-4">
+                      {["Recommended", "New arrivals", "Price: Low to high", "Price: High to low"].map(option => (
+                        <li key={option}>
+                          <button 
+                            onClick={() => {
+                              setCurrentSort(option);
+                              setIsSortOpen(false);
+                            }}
+                            className={clsx(
+                              "text-[11px] font-medium tracking-wide transition-colors duration-300 text-left w-full",
+                              currentSort === option ? "text-stone-900 dark:text-white underline underline-offset-4" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                            )}
+                          >
+                            {option}
                           </button>
                         </li>
                       ))}
@@ -315,7 +423,19 @@ function QuickAddTrigger({ product, addItem }: { product: any; addItem: any }) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setIsOpen(true);
+          if (!product.sizes || product.sizes.length === 0) {
+            addItem({
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              image: product.image,
+              size: "OS",
+              quantity: 1
+            });
+            // Optional: you could open the cart here, but user asked for it to just 'add'
+          } else {
+            setIsOpen(true);
+          }
         }}
         className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm border border-stone-100 flex items-center justify-center text-stone-900 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500 hover:bg-stone-900 hover:text-white"
         aria-label="Quick add"
