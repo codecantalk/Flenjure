@@ -20,15 +20,13 @@ const MENU_DATA = {
   ]
 };
 
-export default function CafeClient({ products }: { products: any[] }) {
-  // We ignore dynamic products to enforce the strict, hardcoded Michelin-star menu aesthetic.
-  
+export default function CafeClient() {
   return (
-    <div className="flex flex-col min-h-screen pt-40 pb-40 px-6 lg:px-12 bg-white dark:bg-[#0a0a0a] transition-colors duration-1000">
-      <div className="max-w-6xl mx-auto w-full">
+    <div className="flex flex-col min-h-screen pt-40 pb-40 px-6 lg:px-12 bg-[#fcfcfc] dark:bg-[#0a0a0a] transition-colors duration-1000">
+      <div className="max-w-5xl mx-auto w-full">
         
         {/* Restaurant Header */}
-        <div className="flex flex-col items-center justify-center mb-32 gap-6 text-center">
+        <div className="flex flex-col items-center justify-center mb-24 lg:mb-32 gap-6 text-center">
           <motion.span 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -41,7 +39,7 @@ export default function CafeClient({ products }: { products: any[] }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-6xl md:text-8xl font-serif font-light tracking-tight text-stone-900 dark:text-white"
+            className="text-6xl md:text-8xl lg:text-9xl font-serif font-light tracking-tight text-stone-900 dark:text-white"
           >
             LE CAFÉ
           </motion.h1>
@@ -61,20 +59,20 @@ export default function CafeClient({ products }: { products: any[] }) {
         >
            {/* Section: Desserts */}
            <section>
-              <h2 className="text-lg md:text-xl tracking-[0.3em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center">Desserts</h2>
+              <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Desserts</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto">
                  {MENU_DATA.desserts.map(item => <MenuItem key={item.id} item={item} aspect="aspect-[4/5]" />)}
               </div>
            </section>
 
            <div className="w-full flex justify-center">
-              <div className="w-[1px] h-32 bg-stone-200 dark:bg-stone-800" />
+              <div className="w-2 h-2 rounded-full bg-stone-200 dark:bg-stone-800" />
            </div>
 
            {/* Section: Munchies */}
            <section>
-              <h2 className="text-lg md:text-xl tracking-[0.3em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center">Munchies</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+              <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Munchies</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
                  {MENU_DATA.munchies.map(item => <MenuItem key={item.id} item={item} aspect="aspect-square" />)}
               </div>
            </section>

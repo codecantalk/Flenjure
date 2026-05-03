@@ -60,9 +60,12 @@ export const product = {
       type: "string",
       options: {
         list: [
-          { title: "Snacks", value: "Snacks" },
-          { title: "Apparel", value: "Apparel" },
-          { title: "Essentials", value: "Essentials" },
+          { title: "T-Shirts", value: "T-Shirts" },
+          { title: "Shorts", value: "Shorts" },
+          { title: "Tank Tops", value: "Tank Tops" },
+          { title: "Hats and Headgear", value: "Hats and Headgear" },
+          { title: "Candy Shop", value: "Candy Shop" },
+          { title: "New Arrivals", value: "New Arrivals" },
         ]
       }
     }

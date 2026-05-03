@@ -351,72 +351,96 @@ export default function ShopClient({ products }: { products: any[] }) {
           )}
         </AnimatePresence>
 
-        {/* Product Grid */}
+        {/* Product Grid Layout */}
         <main className="flex-1 w-full relative z-10 pt-0">
-          {activeCategory === "Collections" && (
-            <div className="mb-10 text-stone-900 dark:text-white">
-              <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Spring / Summer 2026</h2>
+          {activeCategory === "Collections" ? (
+            <div className="flex flex-col gap-24 lg:gap-32 pb-24">
+              
+              {/* Collection 1 */}
+              <section>
+                <div className="mb-10 text-stone-900 dark:text-white flex justify-between items-end">
+                  <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Spring / Summer 2026</h2>
+                </div>
+                <div className={clsx(
+                  "transition-all duration-1000",
+                  viewMode === "grid" 
+                    ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
+                    : "flex flex-col gap-12 md:gap-24 items-center"
+                )}>
+                  {filteredProducts.slice(0, 8).map(product => (
+                    <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
+                  ))}
+                </div>
+                {filteredProducts.length > 0 && (
+                  <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
+                    <Link href="/shop?category=new-arrivals" className="border-b border-stone-300 dark:border-stone-700 pb-1">View more</Link>
+                  </div>
+                )}
+              </section>
+
+              {/* Collection 2 */}
+              {filteredProducts.length > 4 && (
+                <section>
+                  <div className="mb-10 text-stone-900 dark:text-white flex justify-between items-end border-t border-stone-200 dark:border-stone-900 pt-16 lg:pt-24">
+                    <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Uniform</h2>
+                  </div>
+                  <div className={clsx(
+                    "transition-all duration-1000",
+                    viewMode === "grid" 
+                      ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
+                      : "flex flex-col gap-12 md:gap-24 items-center"
+                  )}>
+                    {filteredProducts.slice(4, 12).map(product => (
+                      <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
+                    ))}
+                  </div>
+                  <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
+                    <Link href="/shop" className="border-b border-stone-300 dark:border-stone-700 pb-1">View more</Link>
+                  </div>
+                </section>
+              )}
+
+              {/* Collection 3 */}
+              {filteredProducts.length > 8 && (
+                <section>
+                  <div className="mb-10 text-stone-900 dark:text-white flex justify-between items-end border-t border-stone-200 dark:border-stone-900 pt-16 lg:pt-24">
+                    <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Flenjure / Objects</h2>
+                  </div>
+                  <div className={clsx(
+                    "transition-all duration-1000",
+                    viewMode === "grid" 
+                      ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
+                      : "flex flex-col gap-12 md:gap-24 items-center"
+                  )}>
+                    {filteredProducts.slice(8, 16).map(product => (
+                      <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
+                    ))}
+                  </div>
+                  <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
+                    <Link href="/shop?category=candy-shop" className="border-b border-stone-300 dark:border-stone-700 pb-1">View more</Link>
+                  </div>
+                </section>
+              )}
+
+            </div>
+          ) : (
+            <div className={clsx(
+              "transition-all duration-1000",
+              viewMode === "grid" 
+                ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
+                : "flex flex-col gap-12 md:gap-24 items-center"
+            )}>
+              {filteredProducts.length === 0 && (
+                <div className="col-span-full py-32 text-center text-stone-500 text-sm tracking-widest uppercase">
+                  No items found in this category.
+                </div>
+              )}
+
+              {filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
+              ))}
             </div>
           )}
-          <div className={clsx(
-            "transition-all duration-1000",
-            viewMode === "grid" 
-              ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
-              : "flex flex-col gap-12 md:gap-24 items-center"
-          )}>
-            {filteredProducts.length === 0 && (
-              <div className="col-span-full py-32 text-center text-stone-500 text-sm tracking-widest uppercase">
-                No items found in this category.
-              </div>
-            )}
-
-            {filteredProducts.map((product, idx) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
-                key={product.id}
-                className={clsx("group flex flex-col cursor-pointer w-full", viewMode === "single" ? "max-w-xl md:max-w-2xl" : "")}
-              >
-                <div className={clsx(
-                  "relative w-full overflow-hidden mb-4 transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group border border-transparent dark:border-stone-900",
-                  viewMode === "grid" ? "aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-none" : "aspect-square sm:aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-none"
-                )}>
-                  <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
-                    <div className="absolute inset-4 sm:inset-6">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-contain mix-blend-multiply dark:mix-blend-normal transition-opacity duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                      <Image
-                        src={product.hoverImage || product.image}
-                        alt={`${product.name} alternate view`}
-                        fill
-                        className="object-contain mix-blend-multiply dark:mix-blend-normal absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                      />
-                    </div>
-                  </Link>
-
-                  {/* Quick Add Trigger */}
-                  <QuickAddTrigger product={product} addItem={addItem} />
-                </div>
-                
-                {/* Product Meta */}
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-1 sm:gap-4 text-[10px] sm:text-[11px] uppercase tracking-widest font-medium">
-                  <Link href={`/shop/${product.id}`} className="text-stone-900 dark:text-stone-100 transition-colors duration-500 ease-in-out hover:text-stone-400 line-clamp-1">
-                    {product.name}
-                  </Link>
-                  <span className="text-stone-500 dark:text-stone-400 flex-shrink-0">{product.price}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </main>
       </div>
     </div>
@@ -520,5 +544,53 @@ function QuickAddTrigger({ product, addItem }: { product: any; addItem: any }) {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function ProductCard({ product, viewMode, addItem }: { product: any; viewMode: "grid" | "single"; addItem: any }) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+      className={clsx("group flex flex-col cursor-pointer w-full", viewMode === "single" ? "max-w-xl md:max-w-2xl" : "")}
+    >
+      <div className={clsx(
+        "relative w-full overflow-hidden mb-4 transition-colors duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group border border-transparent dark:border-stone-900",
+        viewMode === "grid" ? "aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-none" : "aspect-square sm:aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-none"
+      )}>
+        <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
+          <div className="absolute inset-4 sm:inset-6">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-contain mix-blend-multiply dark:mix-blend-normal transition-opacity duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0"
+              sizes="(max-width: 768px) 50vw, 33vw"
+            />
+            <Image
+              src={product.hoverImage || product.image}
+              alt={`${product.name} alternate view`}
+              fill
+              className="object-contain mix-blend-multiply dark:mix-blend-normal absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
+              sizes="(max-width: 768px) 50vw, 33vw"
+            />
+          </div>
+        </Link>
+
+        {/* Quick Add Trigger */}
+        <QuickAddTrigger product={product} addItem={addItem} />
+      </div>
+      
+      {/* Product Meta */}
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-1 sm:gap-4 text-[10px] sm:text-[11px] uppercase tracking-widest font-medium">
+        <Link href={`/shop/${product.id}`} className="text-stone-900 dark:text-stone-100 transition-colors duration-500 ease-in-out hover:text-stone-400 line-clamp-1">
+          {product.name}
+        </Link>
+        <span className="text-stone-500 dark:text-stone-400 flex-shrink-0">{product.price}</span>
+      </div>
+    </motion.div>
   );
 }
