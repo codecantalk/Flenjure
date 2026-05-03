@@ -31,6 +31,7 @@ export default function ShopClient({ products }: { products: any[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "single">("grid");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -67,29 +68,31 @@ export default function ShopClient({ products }: { products: any[] }) {
       
       {/* ALD Style Top Header Bar */}
       <div className="w-full flex justify-between items-center pb-8 border-b border-stone-200 dark:border-stone-800 text-[10px] md:text-[11px] uppercase tracking-[0.05em]">
-        <div className="font-medium text-stone-900 dark:text-stone-100 hidden md:block">
-          {activeCategory === "All" ? "Shop All" : activeCategory} {filteredProducts.length > 0 && `(${filteredProducts.length})`}
-        </div>
         
-        {/* Mobile Filter Toggle / Current Category */}
-        <button 
-          onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-          className="font-medium text-stone-900 dark:text-stone-100 md:hidden flex items-center gap-2"
-        >
-           {activeCategory === "All" ? "Shop All" : activeCategory}
-           <Plus size={10} className={clsx("transition-transform duration-300", mobileFilterOpen ? "rotate-45" : "")} />
-        </button>
+        {/* Left Side: Toggles & Menu */}
+        <div className="flex items-center gap-6">
+          {/* Desktop Sidebar Toggle */}
+          <button 
+            onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+            className="font-medium text-stone-900 dark:text-stone-100 hidden md:flex items-center gap-2 hover:opacity-50 transition-opacity"
+          >
+            {activeCategory === "All" ? "Shop All" : activeCategory} {desktopSidebarOpen ? <span className="text-base leading-none mb-[1px]">-</span> : <Plus size={10} />}
+          </button>
+          
+          {/* Mobile Filter Toggle / Current Category */}
+          <button 
+            onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
+            className="font-medium text-stone-900 dark:text-stone-100 md:hidden flex items-center gap-2"
+          >
+             {activeCategory === "All" ? "Shop All" : activeCategory}
+             <Plus size={10} className={clsx("transition-transform duration-300", mobileFilterOpen ? "rotate-45" : "")} />
+          </button>
 
-        <div className="flex items-center gap-6 text-stone-500 dark:text-stone-400 font-medium">
-          <div className="hidden sm:flex items-center gap-6">
-            <span className="hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">Sort: Recommended</span>
-            <span className="hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">Refine</span>
-          </div>
-
-          <div className="flex items-center gap-3 border-l border-stone-200 dark:border-stone-800 pl-6">
+          {/* Grid & Theme Toggles (Beside Shop All) */}
+          <div className="flex items-center gap-3">
             <button 
               onClick={() => setViewMode(viewMode === "grid" ? "single" : "grid")}
-              className="hover:text-stone-900 dark:hover:text-white transition-colors"
+              className="hover:text-stone-900 dark:text-white transition-colors text-stone-500 dark:text-stone-400"
               aria-label="Toggle Grid View"
             >
               {viewMode === "grid" ? <SquareSquare size={14} strokeWidth={1.5} /> : <LayoutGrid size={14} strokeWidth={1.5} />}
@@ -98,12 +101,20 @@ export default function ShopClient({ products }: { products: any[] }) {
             {mounted && (
               <button 
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="hover:text-stone-900 dark:hover:text-white transition-colors ml-2"
+                className="hover:text-stone-900 dark:text-white transition-colors ml-2 text-stone-500 dark:text-stone-400"
                 aria-label="Toggle Theme"
               >
                 {theme === "dark" ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Right Side: Sorting (Desktop only) */}
+        <div className="flex items-center gap-6 text-stone-500 dark:text-stone-400 font-medium">
+          <div className="hidden sm:flex items-center gap-6">
+            <span className="hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">Sort: Recommended</span>
+            <span className="hover:text-stone-900 dark:hover:text-white cursor-pointer transition-colors">Refine</span>
           </div>
         </div>
       </div>
@@ -161,48 +172,59 @@ export default function ShopClient({ products }: { products: any[] }) {
       </AnimatePresence>
 
       {/* Main Content Layout */}
-      <div className="flex flex-col md:flex-row mt-8 gap-8 lg:gap-16">
+      <div className="flex flex-col md:flex-row mt-8 gap-8 lg:gap-16 relative">
         
         {/* Left Sidebar (Desktop) */}
-        <aside className="hidden md:flex flex-col w-48 lg:w-56 flex-shrink-0 sticky top-32 self-start gap-12">
-           <div className="flex flex-col gap-4">
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Discover</h3>
-              <ul className="flex flex-col gap-2.5">
-                {DISCOVER_LINKS.map(link => (
-                  <li key={link.name}>
-                    <button 
-                      onClick={() => handleCategoryClick(link.value, link.href)}
-                      className={clsx(
-                        "text-xs font-medium tracking-wide transition-colors duration-300 text-left",
-                        activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                      )}
-                    >
-                      {link.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-           </div>
+        <AnimatePresence initial={false}>
+          {desktopSidebarOpen && (
+            <motion.aside 
+              initial={{ width: 0, opacity: 0, marginRight: 0 }}
+              animate={{ width: "auto", opacity: 1, marginRight: "4rem" }}
+              exit={{ width: 0, opacity: 0, marginRight: 0 }}
+              transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+              className="hidden md:flex flex-col w-48 lg:w-56 flex-shrink-0 sticky top-32 self-start gap-12 overflow-hidden"
+            >
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4 w-48 lg:w-56">
+                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Discover</h3>
+                  <ul className="flex flex-col gap-2.5">
+                    {DISCOVER_LINKS.map(link => (
+                      <li key={link.name}>
+                        <button 
+                          onClick={() => handleCategoryClick(link.value, link.href)}
+                          className={clsx(
+                            "text-xs font-medium tracking-wide transition-colors duration-300 text-left",
+                            activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                          )}
+                        >
+                          {link.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+               </motion.div>
 
-           <div className="flex flex-col gap-4">
-              <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Shop By Category</h3>
-              <ul className="flex flex-col gap-2.5">
-                {CATEGORY_LINKS.map(link => (
-                  <li key={link.name}>
-                    <button 
-                      onClick={() => handleCategoryClick(link.value, link.href)}
-                      className={clsx(
-                        "text-xs font-medium tracking-wide transition-colors duration-300 text-left",
-                        activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                      )}
-                    >
-                      {link.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-           </div>
-        </aside>
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex flex-col gap-4 w-48 lg:w-56">
+                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Shop By Category</h3>
+                  <ul className="flex flex-col gap-2.5">
+                    {CATEGORY_LINKS.map(link => (
+                      <li key={link.name}>
+                        <button 
+                          onClick={() => handleCategoryClick(link.value, link.href)}
+                          className={clsx(
+                            "text-xs font-medium tracking-wide transition-colors duration-300 text-left",
+                            activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                          )}
+                        >
+                          {link.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+               </motion.div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
 
         {/* Product Grid */}
         <main className="flex-1 w-full">
