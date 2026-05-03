@@ -37,11 +37,129 @@ export default function ProductDetailClient({ productData }: { productData: any 
     <div className="flex flex-col min-h-screen pt-24 lg:pt-32 pb-24 bg-white dark:bg-stone-950 transition-colors duration-1000">
       <div className="max-w-[1800px] mx-auto w-full px-6 lg:px-12">
         
-        {/* 3-Column ALD Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        {/* ========================================= */}
+        {/* MOBILE LAYOUT (Stack)                     */}
+        {/* ========================================= */}
+        <div className="flex flex-col lg:hidden w-full">
+           {/* Images Carousel */}
+           <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 w-full no-scrollbar scroll-smooth">
+              {productData.images.map((img: string, idx: number) => (
+                <div key={idx} className="snap-center shrink-0 w-full aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 relative">
+                  <Image src={img} alt={`${productData.name} - ${idx}`} fill priority={idx === 0} className="object-contain p-8 mix-blend-multiply dark:mix-blend-normal" />
+                </div>
+              ))}
+           </div>
+
+           {/* Title & Price */}
+           <div className="flex flex-col gap-1 mt-2 mb-8">
+              <h1 className="text-[18px] font-medium text-stone-900 dark:text-white uppercase tracking-tight">{productData.name}</h1>
+              <p className="text-[13px] text-stone-600 dark:text-stone-400 font-light">{productData.price}</p>
+           </div>
+
+           {/* Color */}
+           <div className="flex flex-col gap-3 mb-6">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">Color: <span className="text-stone-400 font-light italic uppercase">Natural</span></span>
+              <div className="flex gap-2">
+                 <div className="w-10 h-14 bg-[#f8f8f8] dark:bg-stone-800 border border-stone-900 dark:border-white p-1 shadow-sm relative">
+                    <Image src={productData.images[0]} alt="col" fill className="object-contain" />
+                 </div>
+              </div>
+           </div>
+
+           {/* Size */}
+           <div className="flex flex-col gap-3 mb-8">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">
+                {productData.sizes && productData.sizes.length > 0 ? "Select Size" : "Availability"}
+              </span>
+              {productData.sizes && productData.sizes.length > 0 ? (
+                <div className="relative z-20">
+                  <button 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className={clsx(
+                      "w-full flex justify-between items-center border p-4 text-[11px] uppercase tracking-[0.2em] transition-all",
+                      isDropdownOpen 
+                        ? "border-stone-900 dark:border-white text-stone-900 dark:text-white" 
+                        : "border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400"
+                    )}
+                  >
+                    <span className="font-medium">{selectedSize || "Choose a Size"}</span>
+                    <ChevronDown size={14} className={clsx("transition-transform duration-300", isDropdownOpen && "rotate-180")} />
+                  </button>
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="absolute top-full mt-1 w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 shadow-xl py-2">
+                         {productData.sizes.map((size: string) => (
+                           <button key={size} onClick={() => { setSelectedSize(size); setIsDropdownOpen(false); }} className={clsx("w-full px-6 py-4 text-left text-[11px] uppercase tracking-[0.2em] transition-colors", selectedSize === size ? "bg-stone-900 text-white dark:bg-white dark:text-black" : "hover:bg-stone-50 dark:hover:bg-stone-900 text-stone-500 dark:text-stone-400")}>
+                             {size}
+                           </button>
+                         ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <div className="w-full border border-stone-100 dark:border-stone-900 p-4 text-[11px] uppercase tracking-[0.2em] text-stone-900/40 dark:text-white/30 italic">Unified Size</div>
+              )}
+           </div>
+
+           {/* Add to Bag */}
+           <div className="mb-12">
+              <button onClick={handleAddToCart} disabled={adding} className="w-full bg-black dark:bg-white text-white dark:text-black py-5 text-[11px] font-bold uppercase tracking-[0.3em] hover:opacity-80 transition-all disabled:opacity-50">
+                 {adding ? "Adding..." : "Add to Bag"}
+              </button>
+           </div>
+
+           {/* Accordions */}
+           <div className="border-t border-stone-200 dark:border-stone-800 mb-12">
+              <DetailAccordion title="Product Details" defaultOpen={true}>
+                <ul className="list-disc pl-4 space-y-1.5 text-[11px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed">
+                  {productData.details.map((detail: string, i: number) => <li key={i}>{detail}</li>)}
+                </ul>
+              </DetailAccordion>
+              <DetailAccordion title="Sizing">
+                <div className="pb-6">
+                  {productData.sizing && productData.sizing.type !== 'one-size' ? (
+                    <p className="text-[11px] text-stone-500 font-light tracking-wide">Please check desktop site for detailed metric sizing charts.</p>
+                  ) : (
+                    <p className="text-[11px] text-stone-500 font-light tracking-wide">This item is uniformly produced. One size fits most standard applications.</p>
+                  )}
+                </div>
+              </DetailAccordion>
+              <DetailAccordion title="Delivery and Returns">
+                <div className="text-[11px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed space-y-3">
+                  <p>Orders are processed at our distribution center within five business days. Shipping timelines and charges vary based on the method selected at checkout and destination.</p>
+                  <p>Returns are accepted within 14 days of delivery for store credit or refund.</p>
+                </div>
+              </DetailAccordion>
+           </div>
+
+           {/* Curated Pairings Mobile */}
+           {productData.relatedProducts && productData.relatedProducts.length > 0 && (
+              <div>
+                 <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-6 tracking-[0.3em]">Curated Pairings</h4>
+                 <div className="flex overflow-x-auto snap-x gap-4 pb-6 w-full no-scrollbar">
+                    {productData.relatedProducts.map((relatedProduct: any) => (
+                      <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="snap-start shrink-0 w-[60%] flex flex-col gap-2">
+                        <div className="aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 border border-stone-100 dark:border-stone-800 relative">
+                           <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-contain p-4 mix-blend-multiply dark:mix-blend-normal opacity-90" />
+                        </div>
+                        <span className="text-[9px] uppercase tracking-[0.2em] text-stone-900 dark:text-white truncate mt-1">{relatedProduct.name}</span>
+                        <span className="text-[9px] text-stone-400 font-medium tracking-widest">{relatedProduct.price}</span>
+                      </Link>
+                    ))}
+                 </div>
+              </div>
+           )}
+        </div>
+
+
+        {/* ========================================= */}
+        {/* DESKTOP LAYOUT (3-Column ALD)               */}
+        {/* ========================================= */}
+        <div className="hidden lg:grid grid-cols-12 gap-16 items-start">
           
           {/* COLUMN 1: Info & Editorial (Left) */}
-          <div className="lg:col-span-3 flex flex-col order-1">
+          <div className="col-span-3 flex flex-col order-1">
              <div className="flex flex-col gap-2 mb-12">
               <h1 className="text-xl font-medium text-stone-900 dark:text-white uppercase tracking-tight">{productData.name}</h1>
               <p className="text-base text-stone-900 dark:text-stone-300 font-light">{productData.price}</p>
@@ -119,7 +237,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
           </div>
 
           {/* COLUMN 2: Large Visual Focus (Center) */}
-          <div className="lg:col-span-6 order-2">
+          <div className="col-span-6 order-2">
             <div className="flex flex-col gap-4">
               {productData.images.map((img: string, idx: number) => (
                 <motion.div
@@ -144,7 +262,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
           </div>
 
           {/* COLUMN 3: Selection & CTA (Right) */}
-          <div className="lg:col-span-3 lg:sticky lg:top-32 flex flex-col gap-8 order-3">
+          <div className="col-span-3 sticky top-32 flex flex-col gap-8 order-3">
              {/* Color Selection */}
              <div className="flex flex-col gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">Color: <span className="text-stone-400 font-light italic uppercase">Natural</span></span>
@@ -157,7 +275,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
                 </div>
              </div>
 
-             {/* Size Selection - Nice Modern Dropdown */}
+             {/* Size Selection */}
              <div className="flex flex-col gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">
                   {productData.sizes && productData.sizes.length > 0 ? "Select Size" : "Availability"}
