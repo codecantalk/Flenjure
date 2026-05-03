@@ -93,20 +93,14 @@ export default function ProductDetailClient({ productData }: { productData: any 
            )}
 
            {/* STICKY BOTTOM BAR (Mobile Only) */}
-           <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 p-4 z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] lg:hidden">
+           <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 p-4 z-40 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] lg:hidden">
               <div className="max-w-[1800px] mx-auto w-full px-2 sm:px-4">
                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-[12px] text-[#323232] dark:text-white">{productData.name}</span>
-                    <span className="text-[12px] text-[#323232] dark:text-white">{productData.price}</span>
+                    <span className="text-[12px] text-[#323232] dark:text-white truncate pr-4">{productData.name}</span>
+                    <span className="text-[12px] text-[#323232] dark:text-white whitespace-nowrap">{productData.price}</span>
                  </div>
                  
-                 <div className="grid grid-cols-2 gap-3 mb-3">
-                    {/* Color Toggle (Static for now to match ALD Natural/Jet Set style) */}
-                    <div className="border border-[#d9d9d9] dark:border-stone-800 p-[12px] flex justify-between items-center bg-white dark:bg-stone-950 cursor-pointer">
-                       <span className="text-[11px] text-[#323232] dark:text-white font-medium">Natural</span>
-                       <ChevronDown size={14} className="text-[#737373]" />
-                    </div>
-                    
+                 <div className="w-full mb-3">
                     {/* Size Selector */}
                     <div className="relative">
                        <button 
@@ -259,18 +253,6 @@ export default function ProductDetailClient({ productData }: { productData: any 
 
           {/* COLUMN 3: Selection & CTA (Right) */}
           <div className="col-span-3 sticky top-32 flex flex-col gap-8 order-3">
-             {/* Color Selection */}
-             <div className="flex flex-col gap-4">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">Color: <span className="text-stone-400 font-light italic uppercase">Natural</span></span>
-                <div className="flex gap-2">
-                   <div className="w-12 h-16 bg-[#f8f8f8] dark:bg-stone-800 border border-stone-900 dark:border-white p-1 shadow-sm">
-                      <div className="w-full h-full relative">
-                         <Image src={productData.images[0]} alt="col" fill className="object-contain" />
-                      </div>
-                   </div>
-                </div>
-             </div>
-
              {/* Size Selection */}
              <div className="flex flex-col gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-300">

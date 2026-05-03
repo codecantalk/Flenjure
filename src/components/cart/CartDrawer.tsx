@@ -34,7 +34,7 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-[100]"
             onClick={() => setIsOpen(false)}
           />
           <motion.div
@@ -42,7 +42,7 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed top-0 right-0 bottom-0 w-[95vw] sm:w-[450px] bg-white dark:bg-stone-950 z-50 shadow-2xl flex flex-col transition-colors duration-1000"
+            className="fixed top-0 right-0 bottom-0 w-[95vw] sm:w-[450px] bg-white dark:bg-stone-950 z-[100] shadow-2xl flex flex-col transition-colors duration-1000"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-6 border-b border-[#e6e6e6] dark:border-stone-800">
