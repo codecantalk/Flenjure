@@ -111,7 +111,7 @@ export default function Navbar() {
             : "translate-y-0 opacity-100 pointer-events-auto"
         )}
       >
-        <div className="container mx-auto px-6 lg:px-12 grid grid-cols-3 items-center">
+        <div className="w-full px-4 sm:px-6 lg:px-12 grid grid-cols-3 items-center">
           {/* Left: Menu */}
           <div className="flex items-center">
             <button
@@ -240,7 +240,7 @@ export default function Navbar() {
                       <Link
                         href={link.href}
                         onClick={() => setIsMenuOpen(false)}
-                        className="block text-4xl sm:text-5xl font-serif font-light text-stone-900 dark:text-stone-50 hover:opacity-50 transition-all duration-300 ease-in-out"
+                        className="block text-base sm:text-lg font-medium tracking-wide text-stone-900 dark:text-stone-50 hover:opacity-50 transition-all duration-300 ease-in-out"
                       >
                         {link.name}
                       </Link>

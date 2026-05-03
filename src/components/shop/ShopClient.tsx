@@ -64,7 +64,7 @@ export default function ShopClient({ products }: { products: any[] }) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-24 md:pt-32 px-4 sm:px-6 lg:px-12 bg-[#fcfcfc] dark:bg-[#0a0a0a] transition-colors duration-1000">
+    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-32 md:pb-48 px-4 sm:px-6 lg:px-12 bg-[#fcfcfc] dark:bg-[#0a0a0a] transition-colors duration-1000">
       
       {/* ALD Style Top Header Bar */}
       <div className="w-full flex justify-between items-center pb-8 border-b border-stone-200 dark:border-stone-800 text-[10px] md:text-[11px] uppercase tracking-[0.05em]">
@@ -172,62 +172,75 @@ export default function ShopClient({ products }: { products: any[] }) {
       </AnimatePresence>
 
       {/* Main Content Layout */}
-      <div className="flex flex-col md:flex-row mt-8 gap-8 lg:gap-16 relative">
+      <div className="relative mt-0 pt-8 flex">
         
-        {/* Left Sidebar (Desktop) */}
-        <AnimatePresence initial={false}>
+        {/* Desktop Sidebar & Overlay */}
+        <AnimatePresence>
           {desktopSidebarOpen && (
-            <motion.aside 
-              initial={{ width: 0, opacity: 0, marginRight: 0 }}
-              animate={{ width: "auto", opacity: 1, marginRight: "4rem" }}
-              exit={{ width: 0, opacity: 0, marginRight: 0 }}
-              transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-              className="hidden md:flex flex-col w-48 lg:w-56 flex-shrink-0 sticky top-32 self-start gap-12 overflow-hidden"
-            >
-               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4 w-48 lg:w-56">
-                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Discover</h3>
-                  <ul className="flex flex-col gap-2.5">
-                    {DISCOVER_LINKS.map(link => (
-                      <li key={link.name}>
-                        <button 
-                          onClick={() => handleCategoryClick(link.value, link.href)}
-                          className={clsx(
-                            "text-xs font-medium tracking-wide transition-colors duration-300 text-left",
-                            activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                          )}
-                        >
-                          {link.name}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-               </motion.div>
+            <>
+              {/* Overlay over the grid */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="hidden md:block absolute inset-0 bg-stone-900/30 dark:bg-black/50 backdrop-blur-[2px] z-30"
+                style={{ top: 0, height: '1000%' }} // Ensure it covers down
+                onClick={() => setDesktopSidebarOpen(false)}
+              />
 
-               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex flex-col gap-4 w-48 lg:w-56">
-                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Shop By Category</h3>
-                  <ul className="flex flex-col gap-2.5">
-                    {CATEGORY_LINKS.map(link => (
-                      <li key={link.name}>
-                        <button 
-                          onClick={() => handleCategoryClick(link.value, link.href)}
-                          className={clsx(
-                            "text-xs font-medium tracking-wide transition-colors duration-300 text-left",
-                            activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                          )}
-                        >
-                          {link.name}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-               </motion.div>
-            </motion.aside>
+              {/* Slide-in Sidebar */}
+              <motion.div 
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+                className="hidden md:flex flex-col absolute top-0 left-0 w-64 lg:w-72 bg-[#fcfcfc] dark:bg-[#0a0a0a] z-40 gap-12 pt-8 pb-32 border-r border-transparent pr-8 min-h-[100vh]"
+              >
+                 <div className="flex flex-col gap-5">
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-100">Discover</h3>
+                    <ul className="flex flex-col gap-3.5">
+                      {DISCOVER_LINKS.map(link => (
+                        <li key={link.name}>
+                          <button 
+                            onClick={() => handleCategoryClick(link.value, link.href)}
+                            className={clsx(
+                              "text-[11px] font-medium tracking-wide transition-colors duration-300 text-left",
+                              activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                            )}
+                          >
+                            {link.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                 </div>
+
+                 <div className="flex flex-col gap-5">
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-100">Shop By Category</h3>
+                    <ul className="flex flex-col gap-3.5">
+                      {CATEGORY_LINKS.map(link => (
+                        <li key={link.name}>
+                          <button 
+                            onClick={() => handleCategoryClick(link.value, link.href)}
+                            className={clsx(
+                              "text-[11px] font-medium tracking-wide transition-colors duration-300 text-left",
+                              activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                            )}
+                          >
+                            {link.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                 </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 
-
         {/* Product Grid */}
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full relative z-10 pt-0">
           <div className={clsx(
             "transition-all duration-1000",
             viewMode === "grid" 
