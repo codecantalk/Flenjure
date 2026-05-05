@@ -42,7 +42,9 @@ export default function LoadingScreen() {
               src="/favicon.png"
               alt="Fleñjure Loading"
               fill
-              className="object-contain grayscale contrast-125"
+              className="object-contain"
+              sizes="96px"
+              priority
             />
           </motion.div>
         </motion.div>

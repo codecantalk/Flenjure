@@ -40,12 +40,13 @@ export default function Footer() {
         
         {/* Brand Column */}
         <div className="md:col-span-4 flex flex-col gap-6">
-          <Link href="/" className="relative h-10 w-32 invert dark:invert-0">
+          <Link href="/" className="relative h-14 w-48">
             <Image
               src="/logo.png"
               alt="Fleñjure Logo"
               fill
               className="object-contain object-left"
+              sizes="128px"
             />
           </Link>
           <p className="text-sm font-light text-stone-500 max-w-xs mt-2">

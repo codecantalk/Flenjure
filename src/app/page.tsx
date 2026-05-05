@@ -111,8 +111,8 @@ export default function Home() {
             transition={{ duration: 1.5, delay: 2.5 }}
             className="hidden md:flex flex-col text-white/40 text-[10px] uppercase tracking-widest text-right gap-2"
           >
-            <span>Est. 2024</span>
-            <span>Smyrna, GA</span>
+            <span>Est. 2020</span>
+            <span>Atlanta, GA</span>
           </motion.div>
         </div>
       </div>
