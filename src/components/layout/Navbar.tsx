@@ -155,22 +155,43 @@ export default function Navbar() {
             <Link
               href="/"
               className={clsx(
-                "relative transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] origin-center",
-                isScrolled
-                  ? "h-8 w-32 sm:h-10 sm:w-40" // Smallest on scroll
+                "relative transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] origin-center flex items-center justify-center",
+                (!isHome && isScrolled)
+                  ? "h-10 w-10 sm:h-12 sm:w-12" // Icon size on scroll
+                  : (isHome && isScrolled)
+                  ? "h-8 w-32 sm:h-10 sm:w-40" // Smallest full logo on scroll (Home)
                   : isHome
                   ? "h-14 w-56 sm:h-20 sm:w-72" // Large on home page
                   : "h-10 w-40 sm:h-12 sm:w-48" // Medium on store/other pages
               )}
             >
+              {/* Main Full Logo */}
               <Image
                 src="/logo.png"
                 alt="Fleñjure Logo"
                 fill
-                className="object-contain"
+                className={clsx(
+                  "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]",
+                  (!isHome && isScrolled) ? "opacity-0 scale-90 blur-sm pointer-events-none" : "opacity-100 scale-100 blur-0"
+                )}
                 sizes="(max-width: 640px) 224px, 288px"
                 priority
               />
+
+              {/* Icon / Scroll Logo */}
+              {!isHome && (
+                <Image
+                  src="/favicon.png"
+                  alt="Fleñjure Icon"
+                  fill
+                  className={clsx(
+                    "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] absolute inset-0",
+                    isScrolled ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-110 blur-sm pointer-events-none"
+                  )}
+                  sizes="(max-width: 640px) 48px, 48px"
+                  priority
+                />
+              )}
             </Link>
           </div>
 
