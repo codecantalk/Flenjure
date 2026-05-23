@@ -50,6 +50,14 @@ export default function AdminCollectionsPage() {
       description: "Timeless everyday essentials designed for life and comfort.",
       image_url: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800",
       order: 2
+    },
+    {
+      id: "col-3",
+      name: "Flenjure / Objects",
+      slug: "flenjure-objects",
+      description: "Curated objects, accessories, and snacks.",
+      image_url: "https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=800",
+      order: 3
     }
   ];
 
@@ -121,7 +129,7 @@ export default function AdminCollectionsPage() {
 
     if (isMissingEnv) {
       if (editingCollection) {
-        setCollections(collections.map(c => c.id === editingCollection.id ? { ...c, ...newCol } : c));
+        setCollections(collections.map(c => c.id === editingCollection.id ? { ...c, ...newCol, slug } : c));
       } else {
         setCollections([...collections, { ...newCol, id: Math.random().toString(), slug }]);
       }

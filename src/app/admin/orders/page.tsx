@@ -58,7 +58,7 @@ export default function AdminOrdersPage() {
       id: "FL-1002",
       created_at: new Date().toISOString(),
       status: "pending",
-      total_amount: 180.00,
+      total_amount: 70.00,
       payment_method: "manual_payment",
       payment_status: "pending",
       shipping_address: {
@@ -70,8 +70,8 @@ export default function AdminOrdersPage() {
         country: "USA"
       },
       items: [
-        { product_id: "prod-1", title: "Flenjure Signature Tee", quantity: 1, price: 95.00 },
-        { product_id: "prod-2", title: "Fruit Gummy Snack Pack", quantity: 5, price: 15.00 }
+        { product_id: "prod-1", title: "Fleñjure OG Jersey", quantity: 1, price: 60.00 },
+        { product_id: "prod-2", title: "Fleñjure Bag Packs", quantity: 2, price: 5.00 }
       ],
       whatsapp_number: "+14041234567",
       email: "client@flenjure.com",
@@ -83,7 +83,7 @@ export default function AdminOrdersPage() {
       id: "FL-1001",
       created_at: new Date(Date.now() - 3600000).toISOString(),
       status: "paid",
-      total_amount: 220.00,
+      total_amount: 120.00,
       payment_method: "apple_pay",
       payment_status: "completed",
       shipping_address: {
@@ -95,7 +95,7 @@ export default function AdminOrdersPage() {
         country: "UK"
       },
       items: [
-        { product_id: "prod-1", title: "Flenjure Signature Tee", quantity: 2, price: 95.00 }
+        { product_id: "prod-1", title: "Fleñjure OG Jersey", quantity: 2, price: 60.00 }
       ],
       whatsapp_number: "+447712345678",
       email: "james@example.com"

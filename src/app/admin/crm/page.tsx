@@ -43,8 +43,8 @@ export default function AdminCRMPage() {
       email: "lost@gmail.com",
       whatsapp_number: "+14045550199",
       items: [
-        { id: "prod-1", title: "Flenjure Signature Tee", quantity: 2, price: 95.00 },
-        { id: "prod-2", title: "Fruit Gummy Snack Pack", quantity: 3, price: 15.00 }
+        { id: "prod-1", title: "Fleñjure OG Jersey", quantity: 2, price: 60.00 },
+        { id: "prod-2", title: "Sour Patch Kids 226g", quantity: 3, price: 4.99 }
       ],
       is_recovered: false
     },
@@ -54,7 +54,7 @@ export default function AdminCRMPage() {
       email: "unconverted@yahoo.com",
       whatsapp_number: "+16785550188",
       items: [
-        { id: "prod-1", title: "Flenjure Signature Tee", quantity: 1, price: 95.00 }
+        { id: "prod-1", title: "Fleñjure OG Jersey", quantity: 1, price: 60.00 }
       ],
       is_recovered: false
     },
@@ -64,7 +64,7 @@ export default function AdminCRMPage() {
       email: "recovered_buyer@domain.com",
       whatsapp_number: "+17705550177",
       items: [
-        { id: "prod-2", title: "Fruit Gummy Snack Pack", quantity: 4, price: 15.00 }
+        { id: "prod-2", title: "Sour Patch Kids 226g", quantity: 4, price: 4.99 }
       ],
       is_recovered: true
     }

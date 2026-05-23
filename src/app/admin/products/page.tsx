@@ -60,40 +60,64 @@ export default function AdminProductsPage() {
   const mockProducts: Product[] = [
     {
       id: "prod-1",
-      title: "Flenjure Signature Knit Polo",
-      slug: "flenjure-signature-knit-polo",
-      description: "Premium heavy cotton oversized fit.",
-      price: 95.00,
-      compare_at_price: 120.00,
+      title: "Fleñjure OG Jersey",
+      slug: "flenjure-og-jersey",
+      description: "Signature Flenjure jersey, standard fit.",
+      price: 60.00,
+      compare_at_price: 80.00,
       category: "Apparel",
       in_stock: true,
-      inventory_count: 24,
-      image_urls: ["https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800"],
+      inventory_count: 50,
+      image_urls: ["https://cdn.sanity.io/images/nkccolc2/production/b9eebe9634ca12b2998fe561c0d1afffbcdf0cdc-1500x1500.jpg"],
       priority: 10
     },
     {
       id: "prod-2",
-      title: "Luxury Fruit Gummy Pack",
-      slug: "luxury-fruit-gummy-pack",
-      description: "Organic premium fresh fruit juices.",
-      price: 15.00,
-      category: "Snacks",
-      in_stock: false,
-      inventory_count: 0,
-      image_urls: ["https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=800"],
-      priority: 1
+      title: "Fleñjure Bag Packs",
+      slug: "flenjure-bag-packs",
+      description: "Flenjure branded bag packs in multiple sizes.",
+      price: 5.00,
+      category: "Accessories",
+      in_stock: true,
+      inventory_count: 100,
+      image_urls: ["https://cdn.sanity.io/images/nkccolc2/production/7b8b4a07f0fb1e5b4b72605f1559edec954d6d67-2000x2000.png"],
+      priority: 9
     },
     {
       id: "prod-3",
-      title: "Stone Washed Cargo Pants",
-      slug: "stone-washed-cargo-pants",
-      description: "Durable tactical cargo pants with modern relaxed fit.",
-      price: 145.00,
-      category: "Apparel",
+      title: "Sour Patch Kids 226g",
+      slug: "sour-patch-kids",
+      description: "Classic sour then sweet candy.",
+      price: 4.99,
+      category: "Snacks",
       in_stock: true,
-      inventory_count: 8,
-      image_urls: [""],
+      inventory_count: 24,
+      image_urls: ["https://cdn.sanity.io/images/nkccolc2/production/e004f53efa12234a758ebc9e741dcc9e6c83a2c9-1800x1800.jpg"],
       priority: 8
+    },
+    {
+      id: "prod-4",
+      title: "Pop-Tarts® 384g",
+      slug: "pop-tarts",
+      description: "Frosted Pop-Tarts in various flavors.",
+      price: 2.99,
+      category: "Snacks",
+      in_stock: true,
+      inventory_count: 15,
+      image_urls: ["https://cdn.sanity.io/images/nkccolc2/production/a3579a4e79b29afb058726761e247845e2d84c42-640x640.png"],
+      priority: 7
+    },
+    {
+      id: "prod-5",
+      title: "GUSHERS™ Tropical Fruit Snacks",
+      slug: "gushers-tropical-fruit-snacks",
+      description: "Tropical flavored Gushers.",
+      price: 3.99,
+      category: "Snacks",
+      in_stock: false,
+      inventory_count: 0,
+      image_urls: ["https://cdn.sanity.io/images/nkccolc2/production/794ca45e0e03847c6e8264a687380b3bf8324938-480x480.png"],
+      priority: 6
     }
   ];
 
@@ -156,7 +180,7 @@ export default function AdminProductsPage() {
     setCompareAtPrice(product.compare_at_price ? product.compare_at_price.toString() : "");
     setDescription(product.description || ""); setCategory(product.category);
     setInStock(product.in_stock); setInventoryCount(product.inventory_count);
-    setImageUrlStr(product.image_urls.join(", ")); setPriority(product.priority);
+    setImageUrlStr((product.image_urls || []).join(", ")); setPriority(product.priority);
     setCollectionId(product.collection_id || "");
     setIsModalOpen(true);
   };
