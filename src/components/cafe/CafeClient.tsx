@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store";
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const MENU_DATA = {
   desserts: [
@@ -21,65 +22,129 @@ const MENU_DATA = {
 };
 
 export default function CafeClient() {
+  const [showAgeModal, setShowAgeModal] = useState(false);
+
+  useEffect(() => {
+    const isVerified = sessionStorage.getItem("flenjure_age_verified");
+    if (!isVerified) {
+      setShowAgeModal(true);
+      document.body.style.overflow = "hidden";
+    }
+  }, []);
+
+  const handleVerify = (verified: boolean) => {
+    if (verified) {
+      sessionStorage.setItem("flenjure_age_verified", "true");
+      setShowAgeModal(false);
+      document.body.style.overflow = "auto";
+    } else {
+      window.location.href = "/";
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen pt-40 pb-40 px-6 lg:px-12 bg-[#fcfcfc] dark:bg-[#0a0a0a] transition-colors duration-1000">
-      <div className="max-w-5xl mx-auto w-full">
-        
-        {/* Restaurant Header */}
-        <div className="flex flex-col items-center justify-center mb-24 lg:mb-32 gap-6 text-center">
-          <motion.span 
+    <>
+      <AnimatePresence>
+        {showAgeModal && (
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="text-[10px] uppercase tracking-[0.4em] font-medium text-stone-400 dark:text-stone-500"
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-950/90 backdrop-blur-xl px-6"
           >
-            Le Menu
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="text-6xl md:text-8xl lg:text-9xl font-serif font-light tracking-tight text-stone-900 dark:text-white"
-          >
-            LE CAFÉ
-          </motion.h1>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+              className="w-full max-w-md bg-stone-900 border border-stone-800 p-12 text-center shadow-2xl flex flex-col items-center gap-8"
+            >
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase tracking-[0.4em] font-medium text-amber-500 block">Verification</span>
+                <h2 className="text-3xl font-serif font-light text-white">Are you 21 years or older?</h2>
+                <p className="text-stone-400 text-xs uppercase tracking-widest font-mono leading-relaxed mt-4">
+                  You must be of legal age to enter the Cafe section.
+                </p>
+              </div>
+
+              <div className="flex w-full gap-4 mt-4">
+                <button 
+                  onClick={() => handleVerify(false)}
+                  className="flex-1 py-4 border border-stone-700 hover:border-stone-500 text-stone-300 hover:text-white text-[10px] uppercase tracking-[0.3em] font-bold transition-all"
+                >
+                  No, I am not
+                </button>
+                <button 
+                  onClick={() => handleVerify(true)}
+                  className="flex-1 py-4 bg-amber-500 text-black text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-amber-400 transition-colors"
+                >
+                  Yes, I am
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-col min-h-screen pt-40 pb-40 px-6 lg:px-12 bg-[#fcfcfc] dark:bg-[#0a0a0a] transition-colors duration-1000">
+        <div className="max-w-5xl mx-auto w-full">
+          
+          {/* Restaurant Header */}
+          <div className="flex flex-col items-center justify-center mb-24 lg:mb-32 gap-6 text-center">
+            <motion.span 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+              className="text-[10px] uppercase tracking-[0.4em] font-medium text-stone-400 dark:text-stone-500"
+            >
+              Le Menu
+            </motion.span>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="text-6xl md:text-8xl lg:text-9xl font-serif font-light tracking-tight text-stone-900 dark:text-white"
+            >
+              LE CAFÉ
+            </motion.h1>
+            <motion.div 
+              initial={{ height: 0 }}
+              animate={{ height: 40 }}
+              transition={{ duration: 1, delay: 0.6 }}
+              className="w-[1px] bg-stone-300 dark:bg-stone-800 mt-8" 
+            />
+          </div>
+
           <motion.div 
-            initial={{ height: 0 }}
-            animate={{ height: 40 }}
-            transition={{ duration: 1, delay: 0.6 }}
-            className="w-[1px] bg-stone-300 dark:bg-stone-800 mt-8" 
-          />
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.8 }}
+            className="flex flex-col gap-32"
+          >
+             {/* Section: Desserts */}
+             <section>
+                <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Desserts</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto">
+                   {MENU_DATA.desserts.map(item => <MenuItem key={item.id} item={item} aspect="aspect-[4/5]" />)}
+                </div>
+             </section>
+
+             <div className="w-full flex justify-center">
+                <div className="w-2 h-2 rounded-full bg-stone-200 dark:bg-stone-800" />
+             </div>
+
+             {/* Section: Munchies */}
+             <section>
+                <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Munchies</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
+                   {MENU_DATA.munchies.map(item => <MenuItem key={item.id} item={item} aspect="aspect-square" />)}
+                </div>
+             </section>
+          </motion.div>
+
         </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8 }}
-          className="flex flex-col gap-32"
-        >
-           {/* Section: Desserts */}
-           <section>
-              <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Desserts</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto">
-                 {MENU_DATA.desserts.map(item => <MenuItem key={item.id} item={item} aspect="aspect-[4/5]" />)}
-              </div>
-           </section>
-
-           <div className="w-full flex justify-center">
-              <div className="w-2 h-2 rounded-full bg-stone-200 dark:bg-stone-800" />
-           </div>
-
-           {/* Section: Munchies */}
-           <section>
-              <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Munchies</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
-                 {MENU_DATA.munchies.map(item => <MenuItem key={item.id} item={item} aspect="aspect-square" />)}
-              </div>
-           </section>
-        </motion.div>
-
       </div>
-    </div>
+    </>
   );
 }
 
@@ -108,7 +173,7 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
           />
        </div>
        <div className="flex justify-between items-start gap-4 px-1">
-          <h3 className="text-[11px] md:text-[12px] font-medium uppercase tracking-[0.15em] text-stone-900 dark:text-stone-200 leading-relaxed max-w-[80%]">
+          <h3 className="text-[11px] md:text-[12px] font-medium uppercase tracking-[0.15em] text-stone-900 dark:text-white leading-relaxed max-w-[80%]">
             {item.name}
           </h3>
           <span className="text-[11px] md:text-[12px] text-stone-500 font-light flex-shrink-0 tracking-widest">

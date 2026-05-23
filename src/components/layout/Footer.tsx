@@ -9,7 +9,7 @@ export default function Footer() {
   const pathname = usePathname();
 
   // Do not render the footer on the homepage "Digital Doorway", inside the CMS Studio, the Checkout page, or individual Product Pages
-  if (pathname === "/" || pathname.startsWith("/studio") || pathname === "/checkout" || pathname.startsWith("/shop/")) {
+  if (pathname === "/" || pathname.startsWith("/studio") || pathname.startsWith("/admin") || pathname === "/checkout" || pathname.startsWith("/shop/")) {
     return null;
   }
 
@@ -90,8 +90,8 @@ export default function Footer() {
           © {new Date().getFullYear()} FLEÑJURE. All Rights Reserved.
         </p>
         <div className="flex items-center gap-6 text-[10px] uppercase tracking-widest text-stone-400 dark:text-stone-600">
-          <span>Est. 2024</span>
-          <span>Smyrna, GA</span>
+          <span>Est. 2020</span>
+          <span>Atlanta, GA</span>
         </div>
       </div>
     </footer>

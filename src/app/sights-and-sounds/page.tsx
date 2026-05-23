@@ -13,7 +13,7 @@ export default function SightsAndSoundsPage() {
            transition={{ duration: 1.2 }}
            className="mb-24"
         >
-          <span className="text-[10px] uppercase tracking-[0.5em] text-stone-400 mb-4 block">Sensory Experience</span>
+          <span className="text-[10px] uppercase tracking-[0.5em] text-stone-400 mb-4 block">S/S26 ‘Breath of Fresh Air’ Campaign</span>
           <h1 className="text-5xl md:text-8xl font-serif font-light tracking-tight text-stone-900 dark:text-white uppercase leading-none">
             Sights <br />& <span className="italic text-stone-400 text-6xl md:text-9xl">Sounds</span>
           </h1>
@@ -40,7 +40,7 @@ export default function SightsAndSoundsPage() {
               </div>
             </div>
             <div className="absolute bottom-8 left-8">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Flagship Brand Film 2026</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Flagship Concept 2026</span>
             </div>
           </motion.div>
 

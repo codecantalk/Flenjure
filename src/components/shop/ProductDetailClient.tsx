@@ -72,6 +72,11 @@ export default function ProductDetailClient({ productData }: { productData: any 
                   <p>Returns are accepted within 14 days of delivery for store credit or refund.</p>
                 </div>
               </DetailAccordion>
+              <DetailAccordion title="Manual Payments">
+                <div className="text-[11px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed space-y-3">
+                  <p>We accept cash equivalents including CashApp, Zelle, and select cryptocurrencies. Select 'Manual Transfer' at checkout to receive our payment QR codes and direct transfer instructions.</p>
+                </div>
+              </DetailAccordion>
            </div>
 
            {/* Curated Pairings Mobile */}
@@ -201,6 +206,12 @@ export default function ProductDetailClient({ productData }: { productData: any 
                 <div className="text-[11px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed space-y-3">
                   <p>Orders are processed at our distribution center within five business days. Shipping timelines and charges vary based on the method selected at checkout and destination.</p>
                   <p>Returns are accepted within 14 days of delivery for store credit or refund.</p>
+                </div>
+              </DetailAccordion>
+
+              <DetailAccordion title="Manual Payments">
+                <div className="text-[11px] text-stone-600 dark:text-stone-400 font-light pb-6 leading-relaxed space-y-3">
+                  <p>We accept cash equivalents including CashApp, Zelle, and select cryptocurrencies. Select 'Manual Transfer' at checkout to receive our payment QR codes and direct transfer instructions.</p>
                 </div>
               </DetailAccordion>
             </div>

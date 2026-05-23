@@ -101,7 +101,7 @@ export default function Navbar() {
     }
   }, [isMenuOpen]);
 
-  if (isStudio) return null;
+  if (isStudio || pathname.startsWith("/admin")) return null;
 
   if (pathname === "/checkout") {
     return (
@@ -305,17 +305,28 @@ export default function Navbar() {
 
                 {/* Footer Area */}
                 <div className="px-8 sm:px-12 pb-12 mt-auto pt-12">
-                  {/* Subscription Input */}
-                  <div className="flex justify-between items-center border-b border-stone-300 dark:border-stone-500 pb-2 mb-8">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="bg-transparent outline-none border-none text-[12px] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-400 w-full"
-                    />
-                    <button className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4">
-                      Subscribe
-                    </button>
-                  </div>
+                  {/* Subscription Inputs */}
+                  <form className="flex flex-col gap-4 mb-8" onSubmit={(e) => e.preventDefault()}>
+                    <div className="flex justify-between items-center border-b border-stone-300 dark:border-stone-500 pb-2">
+                      <input
+                        type="email"
+                        required
+                        placeholder="Enter your email *"
+                        className="bg-transparent outline-none border-none text-[12px] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-400 w-full"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center border-b border-stone-300 dark:border-stone-500 pb-2">
+                      <input
+                        type="tel"
+                        required
+                        placeholder="WhatsApp Number *"
+                        className="bg-transparent outline-none border-none text-[12px] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-400 w-full"
+                      />
+                      <button type="submit" className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4">
+                        Subscribe
+                      </button>
+                    </div>
+                  </form>
 
                   <p className="text-[10px] text-stone-500 dark:text-stone-400 mb-8">
                     By providing your email address, you agree to our <Link href="/contact" className="underline hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>.

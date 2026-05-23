@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: "Quality. Experience. Fun. Fleñjure is a premium lifestyle brand.",
     url: "https://flenjure.com",
     siteName: "Fleñjure",
-    images: [{ url: "https://flenjure.com/cdn/shop/files/logo_color1_web.png?v=1742548877&width=2048", width: 1200, height: 630 }],
+    images: [{ url: "https://flenjure.com/logo.png", width: 1200, height: 630 }],
     locale: "en_US",
     type: "website",
   },

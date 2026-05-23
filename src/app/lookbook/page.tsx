@@ -17,10 +17,6 @@ export default function LookbookPage() {
           transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
           className="text-center mb-32"
         >
-          <span className="text-[10px] uppercase tracking-[0.5em] text-stone-400 mb-4 block">Lookbook</span>
-          <h1 className="text-4xl md:text-7xl font-serif font-light tracking-tight text-stone-900 dark:text-white uppercase">
-            Inaugural <span className="italic text-stone-400">Collection</span>
-          </h1>
           <p className="mt-8 text-stone-500 dark:text-stone-400 font-light text-sm max-w-lg mx-auto leading-relaxed uppercase tracking-widest">
             A visual documentation of the Flenjure Spring/Summer 2026 staples.
           </p>
