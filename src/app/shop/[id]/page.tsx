@@ -102,18 +102,23 @@ export default async function ShopProductDetail({ params }: Props) {
       .filter((p: any) => p.id !== productData.id)
       .sort(() => 0.5 - Math.random()) // naive shuffle
       .slice(0, 2)
-      .map((p: any) => ({
-        id: p.slug,
-        name: p.title,
-        slug: p.slug,
-        price: `$${p.price.toFixed(2)}`,
-        compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
-        image: p.image_urls?.[0] || "https://via.placeholder.com/500",
-        hoverImage: p.image_urls?.[1] || null,
-        category: p.category,
-        inStock: p.in_stock,
-      }));
+      .map((p: any) => {
+        const sizingData = getSizing(p);
+        return {
+          id: p.slug,
+          name: p.title,
+          slug: p.slug,
+          price: `$${p.price.toFixed(2)}`,
+          compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
+          image: p.image_urls?.[0] || "https://via.placeholder.com/500",
+          hoverImage: p.image_urls?.[1] || null,
+          category: p.category,
+          inStock: p.in_stock,
+          sizes: sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : []
+        };
+      });
 
+    const sizingData = getSizing(productData);
     const mappedProductData = {
       ...productData,
       name: productData.title,
@@ -121,7 +126,8 @@ export default async function ShopProductDetail({ params }: Props) {
       compareAtPrice: productData.compare_at_price ? `$${productData.compare_at_price.toFixed(2)}` : null,
       images: productData.image_urls || ["https://via.placeholder.com/500"],
       details: getDetails(productData),
-      sizing: getSizing(productData),
+      sizing: sizingData,
+      sizes: sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : [],
       relatedProducts
     };
 
