@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
@@ -19,16 +20,22 @@ export async function getProductBySlug(slug: string) {
 export async function createProduct(productData: any) {
   const { data, error } = await supabaseAdmin.from("products").insert([productData]).select().single();
   if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
   return data;
 }
 export async function updateProduct(id: string, productData: any) {
   const { data, error } = await supabaseAdmin.from("products").update(productData).eq("id", id).select().single();
   if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
   return data;
 }
 export async function deleteProduct(id: string) {
   const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
   if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
   return true;
 }
 export async function uploadProductImage(formData: FormData) {
@@ -54,19 +61,25 @@ export async function getCollections() {
   const { data } = await supabaseAdmin.from("collections").select("*").order("order", { ascending: true });
   return data || [];
 }
-export async function createCollection(colData: any) {
-  const { data, error } = await supabaseAdmin.from("collections").insert([colData]).select().single();
+export async function createCollection(collectionData: any) {
+  const { data, error } = await supabaseAdmin.from("collections").insert([collectionData]).select().single();
   if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
   return data;
 }
-export async function updateCollection(id: string, colData: any) {
-  const { data, error } = await supabaseAdmin.from("collections").update(colData).eq("id", id).select().single();
+export async function updateCollection(id: string, collectionData: any) {
+  const { data, error } = await supabaseAdmin.from("collections").update(collectionData).eq("id", id).select().single();
   if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
   return data;
 }
 export async function deleteCollection(id: string) {
   const { error } = await supabaseAdmin.from("collections").delete().eq("id", id);
   if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
   return true;
 }
 
