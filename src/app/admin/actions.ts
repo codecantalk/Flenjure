@@ -8,6 +8,23 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder"
 );
 
+// HELPER: Generate Unique Slug
+async function generateUniqueSlug(table: string, baseSlug: string, excludeId?: string) {
+  let uniqueSlug = baseSlug;
+  let counter = 1;
+  while (true) {
+    let query = supabaseAdmin.from(table).select("id").eq("slug", uniqueSlug);
+    if (excludeId) query = query.neq("id", excludeId);
+    
+    const { data } = await query.maybeSingle();
+    if (!data) break; // Slug is unique
+    
+    uniqueSlug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+  return uniqueSlug;
+}
+
 // PRODUCTS
 export async function getProducts() {
   const { data } = await supabaseAdmin.from("products").select("*").order("priority", { ascending: false });
@@ -18,6 +35,7 @@ export async function getProductBySlug(slug: string) {
   return data;
 }
 export async function createProduct(productData: any) {
+  productData.slug = await generateUniqueSlug("products", productData.slug || productData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
   const { data, error } = await supabaseAdmin.from("products").insert([productData]).select().single();
   if (error) throw error;
   revalidatePath('/shop', 'layout');
@@ -25,6 +43,9 @@ export async function createProduct(productData: any) {
   return data;
 }
 export async function updateProduct(id: string, productData: any) {
+  if (productData.slug) {
+    productData.slug = await generateUniqueSlug("products", productData.slug, id);
+  }
   const { data, error } = await supabaseAdmin.from("products").update(productData).eq("id", id).select().single();
   if (error) throw error;
   revalidatePath('/shop', 'layout');
@@ -62,6 +83,7 @@ export async function getCollections() {
   return data || [];
 }
 export async function createCollection(collectionData: any) {
+  collectionData.slug = await generateUniqueSlug("collections", collectionData.slug || collectionData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
   const { data, error } = await supabaseAdmin.from("collections").insert([collectionData]).select().single();
   if (error) throw error;
   revalidatePath('/shop', 'layout');
@@ -69,6 +91,9 @@ export async function createCollection(collectionData: any) {
   return data;
 }
 export async function updateCollection(id: string, collectionData: any) {
+  if (collectionData.slug) {
+    collectionData.slug = await generateUniqueSlug("collections", collectionData.slug, id);
+  }
   const { data, error } = await supabaseAdmin.from("collections").update(collectionData).eq("id", id).select().single();
   if (error) throw error;
   revalidatePath('/shop', 'layout');

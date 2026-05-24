@@ -39,6 +39,7 @@ export default function AdminCollectionsPage() {
 
   // Form State
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [order, setOrder] = useState(0);
@@ -101,13 +102,13 @@ export default function AdminCollectionsPage() {
 
   const openCreateView = () => {
     setEditingCollection(null);
-    setName(""); setDescription(""); setImageUrls([]); setOrder(0);
+    setName(""); setSlug(""); setDescription(""); setImageUrls([]); setOrder(0);
     setCurrentView('edit');
   };
 
   const openEditView = (collection: Collection) => {
     setEditingCollection(collection);
-    setName(collection.name); setDescription(collection.description || "");
+    setName(collection.name); setSlug(collection.slug); setDescription(collection.description || "");
     const initialImages = collection.image_url 
       ? collection.image_url.split(",").map(s => s.trim()).filter(Boolean) 
       : [];
@@ -144,20 +145,19 @@ export default function AdminCollectionsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const joinedImageUrl = imageUrls.join(", ");
     
-    const newCol: Omit<Collection, "id" | "slug"> = {
-      name, description, image_url: joinedImageUrl, order
+    const newCol: Omit<Collection, "id"> = {
+      name, slug, description, image_url: joinedImageUrl, order
     };
 
     const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
 
     if (isMissingEnv) {
       if (editingCollection) {
-        setCollections(collections.map(c => c.id === editingCollection.id ? { ...c, ...newCol, slug } : c));
+        setCollections(collections.map(c => c.id === editingCollection.id ? { ...c, ...newCol } : c));
       } else {
-        setCollections([...collections, { ...newCol, id: Math.random().toString(), slug }]);
+        setCollections([...collections, { ...newCol, id: Math.random().toString(), slug: slug || "auto" }]);
       }
       closeView();
       return;
@@ -165,9 +165,9 @@ export default function AdminCollectionsPage() {
 
     try {
       if (editingCollection && !editingCollection.id.startsWith("col-")) {
-        await updateCollection(editingCollection.id, { ...newCol, slug });
+        await updateCollection(editingCollection.id, newCol);
       } else {
-        await createCollection({ ...newCol, slug });
+        await createCollection(newCol);
       }
       const data = await getCollections();
       if (data) setCollections(data as Collection[]);

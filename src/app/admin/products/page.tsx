@@ -51,7 +51,8 @@ export default function AdminProductsPage() {
   // Form State
   const [isUploading, setIsUploading] = useState(false);
   const [title, setTitle] = useState("");
-  const [price, setPrice] = useState(0);
+  const [slug, setSlug] = useState("");
+  const [price, setPrice] = useState<number>(0);
   const [compareAtPrice, setCompareAtPrice] = useState<string>("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Apparel");
@@ -131,7 +132,7 @@ export default function AdminProductsPage() {
 
   const openCreateView = () => {
     setEditingProduct(null);
-    setTitle(""); setPrice(0); setCompareAtPrice(""); setDescription("");
+    setTitle(""); setSlug(""); setPrice(0); setCompareAtPrice(""); setDescription("");
     setCategory("Apparel"); setInStock(true); setInventoryCount(10);
     setImageUrls([]); setPriority(0); setCollectionId("");
     setCurrentView('edit');
@@ -139,7 +140,7 @@ export default function AdminProductsPage() {
 
   const openEditView = (product: Product) => {
     setEditingProduct(product);
-    setTitle(product.title); setPrice(product.price);
+    setTitle(product.title); setSlug(product.slug); setPrice(product.price);
     setCompareAtPrice(product.compare_at_price ? product.compare_at_price.toString() : "");
     setDescription(product.description || ""); setCategory(product.category);
     setInStock(product.in_stock); setInventoryCount(product.inventory_count);
@@ -179,7 +180,6 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
     const newProd: Omit<Product, "id"> = {
       title, slug, description, price,
@@ -515,6 +515,20 @@ export default function AdminProductsPage() {
                   <span>Location</span>
                   <span>Available</span>
                 </div>
+                
+                <div className="p-4 flex flex-col gap-2 border-b border-stone-200 dark:border-stone-800">
+                  <label className="text-sm font-medium text-stone-700 dark:text-stone-300">URL Handle (Slug)</label>
+                  <input
+                    type="text"
+                    required={!!editingProduct}
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"))}
+                    placeholder="e.g., flenjure-anthem-tee"
+                    className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white transition-colors"
+                  />
+                  <p className="text-xs text-stone-500">The URL for your product: https://flenjure.com/shop/<strong>{slug || "auto-generated"}</strong></p>
+                </div>
+
                 <div className="px-4 py-3 flex justify-between items-center bg-white dark:bg-[#111]">
                   <span className="text-sm font-medium text-stone-900 dark:text-white">Shop location</span>
                   <input
