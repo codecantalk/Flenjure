@@ -1,67 +1,75 @@
-import { createClient } from "next-sanity";
-import imageUrlBuilder from "@sanity/image-url";
+import { createClient } from "@supabase/supabase-js";
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
-export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!;
-const apiVersion = "2024-04-20";
+// We'll use the service role key to bypass RLS for server-side fetching
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true, // Use CDN for production fetching
-});
-
-// Create an image URL builder
-const builder = imageUrlBuilder(client);
-
-// Helper function to resolve Sanity images
+// We keep the old urlFor signature so we don't break existing components
 export function urlFor(source: any) {
-  return builder.image(source);
+  // Our new products just store the raw URL string, so we return it directly
+  if (typeof source === "string") return { url: () => source };
+  // Fallback for unexpected cases
+  return { url: () => "https://via.placeholder.com/500" };
 }
 
-// Function to fetch products
 export async function getProducts() {
-  // If there are no products in Sanity yet, we will gracefully fallback to empty array
-  // We use GROQ query language here
-  const query = `*[_type == "product"]{
-    _id,
-    "id": slug.current,
-    name,
-    price,
-    "image": image.asset->url,
-    "hoverImage": hoverImage.asset->url,
-    category,
-    sizes
-  }`;
-  
   try {
-    const products = await client.fetch(query);
-    return products || [];
+    const { data: dbProducts, error } = await supabaseAdmin
+      .from("products")
+      .select("*")
+      .eq("in_stock", true) // only fetch active products for storefront
+      .order("priority", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching products from Supabase:", error);
+      return [];
+    }
+
+    // Map Supabase schema to the old Sanity schema expected by the frontend
+    return (dbProducts || []).map((p: any) => ({
+      _id: p.id,
+      id: p.slug,
+      name: p.title,
+      price: typeof p.price === 'number' ? `$${p.price.toFixed(2)}` : (p.price.toString().startsWith('$') ? p.price : `$${p.price}`),
+      description: p.description,
+      image: p.image_urls?.[0] || null,
+      hoverImage: p.image_urls?.[1] || null,
+      category: p.category,
+      sizes: ["S", "M", "L", "XL"] // default sizes since DB doesn't store them yet
+    }));
   } catch (error) {
-    console.error("Error fetching products from Sanity:", error);
+    console.error("Error formatting products:", error);
     return [];
   }
 }
 
 export async function getProductById(id: string) {
-  const query = `*[_type == "product" && slug.current == $id][0]{
-    _id,
-    "id": slug.current,
-    name,
-    price,
-    description,
-    "image": image.asset->url,
-    "hoverImage": hoverImage.asset->url,
-    category,
-    sizes
-  }`;
-  
   try {
-    const product = await client.fetch(query, { id });
-    return product;
+    const { data: p, error } = await supabaseAdmin
+      .from("products")
+      .select("*")
+      .eq("slug", id)
+      .single();
+
+    if (error || !p) {
+      return null;
+    }
+
+    return {
+      _id: p.id,
+      id: p.slug,
+      name: p.title,
+      price: typeof p.price === 'number' ? `$${p.price.toFixed(2)}` : (p.price.toString().startsWith('$') ? p.price : `$${p.price}`),
+      description: p.description,
+      image: p.image_urls?.[0] || null,
+      hoverImage: p.image_urls?.[1] || null,
+      category: p.category,
+      sizes: ["S", "M", "L", "XL"]
+    };
   } catch (error) {
-    console.error(`Error fetching product ${id} from Sanity:`, error);
+    console.error(`Error fetching product ${id} from Supabase:`, error);
     return null;
   }
 }

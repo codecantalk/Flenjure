@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getCollections, createCollection, updateCollection, deleteCollection, uploadProductImage } from "../actions";
 import { 
   Plus, 
-  Edit2, 
   Trash2, 
-  Check, 
-  X, 
   Loader2,
   FolderOpen,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Search,
+  Filter,
+  Upload,
+  ArrowLeft,
+  X
 } from "lucide-react";
 
 interface Collection {
@@ -25,37 +27,47 @@ interface Collection {
 export default function AdminCollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Navigation State
+  const [currentView, setCurrentView] = useState<'list' | 'edit'>('list');
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+
+  // List Filters & Selection
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [order, setOrder] = useState(0);
+
+  // Drag and Drop State
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const mockCollections: Collection[] = [
     {
       id: "col-1",
-      name: "Spring / Summer 2026",
-      slug: "spring-summer-2026",
-      description: "Editorial high-end seasonal apparel drop featuring custom knits and tailoring.",
-      image_url: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800",
+      name: "Flenjure Core Apparel",
+      slug: "flenjure-core-apparel",
+      description: "Signature Flenjure pieces engineered for daily comfort and timeless style.",
+      image_url: "https://cdn.sanity.io/images/nkccolc2/production/b9eebe9634ca12b2998fe561c0d1afffbcdf0cdc-1500x1500.jpg",
       order: 1
     },
     {
       id: "col-2",
-      name: "Uniform",
-      slug: "uniform",
-      description: "Timeless everyday essentials designed for life and comfort.",
-      image_url: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800",
+      name: "Accessories & Bags",
+      slug: "accessories-bags",
+      description: "Premium bags and curated objects from the Flenjure universe.",
+      image_url: "https://cdn.sanity.io/images/nkccolc2/production/7b8b4a07f0fb1e5b4b72605f1559edec954d6d67-2000x2000.png",
       order: 2
     },
     {
       id: "col-3",
-      name: "Flenjure / Objects",
-      slug: "flenjure-objects",
-      description: "Curated objects, accessories, and snacks.",
+      name: "Snacks / Munchies",
+      slug: "snacks-munchies",
+      description: "Curated snacks to fuel the experience.",
       image_url: "https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=800",
       order: 3
     }
@@ -72,7 +84,7 @@ export default function AdminCollectionsPage() {
       }
 
       try {
-        const { data } = await supabase.from("collections").select("*").order("order", { ascending: true });
+        const data = await getCollections();
         if (data && data.length > 0) {
           setCollections(data as Collection[]);
         } else {
@@ -87,17 +99,25 @@ export default function AdminCollectionsPage() {
     fetchCollections();
   }, []);
 
-  const openCreateModal = () => {
+  const openCreateView = () => {
     setEditingCollection(null);
-    setName(""); setDescription(""); setImageUrl(""); setOrder(0);
-    setIsModalOpen(true);
+    setName(""); setDescription(""); setImageUrls([]); setOrder(0);
+    setCurrentView('edit');
   };
 
-  const openEditModal = (collection: Collection) => {
+  const openEditView = (collection: Collection) => {
     setEditingCollection(collection);
     setName(collection.name); setDescription(collection.description || "");
-    setImageUrl(collection.image_url || ""); setOrder(collection.order);
-    setIsModalOpen(true);
+    const initialImages = collection.image_url 
+      ? collection.image_url.split(",").map(s => s.trim()).filter(Boolean) 
+      : [];
+    setImageUrls(initialImages); 
+    setOrder(collection.order);
+    setCurrentView('edit');
+  };
+
+  const closeView = () => {
+    setCurrentView('list');
   };
 
   const handleDelete = async (id: string) => {
@@ -107,12 +127,16 @@ export default function AdminCollectionsPage() {
 
     if (isMissingEnv) {
       setCollections(collections.filter(c => c.id !== id));
+      setSelectedCollections(selectedCollections.filter(selId => selId !== id));
+      if (editingCollection?.id === id) closeView();
       return;
     }
 
     try {
-      await supabase.from("collections").delete().eq("id", id);
+      await deleteCollection(id);
       setCollections(collections.filter(c => c.id !== id));
+      setSelectedCollections(selectedCollections.filter(selId => selId !== id));
+      if (editingCollection?.id === id) closeView();
     } catch (err) {
       console.error(err);
     }
@@ -121,8 +145,10 @@ export default function AdminCollectionsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const joinedImageUrl = imageUrls.join(", ");
+    
     const newCol: Omit<Collection, "id" | "slug"> = {
-      name, description, image_url: imageUrl || "", order
+      name, description, image_url: joinedImageUrl, order
     };
 
     const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
@@ -133,167 +159,386 @@ export default function AdminCollectionsPage() {
       } else {
         setCollections([...collections, { ...newCol, id: Math.random().toString(), slug }]);
       }
-      setIsModalOpen(false);
+      closeView();
       return;
     }
 
     try {
-      if (editingCollection) {
-        await supabase.from("collections").update({ ...newCol, slug }).eq("id", editingCollection.id);
+      if (editingCollection && !editingCollection.id.startsWith("col-")) {
+        await updateCollection(editingCollection.id, { ...newCol, slug });
       } else {
-        await supabase.from("collections").insert([{ ...newCol, slug }]);
+        await createCollection({ ...newCol, slug });
       }
-      const { data } = await supabase.from("collections").select("*").order("order", { ascending: true });
+      const data = await getCollections();
       if (data) setCollections(data as Collection[]);
-      setIsModalOpen(false);
+      closeView();
     } catch (err) {
       console.error("Save collection failed:", err);
       alert("Failed to save.");
     }
   };
 
+  const toggleSelectAll = () => {
+    if (selectedCollections.length === filteredCollections.length && filteredCollections.length > 0) {
+      setSelectedCollections([]);
+    } else {
+      setSelectedCollections(filteredCollections.map(c => c.id));
+    }
+  };
+
+  const toggleSelectCollection = (id: string) => {
+    if (selectedCollections.includes(id)) {
+      setSelectedCollections(selectedCollections.filter(selId => selId !== id));
+    } else {
+      setSelectedCollections([...selectedCollections, id]);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    
+    const newUrls = [...imageUrls];
+    
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+        if (isMissingEnv) {
+          const fakeUrl = "https://via.placeholder.com/500?text=Mock+Upload";
+          newUrls.push(fakeUrl);
+        } else {
+          const url = await uploadProductImage(formData);
+          newUrls.push(url);
+        }
+      }
+      setImageUrls(newUrls);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to upload image.");
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImageUrls(imageUrls.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  // Drag and Drop Logic
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const newUrls = [...imageUrls];
+    const itemToMove = newUrls[draggedIndex];
+    newUrls.splice(draggedIndex, 1);
+    newUrls.splice(dropIndex, 0, itemToMove);
+    
+    setImageUrls(newUrls);
+    setDraggedIndex(null);
+  };
+
+  const filteredCollections = collections.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.description && c.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-stone-500">
         <Loader2 className="animate-spin text-stone-400 mb-4" size={24} />
-        <span className="text-[10px] uppercase tracking-widest font-mono">Syncing Collections...</span>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-8 selection:bg-amber-500 selection:text-black">
-      {/* Top Action header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-6 border-b border-stone-850">
-        <div>
-          <h2 className="text-3xl font-serif font-light text-white tracking-wide">Collections</h2>
-          <p className="text-[11px] text-stone-500 uppercase tracking-widest mt-2 font-mono">Manage Storefront Categories</p>
+  if (currentView === 'edit') {
+    return (
+      <div className="max-w-5xl mx-auto space-y-6 pb-20">
+        {/* Top Bar Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={closeView} 
+              className="p-1.5 text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-md transition-colors"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-xl font-semibold text-stone-900 dark:text-white">
+              {editingCollection ? editingCollection.name : "Create collection"}
+            </h2>
+          </div>
+          <div className="flex items-center gap-3">
+            {editingCollection && (
+              <button 
+                type="button" 
+                onClick={() => handleDelete(editingCollection.id)} 
+                className="px-3 py-1.5 rounded-md text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              >
+                Delete
+              </button>
+            )}
+            <button 
+              onClick={handleSubmit} 
+              className="bg-stone-900 dark:bg-white text-white dark:text-stone-900 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors shadow-sm"
+            >
+              Save
+            </button>
+          </div>
         </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
+          {/* Left Column */}
+          <div className="flex-1 space-y-6">
+            
+            {/* Title & Description */}
+            <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-stone-900 dark:text-white mb-1.5">Title</label>
+                <input
+                  type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Summer Collection"
+                  className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-900 dark:text-white mb-1.5">Description</label>
+                <textarea
+                  rows={6} value={description} onChange={(e) => setDescription(e.target.value)}
+                  className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white resize-none transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Media Grid */}
+            <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Collection images</h4>
+                {isUploading && <Loader2 size={16} className="animate-spin text-stone-500" />}
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 relative">
+                
+                {/* Images */}
+                {imageUrls.map((url, index) => (
+                  <div
+                    key={`${url}-${index}`}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDrop={(e) => handleDrop(e, index)}
+                    className={`
+                      relative group border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden bg-stone-50 dark:bg-stone-900 cursor-grab active:cursor-grabbing
+                      ${index === 0 ? "col-span-2 row-span-2 aspect-square" : "col-span-1 aspect-square"}
+                      ${draggedIndex === index ? "opacity-50" : "opacity-100"}
+                    `}
+                  >
+                    <img 
+                      src={url} 
+                      alt={`Collection media ${index + 1}`} 
+                      className="w-full h-full object-cover pointer-events-none" 
+                    />
+                    
+                    {/* Hover Actions */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-black/40 transition-colors pointer-events-none"></div>
+                    
+                    {/* Delete Button */}
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage(index);
+                      }}
+                      className="absolute top-2 right-2 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 p-1.5 rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500 dark:hover:text-red-400 z-10"
+                    >
+                      <X size={14} />
+                    </button>
+                    
+                    {/* Label for primary */}
+                    {index === 0 && (
+                      <div className="absolute bottom-2 left-2 bg-white/90 dark:bg-stone-800/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-medium text-stone-700 dark:text-stone-300 pointer-events-none">
+                        Main Thumbnail
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Upload Button */}
+                <div className={`
+                  border border-dashed border-stone-300 dark:border-stone-700 rounded-lg flex flex-col items-center justify-center text-center relative hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors
+                  ${imageUrls.length === 0 ? "col-span-2 row-span-2 aspect-square p-8" : "col-span-1 aspect-square"}
+                `}>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple
+                    onChange={handleFileUpload} 
+                    disabled={isUploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" 
+                  />
+                  <div className={`
+                    rounded bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-400
+                    ${imageUrls.length === 0 ? "w-12 h-12 mb-3" : "w-8 h-8"}
+                  `}>
+                    {imageUrls.length === 0 ? <Upload size={20} /> : <Plus size={16} />}
+                  </div>
+                  {imageUrls.length === 0 && (
+                    <span className="text-sm font-medium text-stone-900 dark:text-white">Click or drop images to upload</span>
+                  )}
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column */}
+          <div className="md:w-80 space-y-6 shrink-0">
+            {/* Organization Card */}
+            <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+              <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Display Settings</h4>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1.5">Sort Order</label>
+                <input
+                  type="number" value={order} onChange={(e) => setOrder(Number(e.target.value))}
+                  className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white transition-colors"
+                />
+                <p className="text-xs text-stone-500 mt-1.5">Lower numbers appear first on the site.</p>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // --- LIST VIEW ---
+  const firstImageUrl = (col: Collection) => {
+    if (!col.image_url) return null;
+    return col.image_url.split(",")[0].trim();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
+        <h2 className="text-xl font-semibold text-stone-900 dark:text-white">Collections</h2>
         <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-stone-950 px-5 py-2.5 rounded-lg font-medium text-xs uppercase tracking-wider transition-all duration-300"
+          onClick={openCreateView}
+          className="flex items-center justify-center gap-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors shadow-sm"
         >
           <Plus size={16} />
-          <span>New Collection</span>
+          <span>Create Collection</span>
         </button>
       </div>
 
-      {/* Data Table */}
-      <div className="bg-stone-900/20 border border-stone-850 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-stone-300 border-collapse">
-            <thead>
-              <tr className="bg-stone-900/50 border-b border-stone-850">
-                <th className="py-4 px-6 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Collection</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Description</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium text-center">Sort Order</th>
-                <th className="py-4 px-4 text-right"></th>
+      {/* Toolbar & Filters (Shopify Style) */}
+      <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
+        {/* Search Bar */}
+        <div className="p-3 flex items-center gap-2 bg-white dark:bg-[#111]">
+          <div className="relative flex-1 sm:max-w-md">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
+            <input 
+              type="text" 
+              placeholder="Search collections"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md pl-9 pr-3 py-1.5 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 transition-colors"
+            />
+          </div>
+          <button className="p-1.5 rounded-md border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900 flex items-center gap-1.5 px-3">
+            <Filter size={14} />
+            <span className="text-sm font-medium hidden sm:inline">More filters</span>
+          </button>
+        </div>
+
+        {/* Data Table */}
+        <div className="overflow-x-auto border-t border-stone-200 dark:border-stone-800">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-stone-50 dark:bg-stone-900/50 text-stone-600 dark:text-stone-400 font-medium border-b border-stone-200 dark:border-stone-800">
+              <tr>
+                <th className="px-4 py-2.5 w-10">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedCollections.length === filteredCollections.length && filteredCollections.length > 0}
+                    onChange={toggleSelectAll}
+                    className="rounded border-stone-300 dark:border-stone-600 text-stone-900 dark:text-white focus:ring-0 cursor-pointer w-4 h-4"
+                  />
+                </th>
+                <th className="px-4 py-2.5 font-medium">Collection</th>
+                <th className="px-4 py-2.5 font-medium">Description</th>
+                <th className="px-4 py-2.5 font-medium text-center">Sort Order</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-850/50">
-              {collections.map((col) => (
-                <tr key={col.id} className="hover:bg-stone-850/30 transition-colors group">
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-md bg-stone-950 border border-stone-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {col.image_url ? (
-                          <img src={col.image_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <FolderOpen size={20} className="text-stone-700" />
-                        )}
+            <tbody className="divide-y divide-stone-200 dark:divide-stone-800 text-stone-900 dark:text-stone-100">
+              {filteredCollections.map((col) => {
+                const img = firstImageUrl(col);
+                return (
+                  <tr 
+                    key={col.id} 
+                    className="hover:bg-stone-50/80 dark:hover:bg-stone-800/40 transition-colors cursor-pointer"
+                  >
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedCollections.includes(col.id)}
+                        onChange={() => toggleSelectCollection(col.id)}
+                        className="rounded border-stone-300 dark:border-stone-600 text-stone-900 dark:text-white focus:ring-0 cursor-pointer w-4 h-4"
+                      />
+                    </td>
+                    <td className="px-4 py-3" onClick={() => openEditView(col)}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded border border-stone-200 dark:border-stone-700 flex items-center justify-center overflow-hidden flex-shrink-0 bg-stone-50 dark:bg-stone-900">
+                          {img ? (
+                            <img src={img} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <FolderOpen size={16} className="text-stone-400" />
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-sm hover:underline text-left">
+                            {col.name}
+                          </span>
+                          <span className="text-xs text-stone-500 mt-0.5">/{col.slug}</span>
+                        </div>
                       </div>
-                      <div>
-                        <button onClick={() => openEditModal(col)} className="font-medium text-stone-200 hover:text-amber-500 transition-colors text-sm">
-                          {col.name}
-                        </button>
-                        <div className="text-[10px] text-stone-500 font-mono mt-0.5">/{col.slug}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 text-xs font-light text-stone-400 max-w-xs truncate">
-                    {col.description || "No description provided"}
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="bg-stone-900 px-2 py-1 rounded text-[10px] text-stone-400 border border-stone-800 font-mono">
-                      {col.order}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => openEditModal(col)} className="p-1.5 text-stone-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-md transition-colors">
-                        <Edit2 size={14} />
-                      </button>
-                      <button onClick={() => handleDelete(col.id)} className="p-1.5 text-stone-400 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-3 text-stone-600 dark:text-stone-400 text-xs max-w-xs truncate" onClick={() => openEditView(col)}>
+                      {col.description || "No description provided"}
+                    </td>
+                    <td className="px-4 py-3 text-center" onClick={() => openEditView(col)}>
+                      <span className="bg-stone-100 dark:bg-stone-800 px-2 py-1 rounded text-xs text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-700">
+                        {col.order}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          {filteredCollections.length === 0 && (
+            <div className="py-16 text-center">
+              <p className="text-stone-500 text-sm">No collections found matching your filter.</p>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Editor Slide-over */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="relative w-full max-w-md bg-stone-900 border-l border-stone-800 shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-stone-850 bg-stone-950/50">
-              <h3 className="text-xl font-serif font-light text-white">
-                {editingCollection ? "Edit Collection" : "New Collection"}
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 text-stone-500 hover:text-white rounded-full hover:bg-stone-800 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-2">Collection Name *</label>
-                  <input
-                    type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-2.5 outline-none focus:border-amber-500 font-light text-sm text-white transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-2">Short Description</label>
-                  <textarea
-                    rows={4} value={description} onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-2.5 outline-none focus:border-amber-500 font-light text-sm text-white resize-none transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-2">Rendering Sort Order (Lower = First)</label>
-                  <input
-                    type="number" value={order} onChange={(e) => setOrder(Number(e.target.value))}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-2.5 outline-none focus:border-amber-500 font-mono text-sm text-white transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-2">Cover Image URL</label>
-                  <input
-                    type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-800 rounded-lg px-4 py-2.5 outline-none focus:border-amber-500 font-mono text-sm text-white transition-colors"
-                  />
-                </div>
-              </div>
-            </form>
-
-            <div className="p-6 border-t border-stone-850 bg-stone-950 flex gap-3">
-              <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 rounded-lg border border-stone-800 text-stone-300 text-xs font-medium hover:bg-stone-800 transition-colors">
-                Cancel
-              </button>
-              <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-stone-950 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">
-                <Check size={14} />
-                <span>Save</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

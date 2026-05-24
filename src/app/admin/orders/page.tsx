@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getOrders, updateOrderField } from "../actions";
 import { 
   Loader2,
   CheckCircle,
@@ -12,7 +12,10 @@ import {
   CreditCard,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Search,
+  Filter,
+  Image as ImageIcon
 } from "lucide-react";
 
 interface OrderItem {
@@ -115,11 +118,7 @@ export default function AdminOrdersPage() {
       }
 
       try {
-        const { data } = await supabase
-          .from("orders")
-          .select("*")
-          .order("created_at", { ascending: false });
-
+        const data = await getOrders();
         if (data && data.length > 0) {
           setOrders(data as Order[]);
         } else {
@@ -153,97 +152,131 @@ export default function AdminOrdersPage() {
 
     setOrders(updatedOrders);
 
-    if (isMissingEnv) return;
-
     try {
-      await supabase
-        .from("orders")
-        .update({ [field]: newStatus })
-        .eq("id", id);
+      await updateOrderField(id, field, newStatus);
     } catch (err) {
       console.error(err);
     }
   };
 
+  const handleExport = () => {
+    if (orders.length === 0) {
+      alert("No orders to export.");
+      return;
+    }
+    
+    const headers = ["Order ID", "Date", "Customer Name", "Email", "Total Amount", "Payment Status", "Status"];
+    const rows = orders.map(o => [
+      `ORD-${o.id.substring(0, 8).toUpperCase()}`,
+      new Date(o.created_at).toLocaleDateString(),
+      `"${(o.shipping_address?.fullName || "Guest").replace(/"/g, '""')}"`,
+      o.email || o.whatsapp_number || "N/A",
+      o.total_amount,
+      o.payment_status,
+      o.status
+    ]);
+    
+    const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `flenjure-orders-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-stone-500">
+      <div className="flex flex-col items-center justify-center py-32 text-stone-500">
         <Loader2 className="animate-spin text-stone-400 mb-4" size={24} />
-        <span className="text-xs uppercase tracking-widest">Loading orders...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 selection:bg-amber-500 selection:text-black">
+    <div className="space-y-6">
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-6 border-b border-stone-850">
-        <div>
-          <h2 className="text-3xl font-serif font-light text-white tracking-wide">Orders</h2>
-          <p className="text-[11px] text-stone-500 uppercase tracking-widest mt-2 font-mono">
-            {orders.length} Total Transactions
-          </p>
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button className="px-4 py-2.5 rounded-lg border border-stone-800 text-stone-300 text-xs font-medium hover:bg-stone-800 transition-colors hidden sm:block">
-            Export CSV
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
+        <h2 className="text-xl font-semibold text-stone-900 dark:text-white">Orders</h2>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button 
+            onClick={handleExport}
+            className="px-3 py-1.5 text-sm font-medium border border-stone-200 dark:border-stone-700 bg-white dark:bg-[#111] text-stone-900 dark:text-white rounded-md shadow-sm hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors hidden sm:block"
+          >
+            Export
           </button>
         </div>
       </div>
 
-      {/* Orders Table Grid */}
-      <div className="bg-stone-900/20 border border-stone-850 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+      {/* Toolbar & Filters (Shopify Card style) */}
+      <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
+        <div className="p-2 flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-stone-200 dark:border-stone-800">
+          <div className="flex items-center gap-2 px-2">
+            <span className="text-sm font-medium text-stone-900 dark:text-white border-b-2 border-stone-900 dark:border-white pb-1 cursor-pointer">All</span>
+            <span className="text-sm font-medium text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 pb-1 cursor-pointer">Unfulfilled</span>
+            <span className="text-sm font-medium text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 pb-1 cursor-pointer">Unpaid</span>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-500" />
+              <input 
+                type="text" 
+                placeholder="Search orders"
+                className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md pl-8 pr-3 py-1.5 text-sm outline-none focus:border-stone-400 dark:focus:border-stone-500 transition-colors"
+              />
+            </div>
+            <button className="p-1.5 rounded-md border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-900">
+              <Filter size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-stone-300 border-collapse">
-            <thead>
-              <tr className="bg-stone-900/50 border-b border-stone-850">
-                <th className="py-4 px-6 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Order ID</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Customer</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Method</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Total Amount</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Payment</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest font-mono text-stone-500 font-medium">Fulfillment</th>
-                <th className="py-4 px-6 text-right"></th>
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-stone-50 dark:bg-stone-900/50 text-stone-600 dark:text-stone-400 font-medium border-b border-stone-200 dark:border-stone-800">
+              <tr>
+                <th className="px-5 py-3 font-medium">Order</th>
+                <th className="px-5 py-3 font-medium">Date</th>
+                <th className="px-5 py-3 font-medium">Customer</th>
+                <th className="px-5 py-3 font-medium">Payment</th>
+                <th className="px-5 py-3 font-medium">Fulfillment</th>
+                <th className="px-5 py-3 text-right font-medium">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-850/50">
+            <tbody className="divide-y divide-stone-200 dark:divide-stone-800 text-stone-900 dark:text-stone-100">
               {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-stone-850/30 transition-colors group cursor-pointer" onClick={() => setSelectedOrder(order)}>
-                  <td className="py-4 px-6 font-mono font-medium text-amber-500 hover:text-amber-400 transition-colors">{order.id}</td>
-                  <td className="py-4 px-4">
-                    <div className="text-white font-medium text-sm">{order.shipping_address?.fullName || "Guest Customer"}</div>
-                    <div className="text-[10px] font-mono text-stone-500 mt-0.5">{order.email}</div>
+                <tr key={order.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/30 transition-colors group cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                  <td className="px-5 py-4 font-semibold hover:underline">
+                    {order.id}
                   </td>
-                  <td className="py-4 px-4 uppercase tracking-wider text-[10px] font-mono text-stone-400">
-                    {order.payment_method === "manual_payment" ? "Manual Transfer" : "Apple Pay"}
+                  <td className="px-5 py-4 text-xs text-stone-500">
+                    {new Date(order.created_at).toLocaleDateString()}
                   </td>
-                  <td className="py-4 px-4 font-mono text-sm text-white">${order.total_amount.toFixed(2)}</td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium border
-                      ${order.payment_status === "completed" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-500 border-amber-500/20"}
+                  <td className="px-5 py-4">
+                    {order.shipping_address?.fullName || "Guest Customer"}
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border
+                      ${order.payment_status === "completed" ? "bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-700" : "bg-stone-100 dark:bg-stone-800 text-stone-500 border-stone-200 dark:border-stone-700"}
                     `}>
-                      {order.payment_status}
+                      {order.payment_status === "completed" ? "Paid" : "Pending"}
                     </span>
                   </td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium border
-                      ${order.status === "shipped" && "bg-blue-500/10 text-blue-400 border-blue-500/20"}
-                      ${order.status === "pending" && "bg-amber-500/10 text-amber-500 border-amber-500/20"}
-                      ${order.status === "paid" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"}
-                      ${order.status === "cancelled" && "bg-red-500/10 text-red-400 border-red-500/20"}
+                  <td className="px-5 py-4">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border
+                      ${order.status === "shipped" && "bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-700"}
+                      ${order.status === "pending" && "bg-stone-100 dark:bg-stone-800 text-stone-500 border-stone-200 dark:border-stone-700"}
+                      ${order.status === "paid" && "bg-stone-100 dark:bg-stone-800 text-stone-500 border-stone-200 dark:border-stone-700"}
+                      ${order.status === "cancelled" && "bg-stone-100 dark:bg-stone-800 text-stone-500 border-stone-200 dark:border-stone-700"}
                     `}>
-                      {order.status}
+                      {order.status === "shipped" ? "Fulfilled" : "Unfulfilled"}
                     </span>
                   </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedOrder(order); }}
-                        className="p-1.5 text-stone-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-md transition-colors"
-                      >
-                        <Eye size={16} />
-                      </button>
-                    </div>
+                  <td className="px-5 py-4 text-right font-medium">
+                    ${order.total_amount.toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -252,144 +285,151 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Details Side-Drawer Modal */}
+      {/* Editor Modal (Shopify Style Full Screen/Wide Modal) */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm" onClick={() => setSelectedOrder(null)} />
-          <div className="relative w-full max-w-lg bg-stone-900 border-l border-stone-800 shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300">
-            {/* Header info */}
-            <div>
-              <div className="p-6 border-b border-stone-850 flex justify-between items-center bg-stone-950/20">
-                <div>
-                  <span className="font-mono text-xs text-stone-500 uppercase tracking-widest leading-none">Order Invoice</span>
-                  <h3 className="text-xl font-serif font-light text-white mt-1">{selectedOrder.id}</h3>
-                </div>
-                <button 
-                  onClick={() => setSelectedOrder(null)}
-                  className="text-stone-500 hover:text-white p-1"
-                >
-                  <X size={20} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 dark:bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#fcfcfc] dark:bg-[#0a0a0a] w-full max-w-4xl h-[90vh] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-[#111]">
+              <div className="flex items-center gap-4">
+                <button onClick={() => setSelectedOrder(null)} className="p-1.5 text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-md transition-colors">
+                  <X size={18} />
+                </button>
+                <h3 className="text-lg font-semibold text-stone-900 dark:text-white">
+                  Order {selectedOrder.id}
+                </h3>
+                <span className="text-xs text-stone-500 font-medium">{new Date(selectedOrder.created_at).toLocaleString()}</span>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => updateStatus(selectedOrder.id, "cancelled", "status")} className="px-3 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 text-sm font-medium hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors">
+                  Cancel order
                 </button>
               </div>
+            </div>
 
-              {/* Order content */}
-              <div className="p-6 space-y-6">
-                {/* Status Toggles */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-mono mb-2">Order State</label>
-                    <select
-                      value={selectedOrder.status}
-                      onChange={(e) => updateStatus(selectedOrder.id, e.target.value, "status")}
-                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-3 py-2 text-xs font-light text-white outline-none focus:border-amber-500"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="paid">Paid</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+            {/* Modal Body (Two Column Layout) */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 md:space-y-0 md:flex md:gap-6 custom-scrollbar">
+              
+              {/* Left Column */}
+              <div className="flex-1 space-y-6">
+                
+                {/* Fulfillment Status Card */}
+                <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedOrder.status === 'shipped' ? 'bg-stone-800 dark:bg-stone-200' : 'bg-stone-400'}`}></span>
+                      {selectedOrder.status === "shipped" ? "Fulfilled" : "Unfulfilled"}
+                    </h4>
+                    {selectedOrder.status !== "shipped" && (
+                      <button onClick={() => updateStatus(selectedOrder.id, "shipped", "status")} className="text-xs font-medium text-stone-900 dark:text-white underline hover:no-underline">
+                        Mark as fulfilled
+                      </button>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-mono mb-2">Payment Status</label>
-                    <select
-                      value={selectedOrder.payment_status}
-                      onChange={(e) => updateStatus(selectedOrder.id, e.target.value, "payment_status")}
-                      className="w-full bg-stone-950 border border-stone-800 rounded-lg px-3 py-2 text-xs font-light text-white outline-none focus:border-amber-500"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="completed">Completed</option>
-                      <option value="failed">Failed</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Items purchase listing */}
-                <div className="space-y-3">
-                  <h4 className="text-[10px] uppercase tracking-wider text-stone-400 font-mono">Cart Items</h4>
-                  <div className="bg-stone-950 border border-stone-850/60 rounded-xl p-4 divide-y divide-stone-850/40">
+                  
+                  <div className="border border-stone-200 dark:border-stone-800 rounded-lg divide-y divide-stone-200 dark:divide-stone-800">
                     {selectedOrder.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center py-2.5 first:pt-0 last:pb-0">
-                        <div>
-                          <p className="text-xs font-medium text-white">{item.title}</p>
-                          <p className="text-[10px] text-stone-500">Qty: {item.quantity} • ${item.price.toFixed(2)} ea</p>
+                      <div key={idx} className="p-3 flex justify-between items-center bg-stone-50/50 dark:bg-stone-900/30">
+                        <div className="flex gap-3">
+                          <div className="w-10 h-10 bg-stone-100 dark:bg-stone-800 rounded flex items-center justify-center border border-stone-200 dark:border-stone-700">
+                            <ImageIcon size={14} className="text-stone-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-stone-900 dark:text-white">{item.title}</p>
+                            <p className="text-xs text-stone-500">${item.price.toFixed(2)}</p>
+                          </div>
                         </div>
-                        <span className="text-xs text-white font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="text-sm text-stone-900 dark:text-white font-medium">x {item.quantity}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Logistics */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-stone-850/40">
-                  <div className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-wider text-stone-400 font-mono flex items-center gap-1.5">
-                      <MapPin size={12} className="text-stone-500" />
-                      <span>Shipping Address</span>
+                {/* Payment Status Card */}
+                <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-stone-900 dark:text-white flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${selectedOrder.payment_status === 'completed' ? 'bg-stone-800 dark:bg-stone-200' : 'bg-stone-400'}`}></span>
+                      {selectedOrder.payment_status === "completed" ? "Paid" : "Pending payment"}
                     </h4>
-                    <p className="text-xs text-stone-300 font-light leading-relaxed">
+                    {selectedOrder.payment_status !== "completed" && (
+                      <button onClick={() => updateStatus(selectedOrder.id, "completed", "payment_status")} className="text-xs font-medium text-stone-900 dark:text-white bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">
+                        Mark as paid
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-stone-200 dark:border-stone-800">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-stone-600 dark:text-stone-400">Subtotal</span>
+                      <span className="text-stone-900 dark:text-white">${selectedOrder.total_amount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-semibold">
+                      <span className="text-stone-900 dark:text-white">Total</span>
+                      <span className="text-stone-900 dark:text-white">${selectedOrder.total_amount.toFixed(2)}</span>
+                    </div>
+                    <div className="text-xs text-stone-500 text-right pt-1">
+                      Paid by {selectedOrder.payment_method === "manual_payment" ? "Manual Transfer" : "Apple Pay"}
+                    </div>
+                  </div>
+
+                  {selectedOrder.payment_method === "manual_payment" && selectedOrder.payment_details && (
+                    <div className="p-3 rounded-md bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-1">
+                      <h5 className="text-xs font-medium text-stone-900 dark:text-white">Manual Payment Details</h5>
+                      <div className="text-xs text-stone-600 dark:text-stone-400">
+                        {selectedOrder.payment_details.cashappTag && (
+                          <p>CashApp: <span className="font-semibold text-stone-900 dark:text-white">{selectedOrder.payment_details.cashappTag}</span></p>
+                        )}
+                        {selectedOrder.payment_details.zelleName && (
+                          <p>Zelle: <span className="font-semibold text-stone-900 dark:text-white">{selectedOrder.payment_details.zelleName}</span></p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Right Column */}
+              <div className="md:w-72 space-y-6 shrink-0">
+                {/* Customer Details Card */}
+                <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+                  <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Customer</h4>
+                  
+                  <div className="space-y-3">
+                    {selectedOrder.email ? (
+                      <div className="flex items-start gap-2">
+                        <Mail size={14} className="text-stone-400 mt-0.5" />
+                        <a href={`mailto:${selectedOrder.email}`} className="text-sm text-stone-600 dark:text-stone-300 hover:underline break-all">
+                          {selectedOrder.email}
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-stone-500">No email provided</span>
+                    )}
+
+                    {selectedOrder.whatsapp_number && (
+                      <div className="flex items-start gap-2">
+                        <Phone size={14} className="text-stone-400 mt-0.5" />
+                        <span className="text-sm text-stone-600 dark:text-stone-300">
+                          {selectedOrder.whatsapp_number}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 border-t border-stone-200 dark:border-stone-800 space-y-2">
+                    <h5 className="text-xs font-medium text-stone-900 dark:text-white">Shipping Address</h5>
+                    <p className="text-sm text-stone-600 dark:text-stone-400">
                       {selectedOrder.shipping_address?.fullName} <br />
                       {selectedOrder.shipping_address?.addressLine1} <br />
                       {selectedOrder.shipping_address?.city}, {selectedOrder.shipping_address?.state} {selectedOrder.shipping_address?.postalCode} <br />
                       {selectedOrder.shipping_address?.country}
                     </p>
                   </div>
-
-                  <div className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-wider text-stone-400 font-mono flex items-center gap-1.5">
-                      <CreditCard size={12} className="text-stone-500" />
-                      <span>CRM Details</span>
-                    </h4>
-                    <div className="space-y-2 text-xs text-stone-300 font-light">
-                      {selectedOrder.whatsapp_number && (
-                        <div className="flex items-center gap-2">
-                          <Phone size={12} className="text-stone-500" />
-                          <span>{selectedOrder.whatsapp_number}</span>
-                        </div>
-                      )}
-                      {selectedOrder.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail size={12} className="text-stone-500" />
-                          <span className="truncate block max-w-[160px]">{selectedOrder.email}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
-
-                {/* Transfer Info */}
-                {selectedOrder.payment_method === "manual_payment" && selectedOrder.payment_details && (
-                  <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 space-y-2">
-                    <h4 className="text-[10px] uppercase tracking-wider text-amber-500 font-mono">Manual Payment Reference</h4>
-                    <div className="text-xs text-stone-300">
-                      {selectedOrder.payment_details.cashappTag && (
-                        <p>CashApp Tag: <span className="font-semibold text-amber-500/80">{selectedOrder.payment_details.cashappTag}</span></p>
-                      )}
-                      {selectedOrder.payment_details.zelleName && (
-                        <p>Zelle Account: <span className="font-semibold text-amber-500/80">{selectedOrder.payment_details.zelleName}</span></p>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Bottom Actions footer */}
-            <div className="p-6 border-t border-stone-850 bg-stone-950/20 flex gap-4">
-              <button
-                onClick={() => updateStatus(selectedOrder.id, "shipped", "status")}
-                className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-stone-950 py-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-300"
-              >
-                <Send size={14} />
-                <span>Dispatch / Ship</span>
-              </button>
-              <button
-                onClick={() => updateStatus(selectedOrder.id, "completed", "payment_status")}
-                className="flex-1 flex items-center justify-center gap-2 bg-stone-800 hover:bg-stone-750 text-stone-200 py-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-300"
-              >
-                <CheckCircle size={14} />
-                <span>Confirm Paid</span>
-              </button>
             </div>
           </div>
         </div>

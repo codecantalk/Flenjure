@@ -291,7 +291,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className="absolute bottom-full mb-2 w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 z-50 shadow-2xl py-2"
+                          className="absolute top-full mt-2 w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 z-50 shadow-2xl py-2"
                         >
                            {productData.sizes.map((size: string) => (
                              <button
