@@ -103,12 +103,13 @@ export default async function ShopProductDetail({ params }: Props) {
       .sort(() => 0.5 - Math.random()) // naive shuffle
       .slice(0, 2)
       .map((p: any) => ({
-        id: p.id,
-        title: p.title,
+        id: p.slug,
+        name: p.title,
         slug: p.slug,
         price: `$${p.price.toFixed(2)}`,
         compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
-        imageUrl: p.image_urls?.[0] || "https://via.placeholder.com/500",
+        image: p.image_urls?.[0] || "https://via.placeholder.com/500",
+        hoverImage: p.image_urls?.[1] || null,
         category: p.category,
         inStock: p.in_stock,
       }));

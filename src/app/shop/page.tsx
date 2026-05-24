@@ -5,14 +5,14 @@ import { Suspense } from "react";
 export default async function ShopPage() {
   const dbProducts = await getProducts();
   
-  // Transform DB products to match frontend expectations
   const products = dbProducts.map((p: any) => ({
-    id: p.id,
-    title: p.title,
-    slug: p.slug?.current || p.slug,
+    id: p.slug, // Use slug as the ID for routing purposes since ShopClient links to /shop/${product.id}
+    name: p.title, // ShopClient uses product.name
+    slug: p.slug,
     price: `$${p.price.toFixed(2)}`,
     compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
-    imageUrl: p.image_urls?.[0] || "https://via.placeholder.com/500",
+    image: p.image_urls?.[0] || "https://via.placeholder.com/500", // ShopClient uses product.image
+    hoverImage: p.image_urls?.[1] || null,
     category: p.category,
     inStock: p.in_stock,
   }));
