@@ -1,4 +1,4 @@
-import { getProductById, getProducts } from "@/lib/sanity";
+import { getProductBySlug, getProducts } from "@/app/admin/actions";
 import ProductDetailClient from "@/components/shop/ProductDetailClient";
 import { notFound } from "next/navigation";
 
@@ -10,12 +10,12 @@ export default async function ShopProductDetail({ params }: Props) {
   try {
     const { id } = await params;
     const decodedId = decodeURIComponent(id);
-    const productData = await getProductById(decodedId);
+    const productData = await getProductBySlug(decodedId);
     
     if (!productData) {
       return (
         <div className="pt-32 px-12 pb-32">
-          <h1>Debug: Sanity returned null</h1>
+          <h1>Debug: Product returned null</h1>
           <pre>Requested Slug: {id}</pre>
         </div>
       );
@@ -23,7 +23,7 @@ export default async function ShopProductDetail({ params }: Props) {
 
     // Determine niche-specific details based on category or name
     const getDetails = (product: any) => {
-      const name = product.name.toLowerCase();
+      const name = product.title.toLowerCase();
       const category = (product.category || "").toLowerCase();
 
       if (name.includes("rolling papers")) {
@@ -66,7 +66,7 @@ export default async function ShopProductDetail({ params }: Props) {
     };
 
     const getSizing = (product: any) => {
-      const name = product.name.toLowerCase();
+      const name = product.title.toLowerCase();
       const category = (product.category || "").toLowerCase();
 
       if (category.includes("apparel") || name.includes("jersey") || name.includes("tee") || name.includes("hoodie")) {
@@ -101,11 +101,24 @@ export default async function ShopProductDetail({ params }: Props) {
     const relatedProducts = allProducts
       .filter((p: any) => p.id !== productData.id)
       .sort(() => 0.5 - Math.random()) // naive shuffle
-      .slice(0, 2);
+      .slice(0, 2)
+      .map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        price: `$${p.price.toFixed(2)}`,
+        compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
+        imageUrl: p.image_urls?.[0] || "https://via.placeholder.com/500",
+        category: p.category,
+        inStock: p.in_stock,
+      }));
 
     const mappedProductData = {
       ...productData,
-      images: [productData?.image, productData?.hoverImage].filter(Boolean),
+      name: productData.title,
+      price: `$${productData.price.toFixed(2)}`,
+      compareAtPrice: productData.compare_at_price ? `$${productData.compare_at_price.toFixed(2)}` : null,
+      images: productData.image_urls || ["https://via.placeholder.com/500"],
       details: getDetails(productData),
       sizing: getSizing(productData),
       relatedProducts

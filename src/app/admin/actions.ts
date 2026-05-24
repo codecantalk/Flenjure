@@ -12,6 +12,10 @@ export async function getProducts() {
   const { data } = await supabaseAdmin.from("products").select("*").order("priority", { ascending: false });
   return data || [];
 }
+export async function getProductBySlug(slug: string) {
+  const { data } = await supabaseAdmin.from("products").select("*").eq("slug", slug).single();
+  return data;
+}
 export async function createProduct(productData: any) {
   const { data, error } = await supabaseAdmin.from("products").insert([productData]).select().single();
   if (error) throw error;
