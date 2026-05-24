@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // We'll use the service role key to bypass RLS for server-side fetching
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder"
 );
 
 // We keep the old urlFor signature so we don't break existing components
