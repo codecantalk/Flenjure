@@ -59,6 +59,13 @@ export async function deleteProduct(id: string) {
   revalidatePath('/', 'layout');
   return true;
 }
+export async function bulkUpdateProducts(ids: string[], updates: any) {
+  const { data, error } = await supabaseAdmin.from("products").update(updates).in("id", ids).select();
+  if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
+  return data;
+}
 export async function uploadProductImage(formData: FormData) {
   const file = formData.get("file") as File;
   if (!file) throw new Error("No file uploaded");
@@ -113,6 +120,11 @@ export async function getOrders() {
   const { data } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
   return data || [];
 }
+export async function createOrder(orderData: any) {
+  const { data, error } = await supabaseAdmin.from("orders").insert([orderData]).select().single();
+  if (error) throw error;
+  return data;
+}
 export async function updateOrderField(id: string, field: string, value: string) {
   const { data, error } = await supabaseAdmin.from("orders").update({ [field]: value }).eq("id", id).select().single();
   if (error) throw error;
@@ -123,6 +135,11 @@ export async function updateOrderField(id: string, field: string, value: string)
 export async function getCrmSessions() {
   const { data } = await supabaseAdmin.from("cart_sessions").select("*").order("updated_at", { ascending: false });
   return data || [];
+}
+export async function createOrUpdateCartSession(sessionData: any) {
+  const { data, error } = await supabaseAdmin.from("cart_sessions").upsert([sessionData], { onConflict: "email" }).select().single();
+  if (error) throw error;
+  return data;
 }
 export async function updateCrmSession(id: string, dataObj: any) {
   const { data, error } = await supabaseAdmin.from("cart_sessions").update(dataObj).eq("id", id).select().single();

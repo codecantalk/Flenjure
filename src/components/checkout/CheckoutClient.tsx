@@ -1,24 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/lib/store";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Info, ShoppingBag, Lock } from "lucide-react";
+import { ChevronDown, Info, ShoppingBag, Lock, Loader2 } from "lucide-react";
 import clsx from "clsx";
+import { createOrder, createOrUpdateCartSession } from "@/app/admin/actions";
 
 export default function CheckoutClient() {
-   const { items } = useCartStore();
+   const { items, clearCart } = useCartStore();
+   const router = useRouter();
    const cartTotal = items.reduce((total, item) => {
       const priceNum = parseFloat(item.price.replace("$", ""));
       return total + priceNum * item.quantity;
    }, 0);
 
    const [email, setEmail] = useState("");
+   const [firstName, setFirstName] = useState("");
+   const [lastName, setLastName] = useState("");
+   const [address, setAddress] = useState("");
+   const [city, setCity] = useState("");
+   const [state, setState] = useState("");
+   const [zip, setZip] = useState("");
+   const [phone, setPhone] = useState("");
+   const [isProcessing, setIsProcessing] = useState(false);
+   
    const [showBilling, setShowBilling] = useState(false);
    const [paymentMethod, setPaymentMethod] = useState("credit");
    const [showOrderSummary, setShowOrderSummary] = useState(false);
+
+   // CRM Abandoned Cart tracking
+   useEffect(() => {
+     if (!email || !email.includes("@")) return;
+     const timeout = setTimeout(() => {
+       createOrUpdateCartSession({
+         email,
+         whatsapp_number: phone,
+         items: items.map(i => ({ id: i.id, title: i.name, quantity: i.quantity, price: parseFloat(i.price.replace("$", "")) })),
+         is_recovered: false
+       }).catch(console.error);
+     }, 2000);
+     return () => clearTimeout(timeout);
+   }, [email, phone, items]);
+
+   const handlePayment = async (e: React.FormEvent) => {
+     e.preventDefault();
+     if (items.length === 0) return alert("Your cart is empty");
+     if (!email || !firstName || !lastName || !address || !city || !state || !zip) {
+       return alert("Please fill in all required shipping fields");
+     }
+
+     setIsProcessing(true);
+     try {
+       const orderData = {
+         status: "paid", // or pending depending on payment flow
+         total_amount: cartTotal,
+         payment_method: paymentMethod,
+         payment_status: "completed",
+         shipping_address: {
+           fullName: `${firstName} ${lastName}`,
+           addressLine1: address,
+           city, state, postalCode: zip, country: "US"
+         },
+         items: items.map(i => ({ product_id: i.id, title: i.name, quantity: i.quantity, price: parseFloat(i.price.replace("$", "")), image: i.image })),
+         email,
+         whatsapp_number: phone
+       };
+       
+       const newOrder = await createOrder(orderData);
+       
+       // Mark CRM session as recovered
+       await createOrUpdateCartSession({
+         email,
+         items: [],
+         is_recovered: true
+       });
+
+       clearCart();
+       router.push(`/checkout/success?orderId=${newOrder.id}`);
+     } catch (err) {
+       console.error("Payment failed", err);
+       alert("An error occurred processing your order.");
+       setIsProcessing(false);
+     }
+   };
 
    return (
       <div className="flex flex-col lg:flex-row min-h-screen font-sans bg-white selection:bg-[#18261e] selection:text-white">
@@ -97,7 +165,7 @@ export default function CheckoutClient() {
                   </div>
                </div>
 
-               <form className="flex flex-col gap-9">
+                <form className="flex flex-col gap-9" onSubmit={handlePayment}>
                   {/* Contact */}
                   <div className="flex flex-col gap-3">
                      <div className="flex justify-between items-end mb-1">
@@ -106,6 +174,7 @@ export default function CheckoutClient() {
                      </div>
                      <input
                         type="email"
+                        required
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -129,43 +198,39 @@ export default function CheckoutClient() {
                            <option>United Kingdom</option>
                            <option>Canada</option>
                            <option>Australia</option>
-                           <option>Germany</option>
-                           <option>France</option>
-                           <option>Italy</option>
-                           <option>Spain</option>
-                           <option>Netherlands</option>
-                           <option>Japan</option>
-                           <option>South Korea</option>
                         </select>
                         <div className="absolute top-1.5 left-[15px] text-[11px] text-[#737373]">Country/Region</div>
                         <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] pointer-events-none" />
                      </div>
                      <div className="grid grid-cols-2 gap-3">
-                        <input type="text" placeholder="First name" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
-                        <input type="text" placeholder="Last name" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
+                        <input type="text" required placeholder="First name" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
+                        <input type="text" required placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                      </div>
                      <input type="text" placeholder="Company (optional)" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                      <div className="relative">
-                        <input type="text" placeholder="Address" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
+                        <input type="text" required placeholder="Address" value={address} onChange={e => setAddress(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#ababab] pointer-events-none">
                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         </div>
                      </div>
                      <input type="text" placeholder="Apartment, suite, etc. (optional)" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                      <div className="grid grid-cols-3 gap-3">
-                        <input type="text" placeholder="City" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
+                        <input type="text" required placeholder="City" value={city} onChange={e => setCity(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                         <div className="relative">
-                           <select className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-stone-950 dark:text-white shadow-sm focus:ring-1 focus:ring-[#000] focus:border-[#000]">
-                              <option>State</option>
-                              <option>NY</option>
-                              <option>CA</option>
+                           <select required value={state} onChange={e => setState(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-stone-950 dark:text-white shadow-sm focus:ring-1 focus:ring-[#000] focus:border-[#000]">
+                              <option value="">State</option>
+                              <option value="NY">NY</option>
+                              <option value="CA">CA</option>
+                              <option value="TX">TX</option>
+                              <option value="FL">FL</option>
+                              <option value="GA">GA</option>
                            </select>
                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373]" />
                         </div>
-                        <input type="text" placeholder="ZIP code" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
+                        <input type="text" required placeholder="ZIP code" value={zip} onChange={e => setZip(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                      </div>
                      <div className="relative mt-1">
-                        <input type="text" placeholder="Phone" className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
+                        <input type="tel" placeholder="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)} className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-[#000] focus:border-[#000] shadow-sm placeholder:text-[#ababab] dark:text-white dark:bg-stone-950" />
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#000] dark:hover:text-white cursor-help"><Info size={16} /></div>
                      </div>
                      <div className="flex items-center gap-2 mt-2">
@@ -378,8 +443,8 @@ export default function CheckoutClient() {
                      </div>
                   </div>
 
-                  <button type="button" className="w-full py-[20px] bg-[#000] text-white text-[15px] font-bold rounded-[4px] hover:opacity-90 transition-all shadow-md mt-4 mb-24">
-                     Pay now
+                  <button type="submit" disabled={isProcessing} className="w-full h-[60px] flex items-center justify-center bg-[#000] text-white text-[15px] font-bold rounded-[4px] hover:opacity-90 transition-all shadow-md mt-4 mb-24 disabled:opacity-70">
+                     {isProcessing ? <Loader2 className="animate-spin" /> : "Pay now"}
                   </button>
                </form>
             </div>

@@ -81,11 +81,7 @@ export default function AdminCRMPage() {
 
       try {
         const data = await getCrmSessions();
-        if (data && data.length > 0) {
-          setSessions(data as CartSession[]);
-        } else {
-          setSessions(mockSessions);
-        }
+        setSessions(data as CartSession[]);
       } catch (err) {
         console.error("Error loading cart sessions:", err);
       } finally {

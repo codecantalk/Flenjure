@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProducts, getCollections, createProduct, updateProduct, deleteProduct, uploadProductImage } from "../actions";
+import { getProducts, getCollections, createProduct, updateProduct, deleteProduct, uploadProductImage, bulkUpdateProducts } from "../actions";
 import { 
   Plus, 
   Trash2, 
@@ -323,6 +323,59 @@ export default function AdminProductsPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleBulkStatus = async (status: 'active' | 'draft') => {
+    if (selectedProducts.length === 0) return;
+    try {
+      const isMissingEnv = 
+        !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+        process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+      
+      if (!isMissingEnv) {
+        await bulkUpdateProducts(selectedProducts, { in_stock: status === 'active' });
+      }
+      
+      setProducts(products.map(p => {
+        if (selectedProducts.includes(p.id)) {
+          return { ...p, in_stock: status === 'active' };
+        }
+        return p;
+      }));
+      setSelectedProducts([]);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update products.");
+    }
+  };
+
+  const handleBulkInventory = async () => {
+    if (selectedProducts.length === 0) return;
+    const countStr = prompt("Enter new inventory count for all selected products:");
+    if (countStr === null) return; // user cancelled
+    const count = parseInt(countStr, 10);
+    if (isNaN(count) || count < 0) return alert("Invalid inventory count.");
+
+    try {
+      const isMissingEnv = 
+        !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+        process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+      
+      if (!isMissingEnv) {
+        await bulkUpdateProducts(selectedProducts, { inventory_count: count });
+      }
+
+      setProducts(products.map(p => {
+        if (selectedProducts.includes(p.id)) {
+          return { ...p, inventory_count: count };
+        }
+        return p;
+      }));
+      setSelectedProducts([]);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update products.");
+    }
   };
 
   const filteredProducts = products.filter(p => {
@@ -655,6 +708,47 @@ export default function AdminProductsPage() {
             <span className="text-sm font-medium hidden sm:inline">More filters</span>
           </button>
         </div>
+
+        {/* Bulk Actions Bar */}
+        {selectedProducts.length > 0 && (
+          <div className="bg-stone-50 dark:bg-stone-800/60 px-4 py-3 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+            <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+              {selectedProducts.length} product{selectedProducts.length > 1 ? "s" : ""} selected
+            </span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => handleBulkStatus('active')}
+                className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-sm"
+              >
+                Set as Active
+              </button>
+              <button 
+                onClick={() => handleBulkStatus('draft')}
+                className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-sm"
+              >
+                Set as Draft
+              </button>
+              <button 
+                onClick={handleBulkInventory}
+                className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-sm"
+              >
+                Update Inventory
+              </button>
+              <button 
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete the selected products? This action cannot be undone.")) {
+                    selectedProducts.forEach(id => handleDelete(id));
+                    setSelectedProducts([]);
+                  }
+                }}
+                className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors shadow-sm ml-2"
+              >
+                <Trash2 size={14} className="inline mr-1 -mt-0.5" />
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Data Table */}
         <div className="overflow-x-auto border-t border-stone-200 dark:border-stone-800">

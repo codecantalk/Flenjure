@@ -119,11 +119,7 @@ export default function AdminOrdersPage() {
 
       try {
         const data = await getOrders();
-        if (data && data.length > 0) {
-          setOrders(data as Order[]);
-        } else {
-          setOrders(mockOrders);
-        }
+        setOrders(data as Order[]);
       } catch (err) {
         console.error("Error loading orders:", err);
       } finally {
