@@ -29,7 +29,7 @@ export default function Home() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
       >
-        <source src="/FlenjureFinalr.mp4" type="video/mp4" />
+        <source src="/New-home-screen-video.mp4" type="video/mp4" />
       </video>
 
       {/* Volume Toggle */}
