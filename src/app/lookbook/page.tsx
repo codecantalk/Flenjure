@@ -18,7 +18,7 @@ export default function LookbookPage() {
           className="text-center mb-32"
         >
           <p className="mt-8 text-stone-500 dark:text-stone-400 font-light text-sm max-w-lg mx-auto leading-relaxed uppercase tracking-widest">
-            A visual documentation of the Flenjure Spring/Summer 2026 staples.
+            Spring/Summer 2026 Looks
           </p>
         </motion.div>
 

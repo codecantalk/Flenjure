@@ -29,7 +29,7 @@ export default function Home() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
       >
-        <source src="/New-home-screen-video.mp4" type="video/mp4" />
+        <source src="/Home-page-video.mp4" type="video/mp4" />
       </video>
 
       {/* Volume Toggle */}
@@ -168,10 +168,11 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="whatsapp" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">WhatsApp Number (Optional)</label>
+                  <label htmlFor="whatsapp" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">WhatsApp Number *</label>
                   <input
                     type="tel"
                     id="whatsapp"
+                    required
                     className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
                     placeholder="+1 (555) 000-0000"
                   />

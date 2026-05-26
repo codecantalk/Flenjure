@@ -1,9 +1,41 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Play, Music, Volume2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Pause, Music, Volume2, VolumeX } from "lucide-react";
+import { getAudioTracks } from "../admin/actions";
 
 export default function SightsAndSoundsPage() {
+  const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [tracks, setTracks] = useState<any[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    async function loadTracks() {
+      const data = await getAudioTracks();
+      setTracks(data);
+    }
+    loadTracks();
+  }, []);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-32 pb-24 px-6 lg:px-12 bg-white dark:bg-stone-950 transition-colors duration-1000 overflow-hidden">
       <div className="max-w-[1400px] mx-auto w-full flex flex-col">
@@ -28,20 +60,34 @@ export default function SightsAndSoundsPage() {
             className="lg:col-span-8 group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl"
           >
             <video 
+              ref={videoRef}
               autoPlay 
               muted 
               loop 
+              playsInline
               className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
-              src="/FlenjureFinalr.mp4"
+              src="/Home-page-video.mp4"
             />
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center" onClick={togglePlay}>
               <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                <Play className="text-white fill-white ml-1" size={24} />
+                {isPlaying ? (
+                  <Pause className="text-white fill-white" size={24} />
+                ) : (
+                  <Play className="text-white fill-white ml-1" size={24} />
+                )}
               </div>
             </div>
-            <div className="absolute bottom-8 left-8">
+            <div className="absolute bottom-8 left-8 flex items-center gap-6 z-10">
               <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Flagship Concept 2026</span>
             </div>
+            
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
+              className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
+              aria-label={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
           </motion.div>
 
           {/* Curated Audio List */}
@@ -49,24 +95,23 @@ export default function SightsAndSoundsPage() {
             <div className="flex flex-col gap-8">
               <h3 className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 border-b border-stone-200 dark:border-stone-800 pb-4">Curated Audio</h3>
               
-              <AudioTrack 
-                number="01" 
-                title="Smyrna Jazz Sessions" 
-                length="42:15" 
-                tag="Spotify" 
-              />
-              <AudioTrack 
-                number="02" 
-                title="Morning Espresso Mix" 
-                length="58:00" 
-                tag="Apple Music" 
-              />
-              <AudioTrack 
-                number="03" 
-                title="Late Night Essentials" 
-                length="1:15:20" 
-                tag="Soundcloud" 
-              />
+              {tracks.length > 0 ? (
+                tracks.map((track: any) => (
+                  <AudioTrack 
+                    key={track.id}
+                    number={track.track_number} 
+                    title={track.title} 
+                    length={track.length} 
+                    tag={track.platform_tag} 
+                  />
+                ))
+              ) : (
+                <>
+                  <AudioTrack number="01" title="Smyrna Jazz Sessions" length="42:15" tag="Spotify" />
+                  <AudioTrack number="02" title="Morning Espresso Mix" length="58:00" tag="Apple Music" />
+                  <AudioTrack number="03" title="Late Night Essentials" length="1:15:20" tag="Soundcloud" />
+                </>
+              )}
             </div>
 
             <div className="p-8 bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800 rounded-sm">

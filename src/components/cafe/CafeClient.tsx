@@ -5,24 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const MENU_DATA = {
-  desserts: [
-    { id: "f-fruit-snacks", name: "Fleñjure Fruit Snacks (P S/S 26, L F/W 26)", price: "$100", image: "/images/cafe_placeholder.png" },
-    { id: "f-mazzines", name: "Fleñjure Mazzines", price: "$100", image: "/images/cafe_placeholder.png" },
-  ],
-  munchies: [
-    { id: "m-lays", name: "Lays", price: "$10", image: "/images/cafe_placeholder.png" },
-    { id: "m-doritos", name: "Doritos", price: "$10", image: "/images/cafe_placeholder.png" },
-    { id: "m-cheetos", name: "Cheetos", price: "$10", image: "/images/cafe_placeholder.png" },
-    { id: "m-sour-patch", name: "Sour Patch", price: "$10", image: "/images/cafe_placeholder.png" },
-    { id: "m-welches", name: "Welches", price: "$10", image: "/images/cafe_placeholder.png" },
-    { id: "m-haribos", name: "Haribos", price: "$10", image: "/images/cafe_placeholder.png" },
-  ]
-};
+import { getCafeItems } from "@/app/admin/actions";
 
 export default function CafeClient() {
   const [showAgeModal, setShowAgeModal] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
     const isVerified = sessionStorage.getItem("flenjure_age_verified");
@@ -30,6 +17,12 @@ export default function CafeClient() {
       setShowAgeModal(true);
       document.body.style.overflow = "hidden";
     }
+
+    async function fetchItems() {
+      const data = await getCafeItems();
+      setItems(data);
+    }
+    fetchItems();
   }, []);
 
   const handleVerify = (verified: boolean) => {
@@ -121,25 +114,48 @@ export default function CafeClient() {
             transition={{ duration: 1.2, delay: 0.8 }}
             className="flex flex-col gap-32"
           >
-             {/* Section: Desserts */}
-             <section>
-                <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Desserts</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto">
-                   {MENU_DATA.desserts.map(item => <MenuItem key={item.id} item={item} aspect="aspect-[4/5]" />)}
-                </div>
-             </section>
+             {/* Desserts Grid - aspect-[4/5] */}
+             {items.filter(item => item.category === "Desserts").length > 0 && (
+               <section>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto">
+                     {items.filter(item => item.category === "Desserts").map(item => (
+                       <MenuItem key={item.id} item={item} aspect="aspect-[4/5]" />
+                     ))}
+                  </div>
+               </section>
+             )}
 
-             <div className="w-full flex justify-center">
-                <div className="w-2 h-2 rounded-full bg-stone-200 dark:bg-stone-800" />
-             </div>
+             {items.filter(item => item.category === "Desserts").length > 0 && items.filter(item => item.category === "Munchies" || item.category === "Drinks").length > 0 && (
+               <div className="w-full flex justify-center">
+                 <div className="w-2 h-2 rounded-full bg-stone-200 dark:bg-stone-800" />
+               </div>
+             )}
 
-             {/* Section: Munchies */}
-             <section>
-                <h2 className="text-xl md:text-2xl font-serif tracking-[0.2em] uppercase font-light text-stone-900 dark:text-stone-100 mb-16 text-center border-b border-stone-200 dark:border-stone-800 pb-8 w-max mx-auto px-12">Munchies</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
-                   {MENU_DATA.munchies.map(item => <MenuItem key={item.id} item={item} aspect="aspect-square" />)}
-                </div>
-             </section>
+             {/* Munchies & Drinks Grid - aspect-square */}
+             {items.filter(item => item.category === "Munchies" || item.category === "Drinks").length > 0 && (
+               <section>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20 max-w-5xl mx-auto">
+                     {items.filter(item => item.category === "Munchies" || item.category === "Drinks").map(item => (
+                       <MenuItem key={item.id} item={item} aspect="aspect-square" />
+                     ))}
+                  </div>
+               </section>
+             )}
+
+             {items.length === 0 && (
+               <section>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20 max-w-4xl mx-auto opacity-50">
+                     <MenuItem item={{ id: "f-fruit-snacks", name: "Fleñjure Fruit Snacks", price: "$100", image: "/images/cafe_placeholder.png" }} aspect="aspect-[4/5]" />
+                     <MenuItem item={{ id: "f-mazzines", name: "Fleñjure Mazzines", price: "$100", image: "/images/cafe_placeholder.png" }} aspect="aspect-[4/5]" />
+                  </div>
+                  <div className="w-full flex justify-center my-20">
+                    <div className="w-2 h-2 rounded-full bg-stone-200 dark:bg-stone-800 opacity-50" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20 max-w-5xl mx-auto opacity-50">
+                    <MenuItem item={{ id: "m-lays", name: "Lays", price: "$10", image: "/images/cafe_placeholder.png" }} aspect="aspect-square" />
+                  </div>
+               </section>
+             )}
           </motion.div>
 
         </div>
@@ -180,7 +196,7 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
             {item.price}
           </span>
        </div>
-       <div className="px-1 mt-3 overflow-hidden h-[20px]">
+       <div className="px-1 mt-3 mb-2 overflow-hidden h-[24px]">
           <span className="block text-[9px] uppercase tracking-widest font-bold text-stone-400 dark:text-stone-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2">
              <Plus size={10} /> Add to Order
           </span>

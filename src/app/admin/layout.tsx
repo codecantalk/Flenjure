@@ -17,7 +17,9 @@ import {
   X,
   Compass,
   Search,
-  Bell
+  Bell,
+  Music,
+  Coffee
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -107,6 +109,8 @@ export default function AdminLayout({
     { name: "Collections", href: "/admin/collections", icon: FolderKanban },
     { name: "Orders", href: "/admin/orders", icon: Receipt },
     { name: "CRM / Carts", href: "/admin/crm", icon: Users },
+    { name: "Audio", href: "/admin/audio", icon: Music },
+    { name: "Cafe", href: "/admin/cafe", icon: Coffee },
   ];
 
   return (

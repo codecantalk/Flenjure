@@ -153,3 +153,65 @@ export async function getDashboardStats() {
   const { data: carts } = await supabaseAdmin.from("cart_sessions").select("id").eq("is_recovered", false);
   return { orders: orders || [], carts: carts || [] };
 }
+
+// CAFE ITEMS
+export async function getCafeItems() {
+  const { data, error } = await supabaseAdmin.from("cafe_items").select("*").order("created_at", { ascending: false });
+  if (error) {
+    console.error("Missing cafe_items table, returning fallback data");
+    return [];
+  }
+  return data || [];
+}
+export async function createCafeItem(itemData: any) {
+  const { data, error } = await supabaseAdmin.from("cafe_items").insert([itemData]).select().single();
+  if (error) {
+    if (error.code === 'PGRST205') return { error: 'TABLE_MISSING', table: 'cafe_items' };
+    throw error;
+  }
+  revalidatePath('/cafe', 'layout');
+  return { success: true, data };
+}
+export async function updateCafeItem(id: string, itemData: any) {
+  const { data, error } = await supabaseAdmin.from("cafe_items").update(itemData).eq("id", id).select().single();
+  if (error) throw error;
+  revalidatePath('/cafe', 'layout');
+  return data;
+}
+export async function deleteCafeItem(id: string) {
+  const { error } = await supabaseAdmin.from("cafe_items").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath('/cafe', 'layout');
+  return true;
+}
+
+// AUDIO TRACKS
+export async function getAudioTracks() {
+  const { data, error } = await supabaseAdmin.from("audio_tracks").select("*").order("track_number", { ascending: true });
+  if (error) {
+    console.error("Missing audio_tracks table, returning fallback data");
+    return [];
+  }
+  return data || [];
+}
+export async function createAudioTrack(trackData: any) {
+  const { data, error } = await supabaseAdmin.from("audio_tracks").insert([trackData]).select().single();
+  if (error) {
+    if (error.code === 'PGRST205') return { error: 'TABLE_MISSING', table: 'audio_tracks' };
+    throw error;
+  }
+  revalidatePath('/sights-and-sounds', 'layout');
+  return { success: true, data };
+}
+export async function updateAudioTrack(id: string, trackData: any) {
+  const { data, error } = await supabaseAdmin.from("audio_tracks").update(trackData).eq("id", id).select().single();
+  if (error) throw error;
+  revalidatePath('/sights-and-sounds', 'layout');
+  return data;
+}
+export async function deleteAudioTrack(id: string) {
+  const { error } = await supabaseAdmin.from("audio_tracks").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath('/sights-and-sounds', 'layout');
+  return true;
+}

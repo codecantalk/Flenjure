@@ -27,6 +27,7 @@ interface Product {
   image_urls: string[];
   priority: number;
   collection_id?: string;
+  variants?: any[];
 }
 
 interface Collection {
@@ -61,6 +62,7 @@ export default function AdminProductsPage() {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [priority, setPriority] = useState(0);
   const [collectionId, setCollectionId] = useState("");
+  const [variants, setVariants] = useState<any[]>([]);
 
   // Drag and Drop State
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -135,6 +137,7 @@ export default function AdminProductsPage() {
     setTitle(""); setSlug(""); setPrice(0); setCompareAtPrice(""); setDescription("");
     setCategory("Apparel"); setInStock(true); setInventoryCount(10);
     setImageUrls([]); setPriority(0); setCollectionId("");
+    setVariants([]);
     setCurrentView('edit');
   };
 
@@ -146,6 +149,7 @@ export default function AdminProductsPage() {
     setInStock(product.in_stock); setInventoryCount(product.inventory_count);
     setImageUrls(product.image_urls || []); setPriority(product.priority);
     setCollectionId(product.collection_id || "");
+    setVariants(product.variants || []);
     setCurrentView('edit');
   };
 
@@ -186,7 +190,8 @@ export default function AdminProductsPage() {
       compare_at_price: compareAtPrice ? Number(compareAtPrice) : undefined,
       category, in_stock: inStock, inventory_count: inventoryCount,
       image_urls: imageUrls,
-      priority, collection_id: collectionId || undefined
+      priority, collection_id: collectionId || undefined,
+      variants
     };
 
     const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
@@ -505,32 +510,95 @@ export default function AdminProductsPage() {
                     )}
                   </div>
                 ))}
-
+                
                 {/* Upload Button */}
-                <div className={`
-                  border border-dashed border-stone-300 dark:border-stone-700 rounded-lg flex flex-col items-center justify-center text-center relative hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors
+                <label className={`
+                  border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-lg flex flex-col items-center justify-center p-6 text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors cursor-pointer
                   ${imageUrls.length === 0 ? "col-span-2 row-span-2 aspect-square p-8" : "col-span-1 aspect-square"}
                 `}>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    multiple
-                    onChange={handleFileUpload} 
-                    disabled={isUploading}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" 
-                  />
-                  <div className={`
-                    rounded bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-400
-                    ${imageUrls.length === 0 ? "w-12 h-12 mb-3" : "w-8 h-8"}
-                  `}>
-                    {imageUrls.length === 0 ? <Upload size={20} /> : <Plus size={16} />}
-                  </div>
-                  {imageUrls.length === 0 && (
-                    <span className="text-sm font-medium text-stone-900 dark:text-white">Click or drop images to upload</span>
-                  )}
-                </div>
-
+                  <Upload size={20} className="mb-2" />
+                  <span className="text-xs font-medium">{imageUrls.length === 0 ? "Click to upload primary image" : "Add Media"}</span>
+                  <input type="file" className="hidden" multiple accept="image/*" onChange={handleFileUpload} disabled={isUploading} />
+                </label>
               </div>
+            </div>
+
+            {/* Variants Section */}
+            <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Variants</h4>
+                <button 
+                  type="button"
+                  onClick={() => setVariants([...variants, { size: "OS", color: "", sku: "", inventory_count: 10 }])}
+                  className="text-xs font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                >
+                  + Add Variant
+                </button>
+              </div>
+              
+              {variants.length === 0 ? (
+                <p className="text-xs text-stone-500 dark:text-stone-400">No variants added. This product will be treated as one universal size/style.</p>
+              ) : (
+                <div className="space-y-3">
+                  {variants.map((variant, index) => (
+                    <div key={index} className="flex items-center gap-3 bg-stone-50 dark:bg-stone-900/50 p-3 rounded-md border border-stone-200 dark:border-stone-800">
+                      <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Size (e.g. M, L)"
+                          value={variant.size}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].size = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Color (Optional)"
+                          value={variant.color}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].color = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="SKU"
+                          value={variant.sku}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].sku = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="number"
+                          placeholder="Inventory"
+                          value={variant.inventory_count}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].inventory_count = Number(e.target.value);
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => setVariants(variants.filter((_, i) => i !== index))}
+                        className="text-stone-400 hover:text-red-500"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Pricing */}

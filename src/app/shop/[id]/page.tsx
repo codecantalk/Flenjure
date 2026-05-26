@@ -119,6 +119,13 @@ export default async function ShopProductDetail({ params }: Props) {
       });
 
     const sizingData = getSizing(productData);
+    
+    // Use CMS variants if they exist, otherwise fallback to heuristics
+    const hasVariants = productData.variants && productData.variants.length > 0;
+    const mappedSizes = hasVariants 
+      ? productData.variants.map((v: any) => v.size + (v.color ? ` - ${v.color}` : ''))
+      : sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : [];
+
     const mappedProductData = {
       ...productData,
       name: productData.title,
@@ -127,7 +134,8 @@ export default async function ShopProductDetail({ params }: Props) {
       images: productData.image_urls || ["https://via.placeholder.com/500"],
       details: getDetails(productData),
       sizing: sizingData,
-      sizes: sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : [],
+      sizes: mappedSizes,
+      variants: productData.variants || [],
       relatedProducts
     };
 
