@@ -37,20 +37,30 @@ export async function getProductBySlug(slug: string) {
 export async function createProduct(productData: any) {
   productData.slug = await generateUniqueSlug("products", productData.slug || productData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
   const { data, error } = await supabaseAdmin.from("products").insert([productData]).select().single();
-  if (error) throw error;
+  if (error) {
+    if (error.message && error.message.includes("column") && error.message.includes("does not exist")) {
+      return { error: 'COLUMN_MISSING', message: error.message };
+    }
+    throw error;
+  }
   revalidatePath('/shop', 'layout');
   revalidatePath('/', 'layout');
-  return data;
+  return { success: true, data };
 }
 export async function updateProduct(id: string, productData: any) {
   if (productData.slug) {
     productData.slug = await generateUniqueSlug("products", productData.slug, id);
   }
   const { data, error } = await supabaseAdmin.from("products").update(productData).eq("id", id).select().single();
-  if (error) throw error;
+  if (error) {
+    if (error.message && error.message.includes("column") && error.message.includes("does not exist")) {
+      return { error: 'COLUMN_MISSING', message: error.message };
+    }
+    throw error;
+  }
   revalidatePath('/shop', 'layout');
   revalidatePath('/', 'layout');
-  return data;
+  return { success: true, data };
 }
 export async function deleteProduct(id: string) {
   const { error } = await supabaseAdmin.from("products").delete().eq("id", id);

@@ -207,11 +207,19 @@ export default function AdminProductsPage() {
     }
 
     try {
+      let res;
       if (editingProduct && !editingProduct.id.startsWith("prod-")) {
-        await updateProduct(editingProduct.id, newProd);
+        res = await updateProduct(editingProduct.id, newProd);
       } else {
-        await createProduct(newProd);
+        res = await createProduct(newProd);
       }
+      
+      if (res && res.error === 'COLUMN_MISSING') {
+        alert(`Column missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nALTER TABLE products ADD COLUMN variants JSONB DEFAULT '[]'::jsonb;`);
+        setSaving(false);
+        return;
+      }
+      
       const data = await getProducts();
       if (data) setProducts(data as Product[]);
       closeView();
