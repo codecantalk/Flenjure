@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { getProducts, getCollections, createProduct, updateProduct, deleteProduct, uploadProductImage, bulkUpdateProducts } from "../actions";
 import { 
   Plus, 
@@ -35,7 +36,7 @@ interface Collection {
   name: string;
 }
 
-export default function AdminProductsPage() {
+function AdminProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +46,16 @@ export default function AdminProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
   // List Filters & Selection
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
+  
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q !== null) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
+
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'draft'>('all');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   
@@ -216,7 +226,6 @@ export default function AdminProductsPage() {
       
       if (res && res.error === 'COLUMN_MISSING') {
         alert(`Column missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nALTER TABLE products ADD COLUMN variants JSONB DEFAULT '[]'::jsonb;`);
-        setSaving(false);
         return;
       }
       
@@ -902,7 +911,16 @@ export default function AdminProductsPage() {
             </div>
           )}
         </div>
+      {/* End of list view */}
       </div>
     </div>
+  );
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense fallback={<div className="flex h-[calc(100vh-64px)] items-center justify-center"><Loader2 className="animate-spin text-stone-400" size={32} /></div>}>
+      <AdminProductsPageContent />
+    </Suspense>
   );
 }

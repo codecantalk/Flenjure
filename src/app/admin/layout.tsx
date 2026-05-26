@@ -114,9 +114,9 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] dark:bg-[#0a0a0a] text-stone-900 dark:text-stone-100 flex flex-col md:flex-row transition-all duration-300 font-sans font-light tracking-[0.015em]">
+    <div className="h-screen bg-[#fcfcfc] dark:bg-[#0a0a0a] text-stone-900 dark:text-stone-100 flex flex-col md:flex-row transition-all duration-300 font-sans font-light tracking-[0.015em] overflow-hidden">
       
-      <div className="md:hidden bg-white dark:bg-[#111] border-b border-stone-200 dark:border-stone-800 p-4 flex items-center justify-between z-30">
+      <div className="md:hidden bg-white dark:bg-[#111] border-b border-stone-200 dark:border-stone-800 p-4 flex items-center justify-between z-30 shrink-0">
         <div className="flex items-center gap-2">
           <Image 
             src="/favicon.png" 
@@ -137,7 +137,7 @@ export default function AdminLayout({
 
       {/* Sidebar Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 w-64 bg-[#f4f4f4] dark:bg-[#111] border-r border-stone-200 dark:border-stone-800 flex flex-col justify-between z-40 transform transition-transform duration-300 md:relative md:transform-none
+        fixed inset-y-0 left-0 w-64 bg-[#f4f4f4] dark:bg-[#111] border-r border-stone-200 dark:border-stone-800 flex flex-col justify-between z-40 transform transition-transform duration-300 md:relative md:transform-none md:shrink-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
         <div>
@@ -206,7 +206,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {/* Top Navigation Bar (Shopify Style) */}
         <header className="hidden md:flex h-14 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-[#111] items-center justify-between px-8 shrink-0">
           <div className="flex-1 max-w-xl relative">
@@ -214,6 +214,16 @@ export default function AdminLayout({
             <input 
               type="text" 
               placeholder="Search..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const query = e.currentTarget.value.trim();
+                  if (query) {
+                    router.push(`/admin/products?q=${encodeURIComponent(query)}`);
+                  } else {
+                    router.push('/admin/products');
+                  }
+                }
+              }}
               className="w-full bg-stone-100 dark:bg-stone-900 border border-transparent hover:border-stone-200 dark:hover:border-stone-700 focus:border-stone-900 dark:focus:border-stone-500 rounded-md pl-9 pr-4 py-1.5 text-sm outline-none transition-all duration-200 text-stone-900 dark:text-white placeholder:text-stone-500 font-medium"
             />
           </div>
