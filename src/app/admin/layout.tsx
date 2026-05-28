@@ -108,7 +108,8 @@ export default function AdminLayout({
     { name: "Products", href: "/admin/products", icon: ShoppingBag },
     { name: "Collections", href: "/admin/collections", icon: FolderKanban },
     { name: "Orders", href: "/admin/orders", icon: Receipt },
-    { name: "CRM / Carts", href: "/admin/crm", icon: Users },
+    { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Carts", href: "/admin/crm", icon: ShoppingBag },
     { name: "Audio", href: "/admin/audio", icon: Music },
     { name: "Cafe", href: "/admin/cafe", icon: Coffee },
   ];
@@ -238,8 +239,8 @@ export default function AdminLayout({
         </header>
 
         {/* Scrollable Content */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto custom-scrollbar">
-          <div className="max-w-6xl mx-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto custom-scrollbar min-h-0">
+          <div className="max-w-6xl mx-auto pb-12">
             {children}
           </div>
         </main>

@@ -7,9 +7,14 @@ import { getAudioTracks } from "../admin/actions";
 
 export default function SightsAndSoundsPage() {
   const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlayingVideo, setIsPlayingVideo] = useState(true);
   const [tracks, setTracks] = useState<any[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Audio Player State
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [currentTrackId, setCurrentTrackId] = useState<string | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   useEffect(() => {
     async function loadTracks() {
@@ -25,19 +30,49 @@ export default function SightsAndSoundsPage() {
     }
   }, [isMuted]);
 
-  const togglePlay = () => {
+  const toggleVideoPlay = () => {
     if (videoRef.current) {
-      if (isPlaying) {
+      if (isPlayingVideo) {
         videoRef.current.pause();
       } else {
         videoRef.current.play();
       }
-      setIsPlaying(!isPlaying);
+      setIsPlayingVideo(!isPlayingVideo);
+    }
+  };
+
+  const handlePlayTrack = (trackId: string, url: string) => {
+    if (!url) return; // Ignore if no url
+    if (currentTrackId === trackId) {
+      // Toggle play/pause on same track
+      if (isPlayingAudio) {
+        audioRef.current?.pause();
+        setIsPlayingAudio(false);
+      } else {
+        audioRef.current?.play();
+        setIsPlayingAudio(true);
+      }
+    } else {
+      // Play new track
+      setCurrentTrackId(trackId);
+      setIsPlayingAudio(true);
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        audioRef.current.play();
+      }
     }
   };
 
   return (
     <div className="min-h-screen pt-32 pb-24 px-6 lg:px-12 bg-white dark:bg-stone-950 transition-colors duration-1000 overflow-hidden">
+      {/* Hidden Audio Element */}
+      <audio 
+        ref={audioRef} 
+        onEnded={() => setIsPlayingAudio(false)} 
+        onPause={() => setIsPlayingAudio(false)}
+        onPlay={() => setIsPlayingAudio(true)}
+      />
+      
       <div className="max-w-[1400px] mx-auto w-full flex flex-col">
         <motion.div
            initial={{ opacity: 0, x: -20 }}
@@ -68,9 +103,9 @@ export default function SightsAndSoundsPage() {
               className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
               src="/Home-page-video.mp4"
             />
-            <div className="absolute inset-0 flex items-center justify-center" onClick={togglePlay}>
+            <div className="absolute inset-0 flex items-center justify-center" onClick={toggleVideoPlay}>
               <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                {isPlaying ? (
+                {isPlayingVideo ? (
                   <Pause className="text-white fill-white" size={24} />
                 ) : (
                   <Play className="text-white fill-white ml-1" size={24} />
@@ -103,13 +138,16 @@ export default function SightsAndSoundsPage() {
                     title={track.title} 
                     length={track.length} 
                     tag={track.platform_tag} 
+                    audioUrl={track.audio_url}
+                    isPlaying={currentTrackId === track.id && isPlayingAudio}
+                    onPlay={() => handlePlayTrack(track.id, track.audio_url)}
                   />
                 ))
               ) : (
                 <>
-                  <AudioTrack number="01" title="Smyrna Jazz Sessions" length="42:15" tag="Spotify" />
-                  <AudioTrack number="02" title="Morning Espresso Mix" length="58:00" tag="Apple Music" />
-                  <AudioTrack number="03" title="Late Night Essentials" length="1:15:20" tag="Soundcloud" />
+                  <AudioTrack number="01" title="Smyrna Jazz Sessions" length="42:15" tag="Spotify" isPlaying={false} onPlay={() => {}} />
+                  <AudioTrack number="02" title="Morning Espresso Mix" length="58:00" tag="Apple Music" isPlaying={false} onPlay={() => {}} />
+                  <AudioTrack number="03" title="Late Night Essentials" length="1:15:20" tag="Soundcloud" isPlaying={false} onPlay={() => {}} />
                 </>
               )}
             </div>
@@ -127,23 +165,34 @@ export default function SightsAndSoundsPage() {
   );
 }
 
-function AudioTrack({ number, title, length, tag }: { number: string, title: string, length: string, tag: string }) {
+function AudioTrack({ 
+  number, title, length, tag, audioUrl, isPlaying, onPlay 
+}: { 
+  number: string, title: string, length: string, tag: string, audioUrl?: string, isPlaying: boolean, onPlay: () => void 
+}) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-6 group cursor-pointer border-b border-stone-100 dark:border-stone-900 pb-6 hover:translate-x-2 transition-transform duration-500"
+      onClick={() => audioUrl && onPlay()}
+      className={`flex items-center gap-6 group cursor-pointer border-b border-stone-100 dark:border-stone-900 pb-6 transition-transform duration-500 ${audioUrl ? 'hover:translate-x-2' : 'opacity-50'}`}
     >
       <span className="text-[10px] font-mono text-stone-300 dark:text-stone-700">{number}</span>
       <div className="flex-1 flex flex-col gap-1">
-        <h4 className="text-lg font-serif font-light text-stone-900 dark:text-white group-hover:text-stone-400 transition-colors uppercase tracking-wider">{title}</h4>
+        <h4 className={`text-lg font-serif font-light transition-colors uppercase tracking-wider ${isPlaying ? 'text-stone-400' : 'text-stone-900 dark:text-white group-hover:text-stone-400'}`}>
+          {title} {isPlaying && <span className="text-[10px] ml-2 animate-pulse">(Playing)</span>}
+        </h4>
         <div className="flex items-center gap-4 text-[9px] uppercase tracking-widest text-stone-400">
            <span>{length}</span>
            <span className="w-4 h-[1px] bg-stone-200 dark:bg-stone-800" />
            <span>{tag}</span>
         </div>
       </div>
-      <Music size={16} strokeWidth={1} className="text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+      {isPlaying ? (
+        <Pause size={16} strokeWidth={1} className="text-stone-400" />
+      ) : (
+        <Play size={16} strokeWidth={1} className={`text-stone-300 transition-opacity ${audioUrl ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`} />
+      )}
     </motion.div>
   );
 }

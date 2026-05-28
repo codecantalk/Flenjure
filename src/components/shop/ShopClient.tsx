@@ -13,19 +13,10 @@ import { useTheme } from "next-themes";
 const DISCOVER_LINKS = [
   { name: "New Arrivals", value: "New Arrivals" },
   { name: "Cafe", href: "/cafe" },
-  { name: "Collections", value: "Collections" },
   { name: "Shop All", value: "All" },
 ];
 
-const CATEGORY_LINKS = [
-  { name: "T-Shirts", value: "T-Shirts" },
-  { name: "Shorts", value: "Shorts" },
-  { name: "Tank Tops", value: "Tank Tops" },
-  { name: "Hats and Headgear", value: "Hats and Headgear" },
-  { name: "Candy Shop", href: "/cafe" },
-];
-
-export default function ShopClient({ products }: { products: any[] }) {
+export default function ShopClient({ products, collections = [] }: { products: any[], collections?: any[] }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("All");
@@ -36,6 +27,11 @@ export default function ShopClient({ products }: { products: any[] }) {
   const [currentSort, setCurrentSort] = useState("Recommended");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+
+  const categoryLinks = collections.map(c => ({
+    name: c.name,
+    value: c.id
+  }));
 
   // Scroll lock when drawers are open
   useEffect(() => {
@@ -53,13 +49,7 @@ export default function ShopClient({ products }: { products: any[] }) {
     setMounted(true);
     const cat = searchParams.get("category");
     if (cat) {
-      if (cat === "t-shirts") setActiveCategory("T-Shirts");
-      else if (cat === "shorts") setActiveCategory("Shorts");
-      else if (cat === "tank-tops") setActiveCategory("Tank Tops");
-      else if (cat === "headgear") setActiveCategory("Hats and Headgear");
-      else if (cat === "new-arrivals") setActiveCategory("New Arrivals");
-      else if (cat === "collections") setActiveCategory("Collections");
-      else setActiveCategory(cat);
+      setActiveCategory(cat);
     }
   }, [searchParams]);
 
@@ -69,13 +59,9 @@ export default function ShopClient({ products }: { products: any[] }) {
     .filter(p => {
       if (activeCategory === "All") return true;
       if (activeCategory === "New Arrivals") {
-        // Show actual New Arrivals if category matches, otherwise mock with first 4 products
-        return p.category?.toLowerCase() === "new arrivals" || products.indexOf(p) < 4;
+        return products.indexOf(p) < 4;
       }
-      if (activeCategory === "Collections") {
-        return true; // Show all products under Collections for now
-      }
-      return p.category?.toLowerCase() === activeCategory.toLowerCase();
+      return p.collectionId === activeCategory;
     })
     .sort((a, b) => {
       if (currentSort === "Price: Low to high") {
@@ -125,7 +111,7 @@ export default function ShopClient({ products }: { products: any[] }) {
               <>
                 <span className="text-stone-400">Shop All</span>
                 <span className="text-stone-300 dark:text-stone-700 mx-1">›</span>
-                <span>{activeCategory}</span>
+                <span>{collections.find(c => c.id === activeCategory)?.name || activeCategory}</span>
               </>
             )}
             <Plus size={10} className={clsx("transition-transform duration-300 ml-1", desktopSidebarOpen ? "rotate-45" : "")} />
@@ -142,7 +128,7 @@ export default function ShopClient({ products }: { products: any[] }) {
               <>
                 <span className="text-stone-400">Shop All</span>
                 <span className="text-stone-300 dark:text-stone-700 mx-1">›</span>
-                <span>{activeCategory}</span>
+                <span>{collections.find(c => c.id === activeCategory)?.name || activeCategory}</span>
               </>
             )}
             <Plus size={10} className={clsx("transition-transform duration-300 ml-1", mobileFilterOpen ? "rotate-45" : "")} />
@@ -212,12 +198,12 @@ export default function ShopClient({ products }: { products: any[] }) {
               </div>
 
               <div className="flex flex-col gap-4">
-                <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Shop By Category</h3>
+                <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Shop By Collection</h3>
                 <ul className="flex flex-col gap-4">
-                  {CATEGORY_LINKS.map(link => (
+                  {categoryLinks.map(link => (
                     <li key={link.name}>
                       <button 
-                        onClick={() => handleCategoryClick(link.value, link.href)}
+                        onClick={() => handleCategoryClick(link.value)}
                         className={clsx(
                           "text-xs font-medium tracking-wide transition-colors duration-300 text-left w-full",
                           activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
@@ -280,12 +266,12 @@ export default function ShopClient({ products }: { products: any[] }) {
                  </div>
 
                  <div className="flex flex-col gap-5">
-                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-100">Shop By Category</h3>
+                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900 dark:text-stone-100">Shop By Collection</h3>
                     <ul className="flex flex-col gap-3.5">
-                      {CATEGORY_LINKS.map(link => (
+                      {categoryLinks.map(link => (
                         <li key={link.name}>
                           <button 
-                            onClick={() => handleCategoryClick(link.value, link.href)}
+                            onClick={() => handleCategoryClick(link.value)}
                             className={clsx(
                               "text-[11px] font-medium tracking-wide transition-colors duration-300 text-left",
                               activeCategory === link.value ? "text-stone-900 dark:text-white" : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"

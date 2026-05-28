@@ -1,9 +1,10 @@
-import { getProducts } from "@/app/admin/actions";
+import { getProducts, getCollections } from "@/app/admin/actions";
 import ShopClient from "@/components/shop/ShopClient";
 import { Suspense } from "react";
 
 export default async function ShopPage() {
   const dbProducts = await getProducts();
+  const dbCollections = await getCollections();
   
   const getSizing = (product: any) => {
     const name = product.title.toLowerCase();
@@ -37,25 +38,28 @@ export default async function ShopPage() {
     };
   };
 
-  const products = dbProducts.map((p: any) => {
-    const sizingData = getSizing(p);
-    return {
-      id: p.slug, // Use slug as the ID for routing purposes since ShopClient links to /shop/${product.id}
-      name: p.title, // ShopClient uses product.name
-      slug: p.slug,
-      price: `$${p.price.toFixed(2)}`,
-      compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
-      image: p.image_urls?.[0] || "https://via.placeholder.com/500", // ShopClient uses product.image
-      hoverImage: p.image_urls?.[1] || null,
-      category: p.category,
-      inStock: p.in_stock,
-      sizes: sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : []
-    };
-  });
+  const products = dbProducts
+    .filter((p: any) => p.in_stock)
+    .map((p: any) => {
+      const sizingData = getSizing(p);
+      return {
+        id: p.slug, // Use slug as the ID for routing purposes since ShopClient links to /shop/${product.id}
+        name: p.title, // ShopClient uses product.name
+        slug: p.slug,
+        price: `$${p.price.toFixed(2)}`,
+        compareAtPrice: p.compare_at_price ? `$${p.compare_at_price.toFixed(2)}` : null,
+        image: p.image_urls?.[0] || "https://via.placeholder.com/500", // ShopClient uses product.image
+        hoverImage: p.image_urls?.[1] || null,
+        category: p.category,
+        collectionId: p.collection_id,
+        inStock: p.in_stock,
+        sizes: sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : []
+      };
+    });
   
   return (
     <Suspense fallback={<div className="min-h-screen bg-stone-50 dark:bg-stone-950" />}>
-      <ShopClient products={products} />
+      <ShopClient products={products} collections={dbCollections || []} />
     </Suspense>
   );
 }

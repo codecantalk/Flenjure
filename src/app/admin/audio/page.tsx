@@ -10,6 +10,7 @@ interface AudioTrack {
   length: string;
   platform_tag: string;
   track_number: string;
+  audio_url: string;
 }
 
 export default function AdminAudioPage() {
@@ -23,6 +24,7 @@ export default function AdminAudioPage() {
   const [length, setLength] = useState("");
   const [platformTag, setPlatformTag] = useState("");
   const [trackNumber, setTrackNumber] = useState("");
+  const [audioUrl, setAudioUrl] = useState("");
 
   const [saving, setSaving] = useState(false);
 
@@ -37,13 +39,13 @@ export default function AdminAudioPage() {
 
   const openCreateView = () => {
     setEditingTrack(null);
-    setTitle(""); setLength(""); setPlatformTag(""); setTrackNumber("");
+    setTitle(""); setLength(""); setPlatformTag(""); setTrackNumber(""); setAudioUrl("");
     setCurrentView('edit');
   };
 
   const openEditView = (track: AudioTrack) => {
     setEditingTrack(track);
-    setTitle(track.title); setLength(track.length); setPlatformTag(track.platform_tag); setTrackNumber(track.track_number);
+    setTitle(track.title); setLength(track.length); setPlatformTag(track.platform_tag); setTrackNumber(track.track_number); setAudioUrl(track.audio_url || "");
     setCurrentView('edit');
   };
 
@@ -68,7 +70,7 @@ export default function AdminAudioPage() {
     setSaving(true);
     
     const newTrack = {
-      title, length, platform_tag: platformTag, track_number: trackNumber
+      title, length, platform_tag: platformTag, track_number: trackNumber, audio_url: audioUrl
     };
 
     try {
@@ -77,7 +79,7 @@ export default function AdminAudioPage() {
       } else {
         const res = await createAudioTrack(newTrack);
         if (res && res.error === 'TABLE_MISSING') {
-          alert(`Table is missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nCREATE TABLE audio_tracks (\n  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  title TEXT NOT NULL,\n  length TEXT NOT NULL,\n  platform_tag TEXT NOT NULL,\n  track_number TEXT NOT NULL\n);`);
+          alert(`Table is missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nCREATE TABLE audio_tracks (\n  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  title TEXT NOT NULL,\n  length TEXT NOT NULL,\n  platform_tag TEXT NOT NULL,\n  track_number TEXT NOT NULL,\n  audio_url TEXT\n);`);
           setSaving(false);
           return;
         }
@@ -172,7 +174,7 @@ export default function AdminAudioPage() {
                             for (const track of defaultTracks) {
                               const res = await createAudioTrack(track);
                               if (res && res.error === 'TABLE_MISSING') {
-                                alert(`Table is missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nCREATE TABLE audio_tracks (\n  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  title TEXT NOT NULL,\n  length TEXT NOT NULL,\n  platform_tag TEXT NOT NULL,\n  track_number TEXT NOT NULL\n);`);
+                                alert(`Table is missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nCREATE TABLE audio_tracks (\n  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  title TEXT NOT NULL,\n  length TEXT NOT NULL,\n  platform_tag TEXT NOT NULL,\n  track_number TEXT NOT NULL,\n  audio_url TEXT\n);`);
                                 setLoading(false);
                                 return;
                               }
@@ -230,6 +232,15 @@ export default function AdminAudioPage() {
                 <input
                   type="text" required
                   value={platformTag} onChange={e => setPlatformTag(e.target.value)}
+                  className="w-full border border-stone-200 dark:border-stone-700 bg-transparent rounded-lg px-4 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Audio URL (.mp3 or .wav)</label>
+                <input
+                  type="url"
+                  value={audioUrl} onChange={e => setAudioUrl(e.target.value)}
+                  placeholder="https://example.com/audio.mp3"
                   className="w-full border border-stone-200 dark:border-stone-700 bg-transparent rounded-lg px-4 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500"
                 />
               </div>

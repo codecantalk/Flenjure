@@ -141,6 +141,43 @@ export async function updateOrderField(id: string, field: string, value: string)
   return data;
 }
 
+// CUSTOMERS (Aggregated from Orders)
+export async function getCustomers() {
+  const { data: orders, error } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
+  if (error || !orders) {
+    return [];
+  }
+
+  const customerMap = new Map<string, any>();
+
+  orders.forEach((order: any) => {
+    const email = order.email || order.shipping_address?.email || "Unknown";
+    const phone = order.whatsapp_number || order.shipping_address?.phone || "Unknown";
+    const name = order.shipping_address?.fullName || "Unknown Customer";
+    const id = email !== "Unknown" ? email : (phone !== "Unknown" ? phone : order.id);
+
+    if (!customerMap.has(id)) {
+      customerMap.set(id, {
+        id,
+        name,
+        email,
+        phone,
+        total_spent: 0,
+        orders_count: 0,
+        last_order_date: order.created_at,
+        recent_orders: []
+      });
+    }
+
+    const customer = customerMap.get(id);
+    customer.total_spent += Number(order.total_amount || 0);
+    customer.orders_count += 1;
+    customer.recent_orders.push(order);
+  });
+
+  return Array.from(customerMap.values());
+}
+
 // CRM / CARTS
 export async function getCrmSessions() {
   const { data } = await supabaseAdmin.from("cart_sessions").select("*").order("updated_at", { ascending: false });
