@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { Plus, X, LayoutGrid, SquareSquare, Sun, Moon } from "lucide-react";
 import { useCartStore } from "@/lib/store";
 import { useTheme } from "next-themes";
+import { supabase } from "@/lib/supabase";
 
 const DISCOVER_LINKS = [
   { name: "New Arrivals", value: "New Arrivals" },
@@ -51,7 +52,24 @@ export default function ShopClient({ products, collections = [] }: { products: a
     if (cat) {
       setActiveCategory(cat);
     }
-  }, [searchParams]);
+
+    // Subscribe to realtime changes on the products table to immediately refresh the frontend
+    const channel = supabase.channel('realtime:public:products')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        (payload) => {
+          console.log('Realtime update received:', payload);
+          // Trigger a soft refresh to re-fetch Server Components without losing client state
+          router.refresh();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [searchParams, router]);
 
   const addItem = useCartStore((state) => state.addItem);
 

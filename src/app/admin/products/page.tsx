@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   X
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface Product {
   id: string;
@@ -140,6 +141,28 @@ function AdminProductsPageContent() {
     }
 
     fetchData();
+
+    // Subscribe to realtime changes on the products table to immediately refresh the CMS view
+    const channel = supabase.channel('realtime:admin:products')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        async () => {
+          console.log('Realtime CMS update received, re-fetching products...');
+          const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+          if (!isMissingEnv) {
+            const freshData = await getProducts();
+            if (freshData && freshData.length > 0) {
+              setProducts(freshData as Product[]);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const openCreateView = () => {
