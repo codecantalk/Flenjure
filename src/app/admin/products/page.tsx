@@ -13,7 +13,9 @@ import {
   Upload,
   ArrowLeft,
   X,
-  Edit2
+  Edit2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
@@ -327,6 +329,24 @@ function AdminProductsPageContent() {
     setImageUrls(imageUrls.filter((_, idx) => idx !== indexToRemove));
   };
 
+  const moveImageLeft = (index: number) => {
+    if (index === 0) return;
+    const newUrls = [...imageUrls];
+    const temp = newUrls[index - 1];
+    newUrls[index - 1] = newUrls[index];
+    newUrls[index] = temp;
+    setImageUrls(newUrls);
+  };
+
+  const moveImageRight = (index: number) => {
+    if (index === imageUrls.length - 1) return;
+    const newUrls = [...imageUrls];
+    const temp = newUrls[index + 1];
+    newUrls[index + 1] = newUrls[index];
+    newUrls[index] = temp;
+    setImageUrls(newUrls);
+  };
+
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = "move";
@@ -556,6 +576,33 @@ function AdminProductsPageContent() {
                         Main Thumbnail
                       </div>
                     )}
+                    
+                    <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-100 z-10">
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveImageLeft(index);
+                          }}
+                          className="bg-white/90 dark:bg-stone-800/90 text-stone-600 dark:text-stone-300 p-1.5 rounded-md shadow-sm transition-colors hover:text-stone-900 dark:hover:text-white"
+                        >
+                          <ChevronLeft size={14} />
+                        </button>
+                      )}
+                      {index < imageUrls.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveImageRight(index);
+                          }}
+                          className="bg-white/90 dark:bg-stone-800/90 text-stone-600 dark:text-stone-300 p-1.5 rounded-md shadow-sm transition-colors hover:text-stone-900 dark:hover:text-white"
+                        >
+                          <ChevronRight size={14} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 
