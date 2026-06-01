@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAudioTracks, createAudioTrack, updateAudioTrack, deleteAudioTrack } from "../actions";
-import { Plus, Trash2, Loader2, Music, Check, X } from "lucide-react";
+import { getAudioTracks, createAudioTrack, updateAudioTrack, deleteAudioTrack, uploadAudioFile } from "../actions";
+import { Plus, Trash2, Loader2, Music, UploadCloud } from "lucide-react";
 
 interface AudioTrack {
   id: string;
@@ -25,8 +25,27 @@ export default function AdminAudioPage() {
   const [platformTag, setPlatformTag] = useState("");
   const [trackNumber, setTrackNumber] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const [saving, setSaving] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const url = await uploadAudioFile(formData);
+      setAudioUrl(url);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to upload audio file.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -236,13 +255,32 @@ export default function AdminAudioPage() {
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Audio URL (.mp3 or .wav)</label>
-                <input
-                  type="url"
-                  value={audioUrl} onChange={e => setAudioUrl(e.target.value)}
-                  placeholder="https://example.com/audio.mp3"
-                  className="w-full border border-stone-200 dark:border-stone-700 bg-transparent rounded-lg px-4 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500"
-                />
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Audio File or URL</label>
+                <div className="flex gap-4">
+                  <input
+                    type="url"
+                    value={audioUrl} onChange={e => setAudioUrl(e.target.value)}
+                    placeholder="https://example.com/audio.mp3"
+                    className="flex-1 border border-stone-200 dark:border-stone-700 bg-transparent rounded-lg px-4 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                  />
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={uploading}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploading}
+                      className="flex items-center gap-2 px-4 py-2 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg text-sm font-medium hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors h-full"
+                    >
+                      {uploading ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                      {uploading ? "Uploading..." : "Upload File"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 

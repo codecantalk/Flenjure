@@ -262,6 +262,23 @@ export async function deleteAudioTrack(id: string) {
   revalidatePath('/sights-and-sounds', 'layout');
   return true;
 }
+export async function uploadAudioFile(formData: FormData) {
+  const file = formData.get("file") as File;
+  if (!file) throw new Error("No file uploaded");
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+  
+  const { data, error } = await supabaseAdmin.storage.from("audio").upload(fileName, file, {
+    cacheControl: '3600',
+    upsert: false
+  });
+
+  if (error) throw error;
+  
+  const { data: { publicUrl } } = supabaseAdmin.storage.from("audio").getPublicUrl(fileName);
+  return publicUrl;
+}
 
 // ANNOUNCEMENTS
 export async function getAnnouncements() {
