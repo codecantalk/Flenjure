@@ -357,75 +357,40 @@ export default function ShopClient({ products, collections = [] }: { products: a
 
         {/* Product Grid Layout */}
         <main className="flex-1 w-full relative z-10 pt-0">
-          {activeCategory === "Collections" ? (
+          {activeCategory.toLowerCase() === "collections" ? (
             <div className="flex flex-col gap-24 lg:gap-32 pb-24">
-              
-              {/* Collection 1 */}
-              <section>
-                <div className="mb-10 text-stone-900 dark:text-white flex justify-between items-end">
-                  <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Spring / Summer 2026</h2>
+              {collections.length > 0 ? collections.map((collection, index) => {
+                const colProducts = products.filter(p => p.collectionId === collection.id);
+                if (colProducts.length === 0) return null;
+                
+                return (
+                  <section key={collection.id}>
+                    <div className={clsx(
+                      "mb-10 text-stone-900 dark:text-white flex justify-between items-end",
+                      index > 0 && "border-t border-stone-200 dark:border-stone-900 pt-16 lg:pt-24"
+                    )}>
+                      <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">{collection.name}</h2>
+                    </div>
+                    <div className={clsx(
+                      "transition-all duration-1000",
+                      viewMode === "grid" 
+                        ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
+                        : "flex flex-col gap-12 md:gap-24 items-center"
+                    )}>
+                      {colProducts.map(product => (
+                        <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
+                      ))}
+                    </div>
+                    <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
+                      <Link href={`/shop?category=${collection.id}`} className="border-b border-stone-300 dark:border-stone-700 pb-1">View collection</Link>
+                    </div>
+                  </section>
+                );
+              }) : (
+                <div className="py-32 text-center text-stone-500 text-sm tracking-widest uppercase">
+                  No collections found.
                 </div>
-                <div className={clsx(
-                  "transition-all duration-1000",
-                  viewMode === "grid" 
-                    ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
-                    : "flex flex-col gap-12 md:gap-24 items-center"
-                )}>
-                  {filteredProducts.slice(0, 8).map(product => (
-                    <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
-                  ))}
-                </div>
-                {filteredProducts.length > 0 && (
-                  <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
-                    <Link href="/shop?category=new-arrivals" className="border-b border-stone-300 dark:border-stone-700 pb-1">View more</Link>
-                  </div>
-                )}
-              </section>
-
-              {/* Collection 2 */}
-              {filteredProducts.length > 4 && (
-                <section>
-                  <div className="mb-10 text-stone-900 dark:text-white flex justify-between items-end border-t border-stone-200 dark:border-stone-900 pt-16 lg:pt-24">
-                    <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Uniform</h2>
-                  </div>
-                  <div className={clsx(
-                    "transition-all duration-1000",
-                    viewMode === "grid" 
-                      ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
-                      : "flex flex-col gap-12 md:gap-24 items-center"
-                  )}>
-                    {filteredProducts.slice(4, 12).map(product => (
-                      <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
-                    ))}
-                  </div>
-                  <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
-                    <Link href="/shop" className="border-b border-stone-300 dark:border-stone-700 pb-1">View more</Link>
-                  </div>
-                </section>
               )}
-
-              {/* Collection 3 */}
-              {filteredProducts.length > 8 && (
-                <section>
-                  <div className="mb-10 text-stone-900 dark:text-white flex justify-between items-end border-t border-stone-200 dark:border-stone-900 pt-16 lg:pt-24">
-                    <h2 className="text-[13px] md:text-[14px] font-medium tracking-wide">Flenjure / Objects</h2>
-                  </div>
-                  <div className={clsx(
-                    "transition-all duration-1000",
-                    viewMode === "grid" 
-                      ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-12 sm:gap-x-4 md:gap-x-6 md:gap-y-16"
-                      : "flex flex-col gap-12 md:gap-24 items-center"
-                  )}>
-                    {filteredProducts.slice(8, 16).map(product => (
-                      <ProductCard key={product.id} product={product} viewMode={viewMode} addItem={addItem} />
-                    ))}
-                  </div>
-                  <div className="mt-16 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer w-max">
-                    <Link href="/shop?category=candy-shop" className="border-b border-stone-300 dark:border-stone-700 pb-1">View more</Link>
-                  </div>
-                </section>
-              )}
-
             </div>
           ) : (
             <div className={clsx(
