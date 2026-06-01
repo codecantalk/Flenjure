@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { PromptModal } from "@/components/admin/PromptModal";
 
 interface Product {
   id: string;
@@ -54,6 +55,10 @@ function AdminProductsPageContent() {
   
   const [modalConfig, setModalConfig] = useState<{isOpen: boolean; title: string; message: string; onConfirm: () => void}>({
     isOpen: false, title: '', message: '', onConfirm: () => {}
+  });
+
+  const [promptConfig, setPromptConfig] = useState<{isOpen: boolean; title: string; message: string; type: 'text'|'number'; onConfirm: (val: string) => void}>({
+    isOpen: false, title: '', message: '', type: 'text', onConfirm: () => {}
   });
 
   useEffect(() => {
@@ -402,31 +407,38 @@ function AdminProductsPageContent() {
 
   const handleBulkInventory = async () => {
     if (selectedProducts.length === 0) return;
-    const countStr = prompt("Enter new inventory count for all selected products:");
-    if (countStr === null) return;
-    const count = parseInt(countStr, 10);
-    if (isNaN(count) || count < 0) return alert("Invalid inventory count.");
+    
+    setPromptConfig({
+      isOpen: true,
+      title: "Update Inventory",
+      message: "Enter the new inventory count for all selected products:",
+      type: "number",
+      onConfirm: async (countStr: string) => {
+        const count = parseInt(countStr, 10);
+        if (isNaN(count) || count < 0) return alert("Invalid inventory count.");
 
-    try {
-      const isMissingEnv = 
-        !process.env.NEXT_PUBLIC_SUPABASE_URL || 
-        process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
-      
-      if (!isMissingEnv) {
-        await bulkUpdateProducts(selectedProducts, { inventory_count: count });
-      }
+        try {
+          const isMissingEnv = 
+            !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+            process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+          
+          if (!isMissingEnv) {
+            await bulkUpdateProducts(selectedProducts, { inventory_count: count });
+          }
 
-      setProducts(products.map(p => {
-        if (selectedProducts.includes(p.id)) {
-          return { ...p, inventory_count: count };
+          setProducts(products.map(p => {
+            if (selectedProducts.includes(p.id)) {
+              return { ...p, inventory_count: count };
+            }
+            return p;
+          }));
+          setSelectedProducts([]);
+        } catch (err) {
+          console.error(err);
+          alert("Failed to update products.");
         }
-        return p;
-      }));
-      setSelectedProducts([]);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update products.");
-    }
+      }
+    });
   };
 
   const filteredProducts = products.filter(p => {
@@ -534,7 +546,7 @@ function AdminProductsPageContent() {
                         e.stopPropagation();
                         removeImage(index);
                       }}
-                      className="absolute top-2 right-2 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 p-1.5 rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500 dark:hover:text-red-400 z-10"
+                      className="absolute top-2 right-2 bg-white/90 dark:bg-stone-800/90 text-stone-600 dark:text-stone-300 p-1.5 rounded-md shadow-sm opacity-100 transition-colors hover:text-red-500 dark:hover:text-red-400 z-10"
                     >
                       <X size={14} />
                     </button>
@@ -743,6 +755,14 @@ function AdminProductsPageContent() {
           onConfirm={modalConfig.onConfirm}
           onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
         />
+        <PromptModal
+          isOpen={promptConfig.isOpen}
+          title={promptConfig.title}
+          message={promptConfig.message}
+          type={promptConfig.type}
+          onConfirm={promptConfig.onConfirm}
+          onCancel={() => setPromptConfig({ ...promptConfig, isOpen: false })}
+        />
       </div>
     );
   }
@@ -808,11 +828,11 @@ function AdminProductsPageContent() {
         </div>
 
         {selectedProducts.length > 0 && (
-          <div className="bg-stone-50 dark:bg-stone-800/60 px-4 py-3 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-            <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+          <div className="bg-stone-50 dark:bg-stone-800/60 px-4 py-3 border-t border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+            <span className="text-sm font-medium text-stone-700 dark:text-stone-300 whitespace-nowrap">
               {selectedProducts.length} product{selectedProducts.length > 1 ? "s" : ""} selected
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button 
                 onClick={() => handleBulkStatus('active')}
                 className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-sm"
@@ -940,6 +960,14 @@ function AdminProductsPageContent() {
         message={modalConfig.message}
         onConfirm={modalConfig.onConfirm}
         onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+      />
+      <PromptModal
+        isOpen={promptConfig.isOpen}
+        title={promptConfig.title}
+        message={promptConfig.message}
+        type={promptConfig.type}
+        onConfirm={promptConfig.onConfirm}
+        onCancel={() => setPromptConfig({ ...promptConfig, isOpen: false })}
       />
     </div>
   );

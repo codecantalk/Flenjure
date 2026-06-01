@@ -20,7 +20,8 @@ import {
   Bell,
   Music,
   Coffee,
-  Megaphone
+  Megaphone,
+  Trash2
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -114,6 +115,7 @@ export default function AdminLayout({
     { name: "Audio", href: "/admin/audio", icon: Music },
     { name: "Cafe", href: "/admin/cafe", icon: Coffee },
     { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
+    { name: "Recycle Bin", href: "/admin/recycle-bin", icon: Trash2 },
   ];
 
   return (
@@ -138,7 +140,15 @@ export default function AdminLayout({
         </button>
       </div>
 
-      {/* Sidebar Sidebar */}
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
       <aside className={`
         fixed inset-y-0 left-0 w-64 bg-[#f4f4f4] dark:bg-[#111] border-r border-stone-200 dark:border-stone-800 flex flex-col justify-between z-40 transform transition-transform duration-300 md:relative md:transform-none md:shrink-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}

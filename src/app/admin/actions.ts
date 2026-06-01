@@ -27,7 +27,7 @@ async function generateUniqueSlug(table: string, baseSlug: string, excludeId?: s
 
 // PRODUCTS
 export async function getProducts() {
-  const { data } = await supabaseAdmin.from("products").select("*").order("priority", { ascending: false });
+  const { data } = await supabaseAdmin.from("products").select("*").is("deleted_at", null).order("priority", { ascending: false });
   return data || [];
 }
 export async function getProductBySlug(slug: string) {
@@ -63,10 +63,27 @@ export async function updateProduct(id: string, productData: any) {
   return { success: true, data };
 }
 export async function deleteProduct(id: string) {
-  const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("products").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
   revalidatePath('/shop', 'layout');
   revalidatePath('/', 'layout');
+  return true;
+}
+
+export async function getDeletedProducts() {
+  const { data } = await supabaseAdmin.from("products").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false });
+  return data || [];
+}
+export async function restoreProduct(id: string) {
+  const { error } = await supabaseAdmin.from("products").update({ deleted_at: null }).eq("id", id);
+  if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
+  return true;
+}
+export async function permanentlyDeleteProduct(id: string) {
+  const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
+  if (error) throw error;
   return true;
 }
 export async function bulkUpdateProducts(ids: string[], updates: any) {
@@ -96,7 +113,7 @@ export async function uploadProductImage(formData: FormData) {
 
 // COLLECTIONS
 export async function getCollections() {
-  const { data } = await supabaseAdmin.from("collections").select("*").order("order", { ascending: true });
+  const { data } = await supabaseAdmin.from("collections").select("*").is("deleted_at", null).order("order", { ascending: true });
   return data || [];
 }
 export async function createCollection(collectionData: any) {
@@ -118,10 +135,27 @@ export async function updateCollection(id: string, collectionData: any) {
   return data;
 }
 export async function deleteCollection(id: string) {
-  const { error } = await supabaseAdmin.from("collections").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("collections").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
   revalidatePath('/shop', 'layout');
   revalidatePath('/', 'layout');
+  return true;
+}
+
+export async function getDeletedCollections() {
+  const { data } = await supabaseAdmin.from("collections").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false });
+  return data || [];
+}
+export async function restoreCollection(id: string) {
+  const { error } = await supabaseAdmin.from("collections").update({ deleted_at: null }).eq("id", id);
+  if (error) throw error;
+  revalidatePath('/shop', 'layout');
+  revalidatePath('/', 'layout');
+  return true;
+}
+export async function permanentlyDeleteCollection(id: string) {
+  const { error } = await supabaseAdmin.from("collections").delete().eq("id", id);
+  if (error) throw error;
   return true;
 }
 
@@ -203,7 +237,7 @@ export async function getDashboardStats() {
 
 // CAFE ITEMS
 export async function getCafeItems() {
-  const { data, error } = await supabaseAdmin.from("cafe_items").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabaseAdmin.from("cafe_items").select("*").is("deleted_at", null).order("created_at", { ascending: false });
   if (error) {
     console.error("Missing cafe_items table, returning fallback data");
     return [];
@@ -226,15 +260,31 @@ export async function updateCafeItem(id: string, itemData: any) {
   return data;
 }
 export async function deleteCafeItem(id: string) {
-  const { error } = await supabaseAdmin.from("cafe_items").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("cafe_items").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
   revalidatePath('/cafe', 'layout');
   return true;
 }
 
+export async function getDeletedCafeItems() {
+  const { data } = await supabaseAdmin.from("cafe_items").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false });
+  return data || [];
+}
+export async function restoreCafeItem(id: string) {
+  const { error } = await supabaseAdmin.from("cafe_items").update({ deleted_at: null }).eq("id", id);
+  if (error) throw error;
+  revalidatePath('/cafe', 'layout');
+  return true;
+}
+export async function permanentlyDeleteCafeItem(id: string) {
+  const { error } = await supabaseAdmin.from("cafe_items").delete().eq("id", id);
+  if (error) throw error;
+  return true;
+}
+
 // AUDIO TRACKS
 export async function getAudioTracks() {
-  const { data, error } = await supabaseAdmin.from("audio_tracks").select("*").order("track_number", { ascending: true });
+  const { data, error } = await supabaseAdmin.from("audio_tracks").select("*").is("deleted_at", null).order("track_number", { ascending: true });
   if (error) {
     console.error("Missing audio_tracks table, returning fallback data");
     return [];
@@ -257,9 +307,25 @@ export async function updateAudioTrack(id: string, trackData: any) {
   return data;
 }
 export async function deleteAudioTrack(id: string) {
-  const { error } = await supabaseAdmin.from("audio_tracks").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("audio_tracks").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
   revalidatePath('/sights-and-sounds', 'layout');
+  return true;
+}
+
+export async function getDeletedAudioTracks() {
+  const { data } = await supabaseAdmin.from("audio_tracks").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false });
+  return data || [];
+}
+export async function restoreAudioTrack(id: string) {
+  const { error } = await supabaseAdmin.from("audio_tracks").update({ deleted_at: null }).eq("id", id);
+  if (error) throw error;
+  revalidatePath('/sights-and-sounds', 'layout');
+  return true;
+}
+export async function permanentlyDeleteAudioTrack(id: string) {
+  const { error } = await supabaseAdmin.from("audio_tracks").delete().eq("id", id);
+  if (error) throw error;
   return true;
 }
 export async function uploadAudioFile(formData: FormData) {
@@ -282,7 +348,7 @@ export async function uploadAudioFile(formData: FormData) {
 
 // ANNOUNCEMENTS
 export async function getAnnouncements() {
-  const { data, error } = await supabaseAdmin.from("announcements").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabaseAdmin.from("announcements").select("*").is("deleted_at", null).order("created_at", { ascending: false });
   if (error) {
     console.error("Missing announcements table, returning fallback data");
     return [];
@@ -312,9 +378,26 @@ export async function updateAnnouncement(id: string, announcementData: any) {
 }
 
 export async function deleteAnnouncement(id: string) {
-  const { error } = await supabaseAdmin.from("announcements").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("announcements").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
   revalidatePath('/announcements', 'layout');
   revalidatePath('/', 'layout');
+  return true;
+}
+
+export async function getDeletedAnnouncements() {
+  const { data } = await supabaseAdmin.from("announcements").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false });
+  return data || [];
+}
+export async function restoreAnnouncement(id: string) {
+  const { error } = await supabaseAdmin.from("announcements").update({ deleted_at: null }).eq("id", id);
+  if (error) throw error;
+  revalidatePath('/announcements', 'layout');
+  revalidatePath('/', 'layout');
+  return true;
+}
+export async function permanentlyDeleteAnnouncement(id: string) {
+  const { error } = await supabaseAdmin.from("announcements").delete().eq("id", id);
+  if (error) throw error;
   return true;
 }

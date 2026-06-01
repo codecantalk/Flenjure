@@ -165,8 +165,8 @@ export default function AdminCafePage() {
         </div>
 
         {currentView === 'list' && (
-          <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-sm">
-            <table className="w-full text-left border-collapse">
+          <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl overflow-x-auto shadow-sm">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
                 <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/20">
                   <th className="py-3 px-4 text-xs font-medium text-stone-500 uppercase w-16">Image</th>

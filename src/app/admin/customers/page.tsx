@@ -86,8 +86,8 @@ export default function AdminCustomersPage() {
         </div>
 
         {/* List */}
-        <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full text-left border-collapse">
+        <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-sm overflow-x-auto">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/20">
                 <th className="py-3 px-4 text-xs font-medium text-stone-500 uppercase">Customer</th>
