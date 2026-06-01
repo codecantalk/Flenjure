@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getCafeItems, createCafeItem, updateCafeItem, deleteCafeItem, uploadProductImage } from "../actions";
 import { Plus, Trash2, Loader2, Coffee, Upload, X } from "lucide-react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import Image from "next/image";
 
 interface CafeItem {
@@ -27,6 +28,9 @@ export default function AdminCafePage() {
 
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean; title: string; message: string; onConfirm: () => void}>({
+    isOpen: false, title: '', message: '', onConfirm: () => {}
+  });
 
   useEffect(() => {
     async function fetchData() {
@@ -53,12 +57,21 @@ export default function AdminCafePage() {
     setCurrentView('list');
   };
 
+  const requestDelete = (id: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Cafe Item",
+      message: "Are you sure you want to delete this cafe item?",
+      onConfirm: () => handleDelete(id)
+    });
+  };
+
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this cafe item?")) return;
     try {
       await deleteCafeItem(id);
       setItems(items.filter(t => t.id !== id));
       if (editingItem?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
     } catch (err) {
       console.error(err);
       alert("Failed to delete item");
@@ -175,7 +188,7 @@ export default function AdminCafePage() {
                     <td className="py-4 px-4 text-sm text-stone-500">{item.category}</td>
                     <td className="py-4 px-4 text-sm text-stone-500">{item.price}</td>
                     <td className="py-4 px-4 text-right">
-                       <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="text-stone-400 hover:text-red-500 p-2">
+                       <button onClick={(e) => { e.stopPropagation(); requestDelete(item.id); }} className="text-stone-400 hover:text-red-500 p-2">
                          <Trash2 size={16} />
                        </button>
                     </td>
@@ -296,6 +309,13 @@ export default function AdminCafePage() {
           </form>
         )}
       </div>
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+      />
     </div>
   );
 }

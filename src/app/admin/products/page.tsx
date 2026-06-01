@@ -12,9 +12,11 @@ import {
   Filter,
   Upload,
   ArrowLeft,
-  X
+  X,
+  Edit2
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Product {
   id: string;
@@ -50,6 +52,10 @@ function AdminProductsPageContent() {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
   
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean; title: string; message: string; onConfirm: () => void}>({
+    isOpen: false, title: '', message: '', onConfirm: () => {}
+  });
+
   useEffect(() => {
     const q = searchParams.get('q');
     if (q !== null) {
@@ -142,13 +148,11 @@ function AdminProductsPageContent() {
 
     fetchData();
 
-    // Subscribe to realtime changes on the products table to immediately refresh the CMS view
     const channel = supabase.channel('realtime:admin:products')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'products' },
         async () => {
-          console.log('Realtime CMS update received, re-fetching products...');
           const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
           if (!isMissingEnv) {
             const freshData = await getProducts();
@@ -190,9 +194,16 @@ function AdminProductsPageContent() {
     setCurrentView('list');
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this product?")) return;
+  const requestDelete = (id: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Product",
+      message: "Are you sure you want to permanently delete this product? This action cannot be undone.",
+      onConfirm: () => handleDelete(id)
+    });
+  };
 
+  const handleDelete = async (id: string) => {
     const isMissingEnv = 
       !process.env.NEXT_PUBLIC_SUPABASE_URL || 
       process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
@@ -201,6 +212,7 @@ function AdminProductsPageContent() {
       setProducts(products.filter(p => p.id !== id));
       setSelectedProducts(selectedProducts.filter(selId => selId !== id));
       if (editingProduct?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
       return;
     }
 
@@ -209,6 +221,7 @@ function AdminProductsPageContent() {
       setProducts(products.filter(p => p.id !== id));
       setSelectedProducts(selectedProducts.filter(selId => selId !== id));
       if (editingProduct?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
     } catch (err) {
       console.error(err);
       alert("Failed to delete product.");
@@ -247,11 +260,6 @@ function AdminProductsPageContent() {
         res = await createProduct(newProd);
       }
       
-      if (res && res.error === 'COLUMN_MISSING') {
-        alert(`Column missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nALTER TABLE products ADD COLUMN variants JSONB DEFAULT '[]'::jsonb;`);
-        return;
-      }
-      
       const data = await getProducts();
       if (data) setProducts(data as Product[]);
       closeView();
@@ -283,7 +291,6 @@ function AdminProductsPageContent() {
 
     setIsUploading(true);
     
-    // Support multiple files upload (even sequentially)
     const newUrls = [...imageUrls];
     
     try {
@@ -315,7 +322,6 @@ function AdminProductsPageContent() {
     setImageUrls(imageUrls.filter((_, idx) => idx !== indexToRemove));
   };
 
-  // Drag and Drop Logic
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = "move";
@@ -397,7 +403,7 @@ function AdminProductsPageContent() {
   const handleBulkInventory = async () => {
     if (selectedProducts.length === 0) return;
     const countStr = prompt("Enter new inventory count for all selected products:");
-    if (countStr === null) return; // user cancelled
+    if (countStr === null) return;
     const count = parseInt(countStr, 10);
     if (isNaN(count) || count < 0) return alert("Invalid inventory count.");
 
@@ -443,7 +449,6 @@ function AdminProductsPageContent() {
   if (currentView === 'edit') {
     return (
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
-        {/* Top Bar Navigation */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <button 
@@ -460,7 +465,7 @@ function AdminProductsPageContent() {
             {editingProduct && (
               <button 
                 type="button" 
-                onClick={() => handleDelete(editingProduct.id)} 
+                onClick={() => requestDelete(editingProduct.id)} 
                 className="px-3 py-1.5 rounded-md text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               >
                 Delete
@@ -476,10 +481,7 @@ function AdminProductsPageContent() {
         </div>
 
         <form id="productForm" onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
-          {/* Left Column */}
           <div className="flex-1 space-y-6">
-            
-            {/* Title & Description */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <div>
                 <label className="block text-sm font-medium text-stone-900 dark:text-white mb-1.5">Title</label>
@@ -498,7 +500,6 @@ function AdminProductsPageContent() {
               </div>
             </div>
 
-            {/* Media Grid */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Media</h4>
@@ -506,8 +507,6 @@ function AdminProductsPageContent() {
               </div>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 relative">
-                
-                {/* Images */}
                 {imageUrls.map((url, index) => (
                   <div
                     key={`${url}-${index}`}
@@ -527,10 +526,8 @@ function AdminProductsPageContent() {
                       className="w-full h-full object-cover pointer-events-none" 
                     />
                     
-                    {/* Hover Actions */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 dark:group-hover:bg-black/40 transition-colors pointer-events-none"></div>
                     
-                    {/* Delete Button */}
                     <button 
                       type="button"
                       onClick={(e) => {
@@ -542,7 +539,6 @@ function AdminProductsPageContent() {
                       <X size={14} />
                     </button>
                     
-                    {/* Label for primary */}
                     {index === 0 && (
                       <div className="absolute bottom-2 left-2 bg-white/90 dark:bg-stone-800/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-medium text-stone-700 dark:text-stone-300 pointer-events-none">
                         Main Thumbnail
@@ -551,7 +547,6 @@ function AdminProductsPageContent() {
                   </div>
                 ))}
                 
-                {/* Upload Button */}
                 <label className={`
                   border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-lg flex flex-col items-center justify-center p-6 text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors cursor-pointer
                   ${imageUrls.length === 0 ? "col-span-2 row-span-2 aspect-square p-8" : "col-span-1 aspect-square"}
@@ -563,7 +558,6 @@ function AdminProductsPageContent() {
               </div>
             </div>
 
-            {/* Variants Section */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Variants</h4>
@@ -641,7 +635,6 @@ function AdminProductsPageContent() {
               )}
             </div>
 
-            {/* Pricing */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Pricing</h4>
               <div className="grid grid-cols-2 gap-4">
@@ -668,7 +661,6 @@ function AdminProductsPageContent() {
               </div>
             </div>
 
-            {/* Inventory */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Inventory</h4>
               <div className="border border-stone-200 dark:border-stone-800 rounded-md overflow-hidden">
@@ -699,12 +691,9 @@ function AdminProductsPageContent() {
                 </div>
               </div>
             </div>
-
           </div>
 
-          {/* Right Column */}
           <div className="md:w-80 space-y-6 shrink-0">
-            {/* Status Card */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Status</h4>
               <select
@@ -716,7 +705,6 @@ function AdminProductsPageContent() {
               </select>
             </div>
 
-            {/* Organization Card */}
             <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Product organization</h4>
               <div>
@@ -748,14 +736,19 @@ function AdminProductsPageContent() {
             </div>
           </div>
         </form>
+        <ConfirmModal
+          isOpen={modalConfig.isOpen}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          onConfirm={modalConfig.onConfirm}
+          onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        />
       </div>
     );
   }
 
-  // --- LIST VIEW ---
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
         <h2 className="text-xl font-semibold text-stone-900 dark:text-white">Products</h2>
         <div className="flex gap-2 w-full sm:w-auto">
@@ -775,9 +768,7 @@ function AdminProductsPageContent() {
         </div>
       </div>
 
-      {/* Toolbar & Filters (Shopify Style) */}
       <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-sm overflow-hidden">
-        {/* Tabs */}
         <div className="flex items-center gap-1 px-2 pt-2 border-b border-stone-200 dark:border-stone-800">
           <button 
             onClick={() => setStatusFilter('all')}
@@ -799,7 +790,6 @@ function AdminProductsPageContent() {
           </button>
         </div>
 
-        {/* Search Bar */}
         <div className="p-3 flex items-center gap-2 bg-white dark:bg-[#111]">
           <div className="relative flex-1 sm:max-w-md">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
@@ -817,7 +807,6 @@ function AdminProductsPageContent() {
           </button>
         </div>
 
-        {/* Bulk Actions Bar */}
         {selectedProducts.length > 0 && (
           <div className="bg-stone-50 dark:bg-stone-800/60 px-4 py-3 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
             <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
@@ -844,10 +833,19 @@ function AdminProductsPageContent() {
               </button>
               <button 
                 onClick={() => {
-                  if (confirm("Are you sure you want to delete the selected products? This action cannot be undone.")) {
-                    selectedProducts.forEach(id => handleDelete(id));
-                    setSelectedProducts([]);
-                  }
+                  setModalConfig({
+                    isOpen: true,
+                    title: "Delete Selected",
+                    message: "Are you sure you want to delete the selected products? This action cannot be undone.",
+                    onConfirm: async () => {
+                      for (const id of selectedProducts) {
+                        await deleteProduct(id);
+                      }
+                      setProducts(products.filter(p => !selectedProducts.includes(p.id)));
+                      setSelectedProducts([]);
+                      setModalConfig(prev => ({ ...prev, isOpen: false }));
+                    }
+                  });
                 }}
                 className="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors shadow-sm ml-2"
               >
@@ -936,6 +934,13 @@ function AdminProductsPageContent() {
         </div>
       {/* End of list view */}
       </div>
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement } from "../actions";
 import { Plus, Trash2, Loader2, ArrowLeft, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Announcement {
   id: string;
@@ -22,6 +23,10 @@ export default function AdminAnnouncementsPage() {
   // Navigation State
   const [currentView, setCurrentView] = useState<'list' | 'edit'>('list');
   const [editingItem, setEditingItem] = useState<Announcement | null>(null);
+  
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean; title: string; message: string; onConfirm: () => void}>({
+    isOpen: false, title: '', message: '', onConfirm: () => {}
+  });
   
   // Form State
   const [title, setTitle] = useState("");
@@ -112,14 +117,23 @@ export default function AdminAnnouncementsPage() {
     setCurrentView('list');
   };
 
+  const requestDelete = (id: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Announcement",
+      message: "Are you sure you want to delete this announcement? This action cannot be undone.",
+      onConfirm: () => handleDelete(id)
+    });
+  };
+
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this announcement?")) return;
 
     const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
 
     if (isMissingEnv) {
       setAnnouncements(announcements.filter(a => a.id !== id));
       if (editingItem?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
       return;
     }
 
@@ -127,6 +141,7 @@ export default function AdminAnnouncementsPage() {
       await deleteAnnouncement(id);
       setAnnouncements(announcements.filter(a => a.id !== id));
       if (editingItem?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
     } catch (err) {
       console.error(err);
       alert("Failed to delete announcement.");
@@ -202,7 +217,7 @@ export default function AdminAnnouncementsPage() {
             {editingItem && (
               <button 
                 type="button" 
-                onClick={() => handleDelete(editingItem.id)} 
+                onClick={() => requestDelete(editingItem.id)} 
                 className="px-4 py-2 rounded-md text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               >
                 Delete
@@ -310,7 +325,7 @@ export default function AdminAnnouncementsPage() {
                   <span className="text-[10px] uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 font-medium">{item.category}</span>
                 </div>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                  onClick={(e) => { e.stopPropagation(); requestDelete(item.id); }}
                   className="text-stone-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                 >
                   <Trash2 size={16} />
@@ -330,6 +345,13 @@ export default function AdminAnnouncementsPage() {
         </div>
 
       </div>
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+      />
     </div>
   );
 }

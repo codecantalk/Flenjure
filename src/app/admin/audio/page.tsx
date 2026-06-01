@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getAudioTracks, createAudioTrack, updateAudioTrack, deleteAudioTrack, uploadAudioFile } from "../actions";
 import { Plus, Trash2, Loader2, Music, UploadCloud } from "lucide-react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface AudioTrack {
   id: string;
@@ -28,6 +29,10 @@ export default function AdminAudioPage() {
   const [uploading, setUploading] = useState(false);
 
   const [saving, setSaving] = useState(false);
+  
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean; title: string; message: string; onConfirm: () => void}>({
+    isOpen: false, title: '', message: '', onConfirm: () => {}
+  });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,12 +77,21 @@ export default function AdminAudioPage() {
     setCurrentView('list');
   };
 
+  const requestDelete = (id: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Track",
+      message: "Are you sure you want to delete this track?",
+      onConfirm: () => handleDelete(id)
+    });
+  };
+
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this track?")) return;
     try {
       await deleteAudioTrack(id);
       setTracks(tracks.filter(t => t.id !== id));
       if (editingTrack?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
     } catch (err) {
       console.error(err);
       alert("Failed to delete track");
@@ -170,7 +184,7 @@ export default function AdminAudioPage() {
                     <td className="py-4 px-4 text-sm text-stone-500">{track.length}</td>
                     <td className="py-4 px-4 text-sm text-stone-500">{track.platform_tag}</td>
                     <td className="py-4 px-4 text-right">
-                       <button onClick={(e) => { e.stopPropagation(); handleDelete(track.id); }} className="text-stone-400 hover:text-red-500 p-2">
+                       <button onClick={(e) => { e.stopPropagation(); requestDelete(track.id); }} className="text-stone-400 hover:text-red-500 p-2">
                          <Trash2 size={16} />
                        </button>
                     </td>
@@ -302,6 +316,13 @@ export default function AdminAudioPage() {
           </form>
         )}
       </div>
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+      />
     </div>
   );
 }

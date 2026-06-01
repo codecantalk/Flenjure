@@ -12,8 +12,10 @@ import {
   Filter,
   Upload,
   ArrowLeft,
-  X
+  X,
+  Edit2
 } from "lucide-react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
 
 interface Collection {
   id: string;
@@ -43,6 +45,11 @@ export default function AdminCollectionsPage() {
   const [description, setDescription] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [order, setOrder] = useState(0);
+
+  // Modals
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean; title: string; message: string; onConfirm: () => void}>({
+    isOpen: false, title: '', message: '', onConfirm: () => {}
+  });
 
   // Drag and Drop State
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -121,23 +128,31 @@ export default function AdminCollectionsPage() {
     setCurrentView('list');
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this collection?")) return;
+  const requestDelete = (id: string) => {
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Collection",
+      message: "Are you sure you want to delete this collection? This cannot be undone.",
+      onConfirm: () => handleDelete(id)
+    });
+  };
 
+  const handleDelete = async (id: string) => {
     const isMissingEnv = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
 
     if (isMissingEnv) {
       setCollections(collections.filter(c => c.id !== id));
       setSelectedCollections(selectedCollections.filter(selId => selId !== id));
       if (editingCollection?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
       return;
     }
 
     try {
       await deleteCollection(id);
       setCollections(collections.filter(c => c.id !== id));
-      setSelectedCollections(selectedCollections.filter(selId => selId !== id));
       if (editingCollection?.id === id) closeView();
+      setModalConfig(prev => ({ ...prev, isOpen: false }));
     } catch (err) {
       console.error(err);
     }
@@ -288,7 +303,7 @@ export default function AdminCollectionsPage() {
             {editingCollection && (
               <button 
                 type="button" 
-                onClick={() => handleDelete(editingCollection.id)} 
+                onClick={() => requestDelete(editingCollection.id)} 
                 className="px-3 py-1.5 rounded-md text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               >
                 Delete
@@ -484,6 +499,7 @@ export default function AdminCollectionsPage() {
                 <th className="px-4 py-2.5 font-medium">Collection</th>
                 <th className="px-4 py-2.5 font-medium">Description</th>
                 <th className="px-4 py-2.5 font-medium text-center">Sort Order</th>
+                <th className="px-4 py-2.5 font-medium w-20"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200 dark:divide-stone-800 text-stone-900 dark:text-stone-100">
@@ -492,7 +508,7 @@ export default function AdminCollectionsPage() {
                 return (
                   <tr 
                     key={col.id} 
-                    className="hover:bg-stone-50/80 dark:hover:bg-stone-800/40 transition-colors cursor-pointer"
+                    className="group hover:bg-stone-50/80 dark:hover:bg-stone-800/40 transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <input 
@@ -539,6 +555,13 @@ export default function AdminCollectionsPage() {
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })}
+      />
     </div>
   );
 }
