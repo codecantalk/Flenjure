@@ -262,3 +262,42 @@ export async function deleteAudioTrack(id: string) {
   revalidatePath('/sights-and-sounds', 'layout');
   return true;
 }
+
+// ANNOUNCEMENTS
+export async function getAnnouncements() {
+  const { data, error } = await supabaseAdmin.from("announcements").select("*").order("created_at", { ascending: false });
+  if (error) {
+    console.error("Missing announcements table, returning fallback data");
+    return [];
+  }
+  return data || [];
+}
+
+export async function createAnnouncement(announcementData: any) {
+  const { data, error } = await supabaseAdmin.from("announcements").insert([announcementData]).select().single();
+  if (error) {
+    if (error.code === 'PGRST205' || (error.message && error.message.includes("does not exist"))) {
+      return { error: 'TABLE_MISSING', table: 'announcements' };
+    }
+    throw error;
+  }
+  revalidatePath('/announcements', 'layout');
+  revalidatePath('/', 'layout');
+  return { success: true, data };
+}
+
+export async function updateAnnouncement(id: string, announcementData: any) {
+  const { data, error } = await supabaseAdmin.from("announcements").update(announcementData).eq("id", id).select().single();
+  if (error) throw error;
+  revalidatePath('/announcements', 'layout');
+  revalidatePath('/', 'layout');
+  return { success: true, data };
+}
+
+export async function deleteAnnouncement(id: string) {
+  const { error } = await supabaseAdmin.from("announcements").delete().eq("id", id);
+  if (error) throw error;
+  revalidatePath('/announcements', 'layout');
+  revalidatePath('/', 'layout');
+  return true;
+}

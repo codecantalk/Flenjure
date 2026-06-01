@@ -19,7 +19,8 @@ import {
   Search,
   Bell,
   Music,
-  Coffee
+  Coffee,
+  Megaphone
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -112,6 +113,7 @@ export default function AdminLayout({
     { name: "Carts", href: "/admin/crm", icon: ShoppingBag },
     { name: "Audio", href: "/admin/audio", icon: Music },
     { name: "Cafe", href: "/admin/cafe", icon: Coffee },
+    { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
   ];
 
   return (

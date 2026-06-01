@@ -1,32 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getAnnouncements } from "@/app/admin/actions";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+
+interface Announcement {
+  id: string;
+  title: string;
+  date: string;
+  category: string;
+  excerpt: string;
+  full_content: string;
+}
 
 export default function AnnouncementsPage() {
-  const announcements = [
-    {
-      title: "Spring/Summer 2026: The Uniform of Joy",
-      date: "April 24, 2026",
-      category: "Releases",
-      excerpt: "Establishing the core silhouettes for the upcoming season, focusing on superior drape, raw textures, and effortless transition.",
-      fullContent: "The Spring/Summer 2026 collection 'The Uniform of Joy' redefines everyday elegance through a series of elevated essentials. By incorporating premium, lightweight materials that offer superior drape, we've designed pieces that move with the wearer. The color palette draws from nature's most vivid moments—sun-bleached terracotta, deep ocean blues, and crisp cotton whites. Each garment is meticulously tailored to ensure a flawless fit while maintaining a relaxed, effortless attitude that transitions seamlessly from day to night."
-    },
-    {
-      title: "Refining the Digital Flagship Experience",
-      date: "April 18, 2026",
-      category: "News",
-      excerpt: "An inside look at our transition to a clinical ALD-standard funnel architecture, prioritizing clarity and premium conversion.",
-      fullContent: "At Flenjure, we believe the digital experience should be as tactile and deliberate as holding our garments in person. Our recent transition to a clinical, high-conversion architecture is designed to eliminate friction while elevating aesthetic presentation. We've stripped away visual noise, focusing entirely on the product, high-resolution imagery, and seamless typography. This refined funnel not only guides our customers effortlessly from discovery to checkout but also reinforces our commitment to premium design principles at every touchpoint."
-    },
-    {
-      title: "Coinbase Commerce: Crypto at Flenjure",
-      date: "March 12, 2026",
-      category: "Partnerships",
-      excerpt: "Deepening our commitment to modern digital ownership by integrating secure, global crypto payment gateways.",
-      fullContent: "The future of commerce is borderless. We are thrilled to announce our partnership with Coinbase Commerce, enabling Flenjure to accept a wide range of cryptocurrencies for all transactions. This integration represents a significant step in our commitment to modern digital ownership and global accessibility. Whether you're purchasing our latest collection or securing a limited-edition accessory, you can now transact with confidence and speed using your preferred digital assets. This is more than a payment option; it's an alignment with the forward-thinking lifestyle of our community."
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchAnnouncements() {
+      const data = await getAnnouncements();
+      setAnnouncements(data as Announcement[]);
     }
-  ];
+    fetchAnnouncements();
+
+    const channel = supabase.channel('realtime:public:announcements')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'announcements' },
+        (payload) => {
+          console.log('Realtime update received:', payload);
+          fetchAnnouncements();
+          router.refresh();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [router]);
 
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -79,7 +94,7 @@ export default function AnnouncementsPage() {
                     >
                       <div className="pt-4 pb-8 space-y-6">
                         <p className="text-sm md:text-base font-light text-stone-800 dark:text-stone-200 leading-relaxed border-l-2 border-stone-900 dark:border-white pl-6">
-                          {item.fullContent}
+                          {item.full_content}
                         </p>
                       </div>
                     </motion.div>
