@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, Music, Volume2, VolumeX } from "lucide-react";
-import { getAudioTracks } from "../admin/actions";
+import { getAudioTracks } from "../../admin/actions";
 
 export default function SightsAndSoundsPage() {
   const [isMuted, setIsMuted] = useState(true);
