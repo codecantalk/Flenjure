@@ -230,8 +230,16 @@ export async function updateCrmSession(id: string, dataObj: any) {
 
 // DASHBOARD STATS
 export async function getDashboardStats() {
-  const { data: orders } = await supabaseAdmin.from("orders").select("total_amount, status");
-  const { data: carts } = await supabaseAdmin.from("cart_sessions").select("id").eq("is_recovered", false);
+  const { data: orders } = await supabaseAdmin
+    .from("orders")
+    .select("id, email, total_amount, status, created_at, line_items")
+    .order("created_at", { ascending: false });
+    
+  const { data: carts } = await supabaseAdmin
+    .from("cart_sessions")
+    .select("id, email, total_amount, items, created_at, is_recovered")
+    .order("created_at", { ascending: false });
+    
   return { orders: orders || [], carts: carts || [] };
 }
 

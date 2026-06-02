@@ -105,17 +105,37 @@ export default function AdminLayout({
     return null;
   }
 
-  const menuItems = [
-    { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-    { name: "Products", href: "/admin/products", icon: ShoppingBag },
-    { name: "Collections", href: "/admin/collections", icon: FolderKanban },
-    { name: "Orders", href: "/admin/orders", icon: Receipt },
-    { name: "Customers", href: "/admin/customers", icon: Users },
-    { name: "Carts", href: "/admin/crm", icon: ShoppingBag },
-    { name: "Audio", href: "/admin/audio", icon: Music },
-    { name: "Cafe", href: "/admin/cafe", icon: Coffee },
-    { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
-    { name: "Recycle Bin", href: "/admin/recycle-bin", icon: Trash2 },
+  const menuGroups = [
+    {
+      title: "Main",
+      items: [
+        { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
+      ]
+    },
+    {
+      title: "Store",
+      items: [
+        { name: "Orders", href: "/admin/orders", icon: Receipt },
+        { name: "Customers", href: "/admin/customers", icon: Users },
+        { name: "Carts", href: "/admin/crm", icon: ShoppingBag },
+        { name: "Products", href: "/admin/products", icon: ShoppingBag },
+        { name: "Collections", href: "/admin/collections", icon: FolderKanban },
+      ]
+    },
+    {
+      title: "Content",
+      items: [
+        { name: "Cafe", href: "/admin/cafe", icon: Coffee },
+        { name: "Audio", href: "/admin/audio", icon: Music },
+        { name: "Announcements", href: "/admin/announcements", icon: Megaphone },
+      ]
+    },
+    {
+      title: "System",
+      items: [
+        { name: "Recycle Bin", href: "/admin/recycle-bin", icon: Trash2 },
+      ]
+    }
   ];
 
   return (
@@ -153,9 +173,9 @@ export default function AdminLayout({
         fixed inset-y-0 left-0 w-64 bg-[#f4f4f4] dark:bg-[#111] border-r border-stone-200 dark:border-stone-800 flex flex-col justify-between z-40 transform transition-transform duration-300 md:relative md:transform-none md:shrink-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
-        <div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* Logo Brand area */}
-          <div className="p-5 flex items-center justify-between">
+          <div className="p-5 flex items-center justify-between sticky top-0 bg-[#f4f4f4] dark:bg-[#111] z-10">
             <Link href="/admin/dashboard" className="flex items-center">
               <Image 
                 src="/favicon.png" 
@@ -175,27 +195,36 @@ export default function AdminLayout({
           </div>
 
           {/* Navigation Links */}
-          <nav className="px-3 py-2 flex flex-col gap-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-all duration-200 group
-                    ${isActive 
-                      ? "bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-white" 
-                      : "text-stone-600 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 hover:text-stone-900 dark:hover:text-white"}
-                  `}
-                >
-                  <Icon size={16} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "" : "opacity-80"} />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+          <nav className="px-3 pb-6 flex flex-col gap-5">
+            {menuGroups.map((group, groupIdx) => (
+              <div key={groupIdx} className="flex flex-col gap-1">
+                {group.title !== "Main" && (
+                  <span className="px-3 text-[10px] font-semibold uppercase tracking-wider text-stone-400 mb-1">
+                    {group.title}
+                  </span>
+                )}
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-all duration-200 group
+                        ${isActive 
+                          ? "bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-white" 
+                          : "text-stone-600 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 hover:text-stone-900 dark:hover:text-white"}
+                      `}
+                    >
+                      <Icon size={16} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "" : "opacity-80"} />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
