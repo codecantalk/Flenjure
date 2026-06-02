@@ -182,7 +182,7 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
     >
        <div className={`relative ${aspect} w-full bg-[#f8f8f8] dark:bg-stone-900 mb-6 overflow-hidden`}>
           <Image 
-            src={item.image} 
+            src={item.image_urls?.[0] || item.image || "/images/cafe_placeholder.png"} 
             alt={item.name} 
             fill 
             className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal opacity-90 group-hover:opacity-100" 
@@ -193,7 +193,7 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
             {item.name}
           </h3>
           <span className="text-[11px] md:text-[12px] text-stone-500 font-light flex-shrink-0 tracking-widest">
-            {item.price}
+            ${Number(String(item.price).replace(/[^0-9.]/g, '') || 0).toFixed(2)} USD
           </span>
        </div>
        <div className="px-1 mt-3 mb-2 overflow-hidden h-[24px]">
