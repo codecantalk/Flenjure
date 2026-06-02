@@ -163,7 +163,7 @@ export default function CartDrawer() {
                 
                 <div className="flex justify-center">
                   <Link 
-                    href="/cart" 
+                    href="/checkout" 
                     onClick={() => setIsOpen(false)}
                     className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
                   >
