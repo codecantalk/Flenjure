@@ -265,6 +265,12 @@ export async function deleteCafeItem(id: string) {
   revalidatePath('/cafe', 'layout');
   return true;
 }
+export async function bulkUpdateCafeItems(ids: string[], updates: any) {
+  const { data, error } = await supabaseAdmin.from("cafe_items").update(updates).in("id", ids).select();
+  if (error) throw error;
+  revalidatePath('/cafe', 'layout');
+  return data;
+}
 
 export async function getDeletedCafeItems() {
   const { data } = await supabaseAdmin.from("cafe_items").select("*").not("deleted_at", "is", null).order("deleted_at", { ascending: false });
