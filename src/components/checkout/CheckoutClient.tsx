@@ -83,11 +83,15 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
     setIsProcessing(true);
 
     // Mark CRM session as recovered optimistically
-    await createOrUpdateCartSession({
-      email,
-      items: [],
-      is_recovered: true,
-    });
+    try {
+      await createOrUpdateCartSession({
+        email,
+        items: [],
+        is_recovered: true,
+      });
+    } catch (e) {
+      console.error("CRM tracking failed, proceeding to payment:", e);
+    }
 
     const { error } = await stripe.confirmPayment({
       elements,
