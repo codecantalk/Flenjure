@@ -13,6 +13,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   PaymentElement,
+  ExpressCheckoutElement,
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
@@ -199,7 +200,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
       </div>
 
       {/* LEFT: Checkout Information */}
-      <div className="w-full lg:w-[55%] flex flex-col items-center lg:items-end pt-8 lg:pt-24 pb-24 px-6 lg:pl-12 lg:pr-[5%] bg-white dark:bg-[#0a0a0a] border-r border-[#e6e6e6] dark:border-stone-800 transition-colors duration-700">
+      <div className="w-full lg:w-[55%] flex flex-col items-center lg:items-end pt-24 lg:pt-32 pb-24 px-6 lg:pl-12 lg:pr-[5%] bg-white dark:bg-[#0a0a0a] border-r border-[#e6e6e6] dark:border-stone-800 transition-colors duration-700">
         <div className="w-full max-w-[560px] flex flex-col">
           <form className="flex flex-col gap-9" onSubmit={handleSubmit}>
             {/* Contact */}
@@ -215,6 +216,17 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                   Sign in
                 </Link>
               </div>
+
+              {/* Express Checkout (Apple Pay / Google Pay) */}
+              <div className="mb-4">
+                <ExpressCheckoutElement onConfirm={() => setIsProcessing(true)} />
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-[1px] flex-1 bg-[#e6e6e6] dark:bg-stone-800"></div>
+                <span className="text-[12px] text-[#737373]">OR</span>
+                <div className="h-[1px] flex-1 bg-[#e6e6e6] dark:bg-stone-800"></div>
+              </div>
+
               <input
                 type="email"
                 required
