@@ -46,6 +46,15 @@ export async function POST(req: Request) {
 
     const email = paymentIntent.receipt_email || 'customer@example.com';
     const amount = paymentIntent.amount / 100;
+    const shipping = paymentIntent.shipping;
+    const shipping_address = shipping ? {
+      fullName: shipping.name,
+      addressLine1: shipping.address?.line1,
+      city: shipping.address?.city,
+      state: shipping.address?.state,
+      postalCode: shipping.address?.postal_code,
+      country: shipping.address?.country
+    } : null;
     
     // 1. Inventory Sync
     // Best practice is to use a PostgreSQL RPC for atomic decrement.
@@ -77,6 +86,8 @@ export async function POST(req: Request) {
         payment_method: 'stripe',
         payment_status: 'completed',
         email: email,
+        shipping_address: shipping_address,
+        whatsapp_number: shipping?.phone || null,
         items: items, // Note: Metadata might just have IDs and Qty. We should store full details if passed.
       }])
       .select()
