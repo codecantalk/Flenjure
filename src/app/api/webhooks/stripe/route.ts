@@ -78,9 +78,11 @@ export async function POST(req: Request) {
     }
 
     // 2. Create Order in Supabase
+    const orderId = "FL-" + Math.random().toString(36).substring(2, 8).toUpperCase();
     const { data: newOrder, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert([{
+        id: orderId,
         total_amount: amount,
         status: 'paid',
         payment_method: 'stripe',
