@@ -6,12 +6,11 @@ export const metadata = {
   description: "Thank you for your order.",
 };
 
-export default function CheckoutSuccessPage({
-  searchParams,
-}: {
-  searchParams: { orderId?: string };
+export default async function CheckoutSuccessPage(props: {
+  searchParams: Promise<{ orderId?: string }>;
 }) {
-  const orderId = searchParams.orderId || "FL-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+  const searchParams = await props.searchParams;
+  const orderId = searchParams?.orderId || "FL-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6 selection:bg-stone-900 selection:text-white">
