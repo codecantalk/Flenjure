@@ -134,7 +134,7 @@ export async function POST(req: Request) {
 
         // 3b. Send separate copy to Admin (avoids BCC spam drops)
         await resend.emails.send({
-          from: 'Flenjure <orders@flenjure.com>',
+          from: 'Flenjure System <system@flenjure.com>',
           to: ['orders@flenjure.com'],
           subject: `[NEW ORDER] Flenjure #${orderId}`,
           react: OrderReceipt({

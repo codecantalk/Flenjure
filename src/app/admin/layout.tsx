@@ -55,6 +55,7 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -95,6 +96,27 @@ export default function AdminLayout({
     }
 
     checkAuth();
+
+    // Setup Supabase Realtime Subscription for new orders
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'orders',
+        },
+        (payload) => {
+          console.log('New order received!', payload);
+          setHasUnreadNotifications(true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [pathname, router]);
 
   const handleLogout = async () => {
@@ -297,8 +319,17 @@ export default function AdminLayout({
             />
           </div>
           <div className="flex items-center gap-4 pl-4">
-            <button className="text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
+            <button 
+              className="relative text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors"
+              onClick={() => {
+                setHasUnreadNotifications(false);
+                router.push('/admin/orders');
+              }}
+            >
               <Bell size={18} />
+              {hasUnreadNotifications && (
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-stone-950"></span>
+              )}
             </button>
             <div className="w-7 h-7 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer">
               FP

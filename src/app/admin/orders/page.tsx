@@ -237,6 +237,7 @@ export default function AdminOrdersPage() {
                 <th className="px-5 py-3 font-medium">Order</th>
                 <th className="px-5 py-3 font-medium">Date</th>
                 <th className="px-5 py-3 font-medium">Customer</th>
+                <th className="px-5 py-3 font-medium">Delivery</th>
                 <th className="px-5 py-3 font-medium">Payment</th>
                 <th className="px-5 py-3 font-medium">Fulfillment</th>
                 <th className="px-5 py-3 text-right font-medium">Total</th>
@@ -253,6 +254,9 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-5 py-4">
                     {order.shipping_address?.fullName || "Guest Customer"}
+                  </td>
+                  <td className="px-5 py-4 text-xs text-stone-500">
+                    {order.shipping_address?.city ? `${order.shipping_address.city}, ${order.shipping_address.state}` : "Digital / N/A"}
                   </td>
                   <td className="px-5 py-4">
                     <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border
