@@ -56,6 +56,8 @@ export default function AdminLayout({
   const [authorized, setAuthorized] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<{id: string, message: string, time: string}[]>([]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -110,6 +112,12 @@ export default function AdminLayout({
         (payload) => {
           console.log('New order received!', payload);
           setHasUnreadNotifications(true);
+          const newOrder = payload.new as any;
+          setNotifications(prev => [{
+            id: newOrder.id,
+            message: `New order ${newOrder.id} received for $${newOrder.total_amount}`,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          }, ...prev].slice(0, 5));
         }
       )
       .subscribe();
@@ -318,12 +326,12 @@ export default function AdminLayout({
               className="w-full bg-stone-100 dark:bg-stone-900 border border-transparent hover:border-stone-200 dark:hover:border-stone-700 focus:border-stone-900 dark:focus:border-stone-500 rounded-md pl-9 pr-4 py-1.5 text-sm outline-none transition-all duration-200 text-stone-900 dark:text-white placeholder:text-stone-500 font-medium"
             />
           </div>
-          <div className="flex items-center gap-4 pl-4">
+          <div className="flex items-center gap-4 pl-4 relative">
             <button 
               className="relative text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors"
               onClick={() => {
+                setShowNotifications(!showNotifications);
                 setHasUnreadNotifications(false);
-                router.push('/admin/orders');
               }}
             >
               <Bell size={18} />
@@ -331,6 +339,36 @@ export default function AdminLayout({
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-stone-950"></span>
               )}
             </button>
+            
+            {showNotifications && (
+              <div className="absolute top-full right-10 mt-2 w-80 bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-lg overflow-hidden z-50">
+                <div className="px-4 py-3 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-stone-900/50">
+                  <h3 className="text-sm font-semibold text-stone-900 dark:text-white">Notifications</h3>
+                  <button onClick={() => setShowNotifications(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                    <X size={14} />
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((notif, idx) => (
+                      <div key={idx} onClick={() => { setShowNotifications(false); router.push('/admin/orders'); }} className="px-4 py-3 border-b border-stone-100 dark:border-stone-800/50 hover:bg-stone-50 dark:hover:bg-stone-900/50 cursor-pointer transition-colors">
+                        <p className="text-sm text-stone-800 dark:text-stone-200 font-medium">{notif.message}</p>
+                        <span className="text-xs text-stone-500 mt-1 block">{notif.time}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-8 text-center text-stone-500 text-sm">
+                      No new notifications
+                    </div>
+                  )}
+                </div>
+                <div className="px-4 py-2 border-t border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 text-center">
+                  <button onClick={() => { setShowNotifications(false); router.push('/admin/orders'); }} className="text-xs font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white">
+                    View all orders
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="w-7 h-7 rounded-full bg-stone-200 dark:bg-stone-800 flex items-center justify-center text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer">
               FP
             </div>

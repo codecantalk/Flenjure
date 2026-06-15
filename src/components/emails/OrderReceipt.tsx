@@ -19,6 +19,14 @@ interface OrderReceiptProps {
   customerName: string;
   totalAmount: number;
   items: Array<{ title: string; quantity: number; price: number; image?: string | null }>;
+  shippingAddress?: {
+    fullName?: string | null;
+    addressLine1?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  } | null;
 }
 
 export const OrderReceipt = ({
@@ -26,6 +34,7 @@ export const OrderReceipt = ({
   customerName,
   totalAmount,
   items,
+  shippingAddress,
 }: OrderReceiptProps) => (
   <Html>
     <Head />
@@ -80,6 +89,19 @@ export const OrderReceipt = ({
               <td style={tdRightBold}>${totalAmount.toFixed(2)} USD</td>
             </tr>
           </table>
+
+          {shippingAddress && (
+            <>
+              <Hr style={hr} />
+              <Heading as="h3" style={subheading}>Shipping Details</Heading>
+              <Text style={paragraph}>
+                {shippingAddress.fullName}<br />
+                {shippingAddress.addressLine1}<br />
+                {shippingAddress.city}, {shippingAddress.state} {shippingAddress.postalCode}<br />
+                {shippingAddress.country}
+              </Text>
+            </>
+          )}
 
           <Hr style={hr} />
           

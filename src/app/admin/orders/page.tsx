@@ -328,20 +328,32 @@ export default function AdminOrdersPage() {
                   </div>
                   
                   <div className="border border-stone-200 dark:border-stone-800 rounded-lg divide-y divide-stone-200 dark:divide-stone-800">
-                    {selectedOrder.items.map((item, idx) => (
-                      <div key={idx} className="p-3 flex justify-between items-center bg-stone-50/50 dark:bg-stone-900/30">
-                        <div className="flex gap-3">
-                          <div className="w-10 h-10 bg-stone-100 dark:bg-stone-800 rounded flex items-center justify-center border border-stone-200 dark:border-stone-700">
-                            <ImageIcon size={14} className="text-stone-400" />
+                    {(() => {
+                      let parsedItems = [];
+                      try {
+                        parsedItems = typeof selectedOrder.items === 'string' ? JSON.parse(selectedOrder.items) : selectedOrder.items;
+                        if (!Array.isArray(parsedItems)) parsedItems = [];
+                      } catch (e) {}
+                      
+                      return parsedItems.map((item: any, idx: number) => (
+                        <div key={idx} className="p-3 flex justify-between items-center bg-stone-50/50 dark:bg-stone-900/30">
+                          <div className="flex gap-3">
+                            <div className="w-10 h-10 bg-stone-100 dark:bg-stone-800 rounded flex items-center justify-center border border-stone-200 dark:border-stone-700 overflow-hidden shrink-0">
+                              {item.image ? (
+                                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <ImageIcon size={14} className="text-stone-400" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-stone-900 dark:text-white">{item.title}</p>
+                              <p className="text-xs text-stone-500">${Number(item.price || 0).toFixed(2)}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-stone-900 dark:text-white">{item.title}</p>
-                            <p className="text-xs text-stone-500">${item.price.toFixed(2)}</p>
-                          </div>
+                          <span className="text-sm text-stone-900 dark:text-white font-medium">x {item.quantity}</span>
                         </div>
-                        <span className="text-sm text-stone-900 dark:text-white font-medium">x {item.quantity}</span>
-                      </div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 </div>
 
