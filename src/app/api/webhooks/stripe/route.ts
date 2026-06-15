@@ -60,11 +60,11 @@ export async function POST(req: Request) {
     const hydratedItems = [];
     for (const item of items) {
       if (!item.id) continue;
-      
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
       const { data: product } = await supabaseAdmin
         .from('products')
         .select('title, price, image_urls, inventory_count')
-        .eq('id', item.id)
+        .eq(isUUID ? 'id' : 'slug', item.id)
         .single();
         
       if (product) {
@@ -119,11 +119,24 @@ export async function POST(req: Request) {
     // 3. Send Email Receipt via Resend
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_placeholder') {
       try {
+        // 3a. Send to Customer
         await resend.emails.send({
           from: 'Flenjure <orders@flenjure.com>',
           to: [email],
-          bcc: ['orders@flenjure.com'],
           subject: `Order Confirmation #${orderId}`,
+          react: OrderReceipt({
+            orderId: orderId,
+            customerName: shipping_address?.fullName || "Customer",
+            totalAmount: amount,
+            items: hydratedItems
+          }),
+        });
+
+        // 3b. Send separate copy to Admin (avoids BCC spam drops)
+        await resend.emails.send({
+          from: 'Flenjure <orders@flenjure.com>',
+          to: ['orders@flenjure.com'],
+          subject: `[NEW ORDER] Flenjure #${orderId}`,
           react: OrderReceipt({
             orderId: orderId,
             customerName: shipping_address?.fullName || "Customer",
