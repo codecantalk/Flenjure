@@ -5,11 +5,36 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
+import { subscribeNewsletter } from "@/app/admin/actions";
 
 export default function Home() {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [subEmail, setSubEmail] = useState("");
+  const [subSnapchat, setSubSnapchat] = useState("");
+  const [subPhone, setSubPhone] = useState("");
+  const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subEmail || !subPhone) return;
+    setSubStatus("loading");
+    const res = await subscribeNewsletter(subEmail, subPhone, subSnapchat);
+    if (res.error) {
+      setSubStatus("error");
+    } else {
+      setSubStatus("success");
+      setSubEmail("");
+      setSubSnapchat("");
+      setSubPhone("");
+      setTimeout(() => {
+        setSubStatus("idle");
+        setIsMemberModalOpen(false);
+      }, 2000);
+    }
+  };
 
   // Sync state with DOM ref to bypass aggressive iOS Safari autoplay blocks
   useEffect(() => {
@@ -147,13 +172,15 @@ export default function Home() {
                 <p className="text-stone-500 text-sm mt-2 font-light">Get exclusive access to drops, free gifts, and private events.</p>
               </div>
 
-              <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+              <form className="flex flex-col gap-6" onSubmit={handleSubscribe}>
                 <div className="flex flex-col gap-2">
                   <label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">Email Address *</label>
                   <input
                     type="email"
                     id="email"
                     required
+                    value={subEmail}
+                    onChange={(e) => setSubEmail(e.target.value)}
                     className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
                     placeholder="Enter your email"
                   />
@@ -163,6 +190,8 @@ export default function Home() {
                   <input
                     type="text"
                     id="snapchat"
+                    value={subSnapchat}
+                    onChange={(e) => setSubSnapchat(e.target.value)}
                     className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
                     placeholder="@username"
                   />
@@ -173,6 +202,8 @@ export default function Home() {
                     type="tel"
                     id="whatsapp"
                     required
+                    value={subPhone}
+                    onChange={(e) => setSubPhone(e.target.value)}
                     className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
                     placeholder="+1 (555) 000-0000"
                   />
@@ -180,11 +211,12 @@ export default function Home() {
                 
                 <button
                   type="submit"
-                  className="mt-4 group relative w-full flex items-center justify-center overflow-hidden border border-stone-900 bg-stone-900 px-8 py-4 text-white transition-all duration-700"
+                  disabled={subStatus === "loading"}
+                  className="mt-4 group relative w-full flex items-center justify-center overflow-hidden border border-stone-900 bg-stone-900 px-8 py-4 text-white transition-all duration-700 disabled:opacity-50"
                 >
                   <div className="absolute inset-0 translate-y-[101%] bg-white transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
                   <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900">
-                    Submit Request
+                    {subStatus === "loading" ? "Processing..." : subStatus === "success" ? "Welcome to the Family" : "Submit Request"}
                   </span>
                 </button>
               </form>

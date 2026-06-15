@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { useCartStore } from "@/lib/store";
 import SearchOverlay from "../search/SearchOverlay";
 import { useTheme } from "next-themes";
+import { subscribeNewsletter } from "@/app/admin/actions";
 
 const mainLinks = [
   { name: "Shop", href: "/shop" },
@@ -46,6 +47,25 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const { items, setIsOpen: setCartOpen } = useCartStore();
   const { theme, setTheme } = useTheme();
+
+  const [subEmail, setSubEmail] = useState("");
+  const [subPhone, setSubPhone] = useState("");
+  const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subEmail || !subPhone) return;
+    setSubStatus("loading");
+    const res = await subscribeNewsletter(subEmail, subPhone);
+    if (res.error) {
+      setSubStatus("error");
+    } else {
+      setSubStatus("success");
+      setSubEmail("");
+      setSubPhone("");
+      setTimeout(() => setSubStatus("idle"), 3000);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -306,11 +326,13 @@ export default function Navbar() {
                 {/* Footer Area */}
                 <div className="px-8 sm:px-12 pb-12 mt-auto pt-12">
                   {/* Subscription Inputs */}
-                  <form className="flex flex-col gap-4 mb-8" onSubmit={(e) => e.preventDefault()}>
+                  <form className="flex flex-col gap-4 mb-8" onSubmit={handleSubscribe}>
                     <div className="flex justify-between items-center border-b border-stone-300 dark:border-stone-500 pb-2">
                       <input
                         type="email"
                         required
+                        value={subEmail}
+                        onChange={(e) => setSubEmail(e.target.value)}
                         placeholder="Enter your email *"
                         className="bg-transparent outline-none border-none text-[12px] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-400 w-full"
                       />
@@ -319,11 +341,17 @@ export default function Navbar() {
                       <input
                         type="tel"
                         required
+                        value={subPhone}
+                        onChange={(e) => setSubPhone(e.target.value)}
                         placeholder="WhatsApp Number *"
                         className="bg-transparent outline-none border-none text-[12px] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-400 w-full"
                       />
-                      <button type="submit" className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4">
-                        Subscribe
+                      <button 
+                        type="submit" 
+                        disabled={subStatus === "loading"}
+                        className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4 disabled:opacity-50"
+                      >
+                        {subStatus === "loading" ? "..." : subStatus === "success" ? "Subscribed!" : "Subscribe"}
                       </button>
                     </div>
                   </form>
