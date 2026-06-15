@@ -7,17 +7,18 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   Section,
   Text,
+  Column,
+  Row,
 } from '@react-email/components';
 
 interface OrderReceiptProps {
   orderId: string;
   customerName: string;
   totalAmount: number;
-  items: Array<{ title: string; quantity: number; price: number }>;
+  items: Array<{ title: string; quantity: number; price: number; image?: string | null }>;
 }
 
 export const OrderReceipt = ({
@@ -32,7 +33,7 @@ export const OrderReceipt = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={heading}>FLEÑJURE</Heading>
+          <Text style={logoText}>FLEÑJURE</Text>
         </Section>
         <Section style={content}>
           <Text style={greeting}>Hi {customerName},</Text>
@@ -44,16 +45,32 @@ export const OrderReceipt = ({
           
           <Heading as="h2" style={subheading}>Order Summary (#{orderId})</Heading>
           
-          <table style={table} width="100%">
+          <Section style={{ marginTop: '24px' }}>
             {items.map((item, index) => (
-              <tr key={index}>
-                <td style={tdLeft}>
-                  {item.quantity}x {item.title}
-                </td>
-                <td style={tdRight}>${(item.price * item.quantity).toFixed(2)}</td>
-              </tr>
+              <Row key={index} style={{ marginBottom: '16px' }}>
+                <Column style={{ width: '64px' }}>
+                  {item.image ? (
+                    <Img
+                      src={item.image}
+                      width="64"
+                      height="64"
+                      style={productImage}
+                      alt={item.title}
+                    />
+                  ) : (
+                    <div style={productImagePlaceholder} />
+                  )}
+                </Column>
+                <Column style={{ paddingLeft: '16px', verticalAlign: 'middle' }}>
+                  <Text style={productTitle}>{item.title}</Text>
+                  <Text style={productQuantity}>Qty: {item.quantity}</Text>
+                </Column>
+                <Column style={{ textAlign: 'right', verticalAlign: 'middle' }}>
+                  <Text style={productPrice}>${(item.price * item.quantity).toFixed(2)}</Text>
+                </Column>
+              </Row>
             ))}
-          </table>
+          </Section>
           
           <Hr style={hr} />
           
@@ -81,49 +98,92 @@ export const OrderReceipt = ({
 export default OrderReceipt;
 
 const main = {
-  backgroundColor: '#f6f9fc',
+  backgroundColor: '#f4f4f5',
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
   backgroundColor: '#ffffff',
-  margin: '0 auto',
-  padding: '20px 0 48px',
-  marginBottom: '64px',
+  margin: '40px auto',
+  padding: '0px 0px 48px',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  border: '1px solid #e4e4e7',
+  maxWidth: '600px',
 };
 
 const header = {
-  padding: '0 48px',
+  backgroundColor: '#18181b',
+  padding: '32px 48px',
   textAlign: 'center' as const,
 };
 
-const heading = {
+const logoText = {
   fontSize: '24px',
-  letterSpacing: '4px',
+  letterSpacing: '6px',
   fontWeight: '300',
-  color: '#18261e',
+  color: '#ffffff',
+  margin: '0',
 };
 
 const content = {
-  padding: '0 48px',
+  padding: '32px 48px 0',
 };
 
 const greeting = {
   fontSize: '18px',
   lineHeight: '28px',
+  fontWeight: '600',
+  color: '#18181b',
 };
 
 const paragraph = {
-  fontSize: '16px',
+  fontSize: '15px',
   lineHeight: '26px',
-  color: '#525f7f',
+  color: '#52525b',
 };
 
 const subheading = {
-  fontSize: '18px',
+  fontSize: '14px',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '1px',
+  fontWeight: '600',
+  color: '#71717a',
+  marginTop: '24px',
+  marginBottom: '0',
+};
+
+const productImage = {
+  borderRadius: '4px',
+  objectFit: 'cover' as const,
+};
+
+const productImagePlaceholder = {
+  width: '64px',
+  height: '64px',
+  backgroundColor: '#f4f4f5',
+  borderRadius: '4px',
+};
+
+const productTitle = {
+  fontSize: '15px',
   fontWeight: '500',
-  color: '#323232',
+  color: '#18181b',
+  margin: '0 0 4px',
+};
+
+const productQuantity = {
+  fontSize: '13px',
+  color: '#71717a',
+  margin: '0',
+};
+
+const productPrice = {
+  fontSize: '15px',
+  fontWeight: '600',
+  color: '#18181b',
+  margin: '0',
 };
 
 const table = {
@@ -131,41 +191,29 @@ const table = {
   borderCollapse: 'collapse' as const,
 };
 
-const tdLeft = {
-  padding: '8px 0',
-  color: '#525f7f',
-  fontSize: '14px',
-};
-
-const tdRight = {
-  padding: '8px 0',
-  color: '#525f7f',
-  fontSize: '14px',
-  textAlign: 'right' as const,
-};
-
 const tdLeftBold = {
   padding: '12px 0',
-  color: '#323232',
+  color: '#18181b',
   fontSize: '16px',
   fontWeight: 'bold',
 };
 
 const tdRightBold = {
   padding: '12px 0',
-  color: '#323232',
+  color: '#18181b',
   fontSize: '16px',
   fontWeight: 'bold',
   textAlign: 'right' as const,
 };
 
 const hr = {
-  borderColor: '#e6ebf1',
-  margin: '20px 0',
+  borderColor: '#e4e4e7',
+  margin: '32px 0',
 };
 
 const footerText = {
   fontSize: '12px',
-  lineHeight: '16px',
-  color: '#8898aa',
+  lineHeight: '18px',
+  color: '#a1a1aa',
+  textAlign: 'center' as const,
 };

@@ -56,24 +56,41 @@ export async function POST(req: Request) {
       country: shipping.address?.country
     } : null;
     
-    // 1. Inventory Sync
-    // Best practice is to use a PostgreSQL RPC for atomic decrement.
-    // For this implementation, we read and update using the admin client.
+    // 1. Inventory Sync and Data Hydration
+    const hydratedItems = [];
     for (const item of items) {
       if (!item.id) continue;
       
       const { data: product } = await supabaseAdmin
         .from('products')
-        .select('inventory_count')
+        .select('title, price, image_urls, inventory_count')
         .eq('id', item.id)
         .single();
         
-      if (product && product.inventory_count !== null) {
-        const newCount = Math.max(0, product.inventory_count - item.q);
-        await supabaseAdmin
-          .from('products')
-          .update({ inventory_count: newCount })
-          .eq('id', item.id);
+      if (product) {
+        hydratedItems.push({
+          id: item.id,
+          title: product.title || `Item ${item.id}`,
+          price: product.price || 0,
+          quantity: item.q,
+          image: product.image_urls?.[0] || null
+        });
+
+        if (product.inventory_count !== null) {
+          const newCount = Math.max(0, product.inventory_count - item.q);
+          await supabaseAdmin
+            .from('products')
+            .update({ inventory_count: newCount })
+            .eq('id', item.id);
+        }
+      } else {
+        hydratedItems.push({
+          id: item.id,
+          title: `Item ${item.id}`,
+          price: 0,
+          quantity: item.q,
+          image: null
+        });
       }
     }
 
@@ -103,14 +120,15 @@ export async function POST(req: Request) {
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_placeholder') {
       try {
         await resend.emails.send({
-          from: 'Flenjure <orders@flenjure.com>', // Requires verified domain in Resend
+          from: 'Flenjure <orders@flenjure.com>',
           to: [email],
-          subject: `Order Confirmation #${newOrder?.id?.substring(0,8).toUpperCase() || '123'}`,
+          bcc: ['orders@flenjure.com'],
+          subject: `Order Confirmation #${orderId}`,
           react: OrderReceipt({
-            orderId: newOrder?.id?.substring(0,8).toUpperCase() || '123',
-            customerName: "Customer", // Normally extracted from shipping details
+            orderId: orderId,
+            customerName: shipping_address?.fullName || "Customer",
             totalAmount: amount,
-            items: items.map((i: any) => ({ title: `Item ${i.id}`, quantity: i.q, price: 0 })) // Hydrate from DB in production
+            items: hydratedItems
           }),
         });
       } catch (emailError) {
