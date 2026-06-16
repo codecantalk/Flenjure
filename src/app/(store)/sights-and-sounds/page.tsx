@@ -226,7 +226,8 @@ function AudioTrack({
               width="100%" 
               height="80" 
               frameBorder="0" 
-              allow="encrypted-media" 
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy"
               className="rounded-xl shadow-lg border border-stone-200 dark:border-stone-800 bg-stone-900"
             />
           </motion.div>
