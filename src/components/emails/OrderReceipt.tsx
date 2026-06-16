@@ -22,6 +22,7 @@ interface OrderReceiptProps {
   shippingAddress?: {
     fullName?: string | null;
     addressLine1?: string | null;
+    addressLine2?: string | null;
     city?: string | null;
     state?: string | null;
     postalCode?: string | null;
@@ -95,9 +96,10 @@ export const OrderReceipt = ({
               <Hr style={hr} />
               <Heading as="h3" style={subheading}>Shipping Details</Heading>
               <Text style={paragraph}>
-                {shippingAddress.fullName}<br />
-                {shippingAddress.addressLine1}<br />
-                {shippingAddress.city}, {shippingAddress.state} {shippingAddress.postalCode}<br />
+                {shippingAddress.fullName && <>{shippingAddress.fullName}<br /></>}
+                {shippingAddress.addressLine1 && <>{shippingAddress.addressLine1}<br /></>}
+                {shippingAddress.addressLine2 && <>{shippingAddress.addressLine2}<br /></>}
+                {[shippingAddress.city, shippingAddress.state, shippingAddress.postalCode].filter(Boolean).join(', ')}<br />
                 {shippingAddress.country}
               </Text>
             </>

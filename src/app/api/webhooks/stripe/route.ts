@@ -50,6 +50,7 @@ export async function POST(req: Request) {
     const shipping_address = shipping ? {
       fullName: shipping.name,
       addressLine1: shipping.address?.line1,
+      addressLine2: shipping.address?.line2,
       city: shipping.address?.city,
       state: shipping.address?.state,
       postalCode: shipping.address?.postal_code,
@@ -114,6 +115,13 @@ export async function POST(req: Request) {
 
     if (orderError) {
       console.error("Error creating order:", orderError);
+    } else if (newOrder) {
+      // Trigger realtime broadcast to CMS Admin
+      await supabaseAdmin.channel('admin-notifications').send({
+        type: 'broadcast',
+        event: 'new-order',
+        payload: newOrder,
+      });
     }
 
     // 3. Send Email Receipt via Resend
@@ -128,7 +136,8 @@ export async function POST(req: Request) {
             orderId: orderId,
             customerName: shipping_address?.fullName || "Customer",
             totalAmount: amount,
-            items: hydratedItems
+            items: hydratedItems,
+            shippingAddress: shipping_address
           }),
         });
 
@@ -141,7 +150,8 @@ export async function POST(req: Request) {
             orderId: orderId,
             customerName: shipping_address?.fullName || "Customer",
             totalAmount: amount,
-            items: hydratedItems
+            items: hydratedItems,
+            shippingAddress: shipping_address
           }),
         });
       } catch (emailError) {

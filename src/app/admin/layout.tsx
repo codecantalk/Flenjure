@@ -99,20 +99,16 @@ export default function AdminLayout({
 
     checkAuth();
 
-    // Setup Supabase Realtime Subscription for new orders
+    // Setup Supabase Realtime Subscription via Broadcast
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('admin-notifications')
       .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'orders',
-        },
+        'broadcast',
+        { event: 'new-order' },
         (payload) => {
-          console.log('New order received!', payload);
+          console.log('New order received via broadcast!', payload);
           setHasUnreadNotifications(true);
-          const newOrder = payload.new as any;
+          const newOrder = payload.payload;
           setNotifications(prev => [{
             id: newOrder.id,
             message: `New order ${newOrder.id} received for $${newOrder.total_amount}`,
