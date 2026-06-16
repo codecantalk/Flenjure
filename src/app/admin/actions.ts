@@ -229,8 +229,8 @@ export async function updateCrmSession(id: string, dataObj: any) {
 }
 
 // NEWSLETTER / SUBSCRIBERS
-export async function subscribeNewsletter(email: string, phone?: string, snapchat?: string) {
-  const { data, error } = await supabaseAdmin.from("subscribers").upsert([{ email, phone, snapchat }], { onConflict: "email" }).select();
+export async function subscribeNewsletter(email: string, whatsapp_number?: string, snapchat?: string) {
+  const { data, error } = await supabaseAdmin.from("subscribers").upsert([{ email, whatsapp_number, snapchat }], { onConflict: "email" }).select();
   if (error) {
     if (error.code === 'PGRST205') return { error: 'TABLE_MISSING' };
     return { error: error.message };

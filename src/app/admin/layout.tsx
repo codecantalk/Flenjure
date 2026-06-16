@@ -8,9 +8,9 @@ import { supabase } from "@/lib/supabase";
 import { 
   LayoutDashboard, 
   ShoppingBag, 
-  FolderKanban, 
-  Receipt, 
+  User, 
   Users, 
+  Receipt, 
   LogOut, 
   Loader2, 
   Menu, 
@@ -23,7 +23,9 @@ import {
   Megaphone,
   Trash2,
   Sun,
-  Moon
+  Moon,
+  FolderKanban,
+  Mail
 } from "lucide-react";
 import { ThemeProvider, useTheme } from "next-themes";
 
@@ -167,10 +169,10 @@ export default function AdminLayout({
       title: "Store",
       items: [
         { name: "Orders", href: "/admin/orders", icon: Receipt },
-        { name: "Customers", href: "/admin/customers", icon: Users },
+        { name: "Customers", href: "/admin/customers", icon: User },
+        { name: "Subscribers", href: "/admin/subscribers", icon: Mail },
         { name: "Carts", href: "/admin/crm", icon: ShoppingBag },
-        { name: "Products", href: "/admin/products", icon: ShoppingBag },
-        { name: "Collections", href: "/admin/collections", icon: FolderKanban },
+        { name: "Products", href: "/admin/products", icon: FolderKanban },
       ]
     },
     {
