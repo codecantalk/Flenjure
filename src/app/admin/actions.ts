@@ -235,6 +235,15 @@ export async function subscribeNewsletter(email: string, whatsapp_number?: strin
     if (error.code === 'PGRST205') return { error: 'TABLE_MISSING' };
     return { error: error.message };
   }
+  
+  if (data && data.length > 0) {
+    await supabaseAdmin.channel('admin-notifications').send({
+      type: 'broadcast',
+      event: 'new-subscriber',
+      payload: data[0]
+    });
+  }
+
   return { success: true, data };
 }
 

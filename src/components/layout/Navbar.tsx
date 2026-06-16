@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, Search, ShoppingBag, X, User, Sun, Moon } from "lucide-react";
+import { Menu, Search, ShoppingBag, X, User, Sun, Moon, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import Link from "next/link";
@@ -349,9 +349,9 @@ export default function Navbar() {
                       <button 
                         type="submit" 
                         disabled={subStatus === "loading"}
-                        className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4 disabled:opacity-50"
+                        className="text-[11px] font-medium text-stone-900 dark:text-white hover:opacity-50 transition-opacity whitespace-nowrap ml-4 disabled:opacity-50 flex items-center gap-1.5"
                       >
-                        {subStatus === "loading" ? "..." : subStatus === "success" ? "Subscribed!" : "Subscribe"}
+                        {subStatus === "loading" ? "..." : subStatus === "success" ? <><CheckCircle2 size={12} className="text-green-500" /> Subscribed!</> : "Subscribe"}
                       </button>
                     </div>
                   </form>

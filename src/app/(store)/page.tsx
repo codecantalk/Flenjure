@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, X, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, X, Volume2, VolumeX, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 import { subscribeNewsletter } from "@/app/admin/actions";
 
@@ -215,8 +215,8 @@ export default function Home() {
                   className="mt-4 group relative w-full flex items-center justify-center overflow-hidden border border-stone-900 bg-stone-900 px-8 py-4 text-white transition-all duration-700 disabled:opacity-50"
                 >
                   <div className="absolute inset-0 translate-y-[101%] bg-white transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
-                  <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900">
-                    {subStatus === "loading" ? "Processing..." : subStatus === "success" ? "Welcome to the Family" : "Submit Request"}
+                  <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900 flex items-center gap-2">
+                    {subStatus === "loading" ? "Processing..." : subStatus === "success" ? <><CheckCircle2 size={14} className="text-green-500" /> Welcome to the Family</> : "Submit Request"}
                   </span>
                 </button>
               </form>

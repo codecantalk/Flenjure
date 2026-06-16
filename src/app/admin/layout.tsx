@@ -118,6 +118,20 @@ export default function AdminLayout({
           }, ...prev].slice(0, 5));
         }
       )
+      .on(
+        'broadcast',
+        { event: 'new-subscriber' },
+        (payload) => {
+          console.log('New subscriber received via broadcast!', payload);
+          setHasUnreadNotifications(true);
+          const newSub = payload.payload;
+          setNotifications(prev => [{
+            id: newSub.id,
+            message: `New subscriber: ${newSub.email}`,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          }, ...prev].slice(0, 5));
+        }
+      )
       .subscribe();
 
     return () => {
