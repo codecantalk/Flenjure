@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSubscribers } from "../actions";
 import { Loader2, Mail, Phone, Ghost, Clock } from "lucide-react";
 
 export default function AdminSubscribersPage() {
@@ -10,14 +10,8 @@ export default function AdminSubscribersPage() {
 
   useEffect(() => {
     async function fetchSubscribers() {
-      const { data, error } = await supabase
-        .from("subscribers")
-        .select("*")
-        .order("created_at", { ascending: false });
-        
-      if (!error && data) {
-        setSubscribers(data);
-      }
+      const data = await getSubscribers();
+      setSubscribers(data);
       setLoading(false);
     }
     fetchSubscribers();

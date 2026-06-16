@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAudioTracks, createAudioTrack, updateAudioTrack, deleteAudioTrack, uploadAudioFile } from "../actions";
+import { getAudioTracks, createAudioTrack, updateAudioTrack, deleteAudioTrack, getAudioUploadToken } from "../actions";
 import { Plus, Trash2, Loader2, Music, UploadCloud } from "lucide-react";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { supabase } from "@/lib/supabase";
 
 interface AudioTrack {
   id: string;
@@ -40,13 +41,18 @@ export default function AdminAudioPage() {
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const url = await uploadAudioFile(formData);
-      setAudioUrl(url);
+      const { token, path, publicUrl } = await getAudioUploadToken(file.name);
+      
+      const { data, error } = await supabase.storage.from("audio").uploadToSignedUrl(path, token, file);
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      setAudioUrl(publicUrl);
     } catch (error) {
       console.error(error);
-      alert("Failed to upload audio file.");
+      alert("Failed to upload audio file. Ensure the 'audio' bucket is created and public in Supabase.");
     } finally {
       setUploading(false);
     }
@@ -108,11 +114,28 @@ export default function AdminAudioPage() {
 
     try {
       if (editingTrack) {
-        await updateAudioTrack(editingTrack.id, newTrack);
+        const res = await updateAudioTrack(editingTrack.id, newTrack);
+        if (res && 'error' in res) {
+          if (res.message && res.message.includes("audio_url")) {
+            alert(`Database error: ${res.message}\n\nPlease run this SQL command in your Supabase SQL Editor:\n\nALTER TABLE audio_tracks ADD COLUMN IF NOT EXISTS audio_url TEXT;`);
+          } else {
+            alert(`Failed to update track: ${res.message}`);
+          }
+          setSaving(false);
+          return;
+        }
       } else {
         const res = await createAudioTrack(newTrack);
         if (res && res.error === 'TABLE_MISSING') {
           alert(`Table is missing in Supabase.\n\nPlease go to your Supabase SQL Editor and run this exactly:\n\nCREATE TABLE audio_tracks (\n  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n  title TEXT NOT NULL,\n  length TEXT NOT NULL,\n  platform_tag TEXT NOT NULL,\n  track_number TEXT NOT NULL,\n  audio_url TEXT\n);`);
+          setSaving(false);
+          return;
+        } else if (res && res.error) {
+          if (res.message && res.message.includes("audio_url")) {
+            alert(`Database error: ${res.message}\n\nPlease run this SQL command in your Supabase SQL Editor:\n\nALTER TABLE audio_tracks ADD COLUMN IF NOT EXISTS audio_url TEXT;`);
+          } else {
+            alert(`Failed to save track: ${res.message}`);
+          }
           setSaving(false);
           return;
         }

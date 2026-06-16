@@ -188,11 +188,13 @@ function AudioTrack({
            <span>{tag}</span>
         </div>
       </div>
-      {isPlaying ? (
-        <Pause size={16} strokeWidth={1} className="text-stone-400" />
-      ) : (
-        <Play size={16} strokeWidth={1} className={`text-stone-300 transition-opacity ${audioUrl ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`} />
-      )}
+      <div className="w-10 h-10 rounded-full border border-stone-200 dark:border-stone-800 flex items-center justify-center transition-all duration-300 group-hover:border-stone-900 dark:group-hover:border-white group-hover:scale-105 group-hover:bg-stone-50 dark:group-hover:bg-stone-900/30">
+        {isPlaying ? (
+          <Pause size={14} className="text-stone-900 dark:text-white fill-stone-900 dark:fill-white" />
+        ) : (
+          <Play size={14} className="text-stone-500 dark:text-stone-400 fill-stone-500 dark:fill-stone-400 ml-0.5 group-hover:text-stone-900 dark:group-hover:text-white group-hover:fill-stone-900 dark:group-hover:fill-white" />
+        )}
+      </div>
     </motion.div>
   );
 }

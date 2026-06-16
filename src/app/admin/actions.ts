@@ -333,14 +333,16 @@ export async function createAudioTrack(trackData: any) {
   const { data, error } = await supabaseAdmin.from("audio_tracks").insert([trackData]).select().single();
   if (error) {
     if (error.code === 'PGRST205') return { error: 'TABLE_MISSING', table: 'audio_tracks' };
-    throw error;
+    return { error: 'DB_ERROR', message: error.message };
   }
   revalidatePath('/sights-and-sounds', 'layout');
   return { success: true, data };
 }
 export async function updateAudioTrack(id: string, trackData: any) {
   const { data, error } = await supabaseAdmin.from("audio_tracks").update(trackData).eq("id", id).select().single();
-  if (error) throw error;
+  if (error) {
+    return { error: 'DB_ERROR', message: error.message };
+  }
   revalidatePath('/sights-and-sounds', 'layout');
   return data;
 }
@@ -366,24 +368,21 @@ export async function permanentlyDeleteAudioTrack(id: string) {
   if (error) throw error;
   return true;
 }
-export async function uploadAudioFile(formData: FormData) {
-  const file = formData.get("file") as File;
-  if (!file) throw new Error("No file uploaded");
-
-  const buffer = await file.arrayBuffer();
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+export async function getAudioUploadToken(fileName: string) {
+  const fileExt = fileName.split('.').pop();
+  const safeName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
   
-  const { data, error } = await supabaseAdmin.storage.from("audio").upload(fileName, buffer, {
-    cacheControl: '3600',
-    upsert: false,
-    contentType: file.type || 'audio/mpeg'
-  });
+  const { data, error } = await supabaseAdmin.storage.from("audio").createSignedUploadUrl(safeName);
 
   if (error) throw error;
   
-  const { data: { publicUrl } } = supabaseAdmin.storage.from("audio").getPublicUrl(fileName);
-  return publicUrl;
+  const { data: { publicUrl } } = supabaseAdmin.storage.from("audio").getPublicUrl(safeName);
+  
+  return { 
+    token: data.token, 
+    path: data.path, 
+    publicUrl 
+  };
 }
 
 // ANNOUNCEMENTS
