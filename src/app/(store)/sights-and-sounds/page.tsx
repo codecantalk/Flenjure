@@ -170,31 +170,68 @@ function AudioTrack({
 }: { 
   number: string, title: string, length: string, tag: string, audioUrl?: string, isPlaying: boolean, onPlay: () => void 
 }) {
+  const isSpotify = audioUrl?.includes('spotify.com');
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleClick = () => {
+    if (isSpotify) {
+      setIsExpanded(!isExpanded);
+    } else if (audioUrl) {
+      onPlay();
+    }
+  };
+
+  const embedUrl = isSpotify ? audioUrl!.replace('/track/', '/embed/track/').split('?')[0] : '';
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      onClick={() => audioUrl && onPlay()}
-      className={`flex items-center gap-6 group cursor-pointer border-b border-stone-100 dark:border-stone-900 pb-6 transition-transform duration-500 ${audioUrl ? 'hover:translate-x-2' : 'opacity-50'}`}
-    >
-      <span className="text-[10px] font-mono text-stone-300 dark:text-stone-700">{number}</span>
-      <div className="flex-1 flex flex-col gap-1">
-        <h4 className={`text-lg font-serif font-light transition-colors uppercase tracking-wider ${isPlaying ? 'text-stone-400' : 'text-stone-900 dark:text-white group-hover:text-stone-400'}`}>
-          {title} {isPlaying && <span className="text-[10px] ml-2 animate-pulse">(Playing)</span>}
-        </h4>
-        <div className="flex items-center gap-4 text-[9px] uppercase tracking-widest text-stone-400">
-           <span>{length}</span>
-           <span className="w-4 h-[1px] bg-stone-200 dark:bg-stone-800" />
-           <span>{tag}</span>
+    <div className={`border-b border-stone-100 dark:border-stone-900 pb-6 transition-transform duration-500 ${audioUrl ? 'hover:translate-x-2' : 'opacity-50'}`}>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        onClick={handleClick}
+        className="flex items-center gap-6 group cursor-pointer"
+      >
+        <span className="text-[10px] font-mono text-stone-300 dark:text-stone-700">{number}</span>
+        <div className="flex-1 flex flex-col gap-1">
+          <h4 className={`text-lg font-serif font-light transition-colors uppercase tracking-wider ${isPlaying ? 'text-stone-400' : 'text-stone-900 dark:text-white group-hover:text-stone-400'}`}>
+            {title} {isPlaying && !isSpotify && <span className="text-[10px] ml-2 animate-pulse">(Playing)</span>}
+          </h4>
+          <div className="flex items-center gap-4 text-[9px] uppercase tracking-widest text-stone-400">
+             <span>{length}</span>
+             <span className="w-4 h-[1px] bg-stone-200 dark:bg-stone-800" />
+             <span>{tag}</span>
+          </div>
         </div>
-      </div>
-      <div className="w-10 h-10 rounded-full border border-stone-200 dark:border-stone-800 flex items-center justify-center transition-all duration-300 group-hover:border-stone-900 dark:group-hover:border-white group-hover:scale-105 group-hover:bg-stone-50 dark:group-hover:bg-stone-900/30">
-        {isPlaying ? (
-          <Pause size={14} className="text-stone-900 dark:text-white fill-stone-900 dark:fill-white" />
-        ) : (
-          <Play size={14} className="text-stone-500 dark:text-stone-400 fill-stone-500 dark:fill-stone-400 ml-0.5 group-hover:text-stone-900 dark:group-hover:text-white group-hover:fill-stone-900 dark:group-hover:fill-white" />
+        <div className="w-10 h-10 rounded-full border border-stone-200 dark:border-stone-800 flex items-center justify-center transition-all duration-300 group-hover:border-stone-900 dark:group-hover:border-white group-hover:scale-105 group-hover:bg-stone-50 dark:group-hover:bg-stone-900/30">
+          {isSpotify ? (
+            <Music size={14} className="text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:group-hover:text-white" />
+          ) : isPlaying ? (
+            <Pause size={14} className="text-stone-900 dark:text-white fill-stone-900 dark:fill-white" />
+          ) : (
+            <Play size={14} className="text-stone-500 dark:text-stone-400 fill-stone-500 dark:fill-stone-400 ml-0.5 group-hover:text-stone-900 dark:group-hover:text-white group-hover:fill-stone-900 dark:group-hover:fill-white" />
+          )}
+        </div>
+      </motion.div>
+      
+      <AnimatePresence>
+        {isExpanded && isSpotify && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden mt-6 pr-6 pl-12"
+          >
+            <iframe 
+              src={embedUrl} 
+              width="100%" 
+              height="80" 
+              frameBorder="0" 
+              allow="encrypted-media" 
+              className="rounded-xl shadow-lg border border-stone-200 dark:border-stone-800 bg-stone-900"
+            />
+          </motion.div>
         )}
-      </div>
-    </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
