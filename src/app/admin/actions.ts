@@ -247,6 +247,11 @@ export async function subscribeNewsletter(email: string, whatsapp_number?: strin
   return { success: true, data };
 }
 
+export async function getSubscribers() {
+  const { data } = await supabaseAdmin.from("subscribers").select("*").order("created_at", { ascending: false });
+  return data || [];
+}
+
 // DASHBOARD STATS
 export async function getDashboardStats() {
   const { data: orders } = await supabaseAdmin
@@ -365,12 +370,14 @@ export async function uploadAudioFile(formData: FormData) {
   const file = formData.get("file") as File;
   if (!file) throw new Error("No file uploaded");
 
+  const buffer = await file.arrayBuffer();
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
   
-  const { data, error } = await supabaseAdmin.storage.from("audio").upload(fileName, file, {
+  const { data, error } = await supabaseAdmin.storage.from("audio").upload(fileName, buffer, {
     cacheControl: '3600',
-    upsert: false
+    upsert: false,
+    contentType: file.type || 'audio/mpeg'
   });
 
   if (error) throw error;
