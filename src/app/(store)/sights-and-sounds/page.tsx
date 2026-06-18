@@ -118,14 +118,17 @@ export default function SightsAndSoundsPage() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-          {/* Featured Video Block */}
-          <motion.div style={{ y: videoParallax }} className="lg:col-span-8 flex flex-col gap-16">
+          {/* Featured Video Block (Sticky Left) */}
+          <motion.div 
+            style={{ y: videoParallax }} 
+            className="lg:col-span-8 flex flex-col gap-16 lg:sticky lg:top-32 lg:h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar pb-12"
+          >
             {/* Featured Video Block 1 */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.5 }}
-              className="group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl"
+              className="group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl shrink-0"
             >
               <video 
                 ref={videoRef}
@@ -166,7 +169,7 @@ export default function SightsAndSoundsPage() {
               initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.5 }}
-              className="group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl"
+              className="group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl shrink-0"
             >
               <video 
                 ref={videoRef2}
@@ -203,8 +206,8 @@ export default function SightsAndSoundsPage() {
             </motion.div>
           </motion.div>
 
-          {/* Curated Audio List (Sticky Sidebar) */}
-          <div className="lg:col-span-4 flex flex-col gap-12 lg:sticky lg:top-32 lg:h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar pb-12">
+          {/* Curated Audio List (Normal Scroll) */}
+          <div className="lg:col-span-4 flex flex-col gap-12">
             <div className="flex flex-col gap-8">
               <h3 className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 border-b border-stone-200 dark:border-stone-800 pb-4">Curated Audio</h3>
               
