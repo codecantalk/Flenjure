@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Play, Pause, Music, Volume2, VolumeX } from "lucide-react";
 import { getAudioTracks } from "../../admin/actions";
 
 export default function SightsAndSoundsPage() {
+  const { scrollYProgress } = useScroll();
+  const videoParallax = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  
   const [isMuted, setIsMuted] = useState(true);
   const [isPlayingVideo, setIsPlayingVideo] = useState(true);
   const [isMuted2, setIsMuted2] = useState(true);
@@ -45,6 +48,10 @@ export default function SightsAndSoundsPage() {
         videoRef.current.pause();
       } else {
         videoRef.current.play();
+        if (isPlayingVideo2 && videoRef2.current) {
+          videoRef2.current.pause();
+          setIsPlayingVideo2(false);
+        }
       }
       setIsPlayingVideo(!isPlayingVideo);
     }
@@ -56,6 +63,10 @@ export default function SightsAndSoundsPage() {
         videoRef2.current.pause();
       } else {
         videoRef2.current.play();
+        if (isPlayingVideo && videoRef.current) {
+          videoRef.current.pause();
+          setIsPlayingVideo(false);
+        }
       }
       setIsPlayingVideo2(!isPlayingVideo2);
     }
@@ -108,7 +119,7 @@ export default function SightsAndSoundsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           {/* Featured Video Block */}
-          <div className="lg:col-span-8 flex flex-col gap-16">
+          <motion.div style={{ y: videoParallax }} className="lg:col-span-8 flex flex-col gap-16">
             {/* Featured Video Block 1 */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
@@ -125,7 +136,10 @@ export default function SightsAndSoundsPage() {
                 className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
                 src="/Home-page-video.mp4"
               />
-              <div className="absolute inset-0 flex items-center justify-center" onClick={toggleVideoPlay}>
+              <div 
+                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isPlayingVideo ? 'opacity-0 group-hover:opacity-100' : 'opacity-100 bg-black/20'}`} 
+                onClick={toggleVideoPlay}
+              >
                 <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
                   {isPlayingVideo ? (
                     <Pause className="text-white fill-white" size={24} />
@@ -163,7 +177,10 @@ export default function SightsAndSoundsPage() {
                 className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
                 src="/SightsSounds-flenjure.mp4"
               />
-              <div className="absolute inset-0 flex items-center justify-center" onClick={toggleVideoPlay2}>
+              <div 
+                className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isPlayingVideo2 ? 'opacity-0 group-hover:opacity-100' : 'opacity-100 bg-black/20'}`} 
+                onClick={toggleVideoPlay2}
+              >
                 <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
                   {isPlayingVideo2 ? (
                     <Pause className="text-white fill-white" size={24} />
@@ -184,10 +201,10 @@ export default function SightsAndSoundsPage() {
                 {isMuted2 ? <VolumeX size={16} /> : <Volume2 size={16} />}
               </button>
             </motion.div>
-          </div>
+          </motion.div>
 
-          {/* Curated Audio List */}
-          <div className="lg:col-span-4 flex flex-col gap-12">
+          {/* Curated Audio List (Sticky Sidebar) */}
+          <div className="lg:col-span-4 flex flex-col gap-12 lg:sticky lg:top-32 lg:h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar pb-12">
             <div className="flex flex-col gap-8">
               <h3 className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 border-b border-stone-200 dark:border-stone-800 pb-4">Curated Audio</h3>
               
