@@ -44,8 +44,8 @@ export default function ProductDetailClient({ productData }: { productData: any 
            {/* Images Carousel */}
            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 w-full no-scrollbar scroll-smooth">
               {productData.images.map((img: string, idx: number) => (
-                <div key={idx} className="snap-center shrink-0 w-full aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 relative">
-                  <Image src={img} alt={`${productData.name} - ${idx}`} fill priority={idx === 0} className="object-contain p-8 mix-blend-multiply dark:mix-blend-normal" />
+                <div key={idx} className="snap-center shrink-0 w-full aspect-[4/5] bg-transparent relative mb-8">
+                  <Image src={img} alt={`${productData.name} - ${idx}`} fill priority={idx === 0} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
                 </div>
               ))}
            </div>
@@ -239,7 +239,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
 
           {/* COLUMN 2: Large Visual Focus (Center) */}
           <div className="col-span-6 order-2">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-12">
               {productData.images.map((img: string, idx: number) => (
                 <motion.div
                   key={idx}
@@ -247,14 +247,14 @@ export default function ProductDetailClient({ productData }: { productData: any 
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 1.2 }}
-                  className="relative aspect-square sm:aspect-[4/5] w-full bg-[#f8f8f8] dark:bg-stone-900 group overflow-hidden"
+                  className="relative aspect-square sm:aspect-[4/5] w-full bg-transparent group overflow-hidden"
                 >
                   <Image
                     src={img}
                     alt={`${productData.name} - ${idx}`}
                     fill
                     priority={idx === 0}
-                    className="object-contain p-8 lg:p-16 mix-blend-multiply dark:mix-blend-normal transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                    className="object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 </motion.div>

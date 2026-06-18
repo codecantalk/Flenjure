@@ -1,17 +1,14 @@
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config({ path: '.env.local' });
 
 const supabase = createClient(
-  'https://mklfrfhzjiztwtbmjjoe.supabase.co',
-  'sb_publishable_aJp9ve2WU5r8mLcA9bTUzQ_ZhAjLGNU'
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-async function check() {
-  const { data, error } = await supabase.from('products').select('*').limit(1);
-  if (error) {
-    console.error('Error fetching products:', error.message);
-  } else {
-    console.log('Products table exists!', data);
-  }
+async function run() {
+  const { data, error } = await supabase.from('orders').select('*');
+  console.log("Orders:", data);
+  console.log("Error:", error);
 }
-
-check();
+run();

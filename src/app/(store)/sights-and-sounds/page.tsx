@@ -8,8 +8,11 @@ import { getAudioTracks } from "../../admin/actions";
 export default function SightsAndSoundsPage() {
   const [isMuted, setIsMuted] = useState(true);
   const [isPlayingVideo, setIsPlayingVideo] = useState(true);
+  const [isMuted2, setIsMuted2] = useState(true);
+  const [isPlayingVideo2, setIsPlayingVideo2] = useState(true);
   const [tracks, setTracks] = useState<any[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
   
   // Audio Player State
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -30,6 +33,12 @@ export default function SightsAndSoundsPage() {
     }
   }, [isMuted]);
 
+  useEffect(() => {
+    if (videoRef2.current) {
+      videoRef2.current.muted = isMuted2;
+    }
+  }, [isMuted2]);
+
   const toggleVideoPlay = () => {
     if (videoRef.current) {
       if (isPlayingVideo) {
@@ -38,6 +47,17 @@ export default function SightsAndSoundsPage() {
         videoRef.current.play();
       }
       setIsPlayingVideo(!isPlayingVideo);
+    }
+  };
+
+  const toggleVideoPlay2 = () => {
+    if (videoRef2.current) {
+      if (isPlayingVideo2) {
+        videoRef2.current.pause();
+      } else {
+        videoRef2.current.play();
+      }
+      setIsPlayingVideo2(!isPlayingVideo2);
     }
   };
 
@@ -88,42 +108,83 @@ export default function SightsAndSoundsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           {/* Featured Video Block */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5 }}
-            className="lg:col-span-8 group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl"
-          >
-            <video 
-              ref={videoRef}
-              autoPlay 
-              muted 
-              loop 
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
-              src="/Home-page-video.mp4"
-            />
-            <div className="absolute inset-0 flex items-center justify-center" onClick={toggleVideoPlay}>
-              <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                {isPlayingVideo ? (
-                  <Pause className="text-white fill-white" size={24} />
-                ) : (
-                  <Play className="text-white fill-white ml-1" size={24} />
-                )}
-              </div>
-            </div>
-            <div className="absolute bottom-8 left-8 flex items-center gap-6 z-10">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Flagship Concept 2026</span>
-            </div>
-            
-            <button
-              onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
-              className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
-              aria-label={isMuted ? "Unmute" : "Mute"}
+          <div className="lg:col-span-8 flex flex-col gap-16">
+            {/* Featured Video Block 1 */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.5 }}
+              className="group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl"
             >
-              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            </button>
-          </motion.div>
+              <video 
+                ref={videoRef}
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
+                src="/Home-page-video.mp4"
+              />
+              <div className="absolute inset-0 flex items-center justify-center" onClick={toggleVideoPlay}>
+                <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
+                  {isPlayingVideo ? (
+                    <Pause className="text-white fill-white" size={24} />
+                  ) : (
+                    <Play className="text-white fill-white ml-1" size={24} />
+                  )}
+                </div>
+              </div>
+              <div className="absolute bottom-8 left-8 flex items-center gap-6 z-10">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Fleñjure Café Concept: Paris • April 2026</span>
+              </div>
+              
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
+                className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              </button>
+            </motion.div>
+
+            {/* Featured Video Block 2 */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.5 }}
+              className="group relative aspect-video bg-stone-900 overflow-hidden rounded-sm cursor-pointer shadow-2xl"
+            >
+              <video 
+                ref={videoRef2}
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000"
+                src="/SightsSounds-flenjure.mp4"
+              />
+              <div className="absolute inset-0 flex items-center justify-center" onClick={toggleVideoPlay2}>
+                <div className="w-20 h-20 rounded-full border border-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
+                  {isPlayingVideo2 ? (
+                    <Pause className="text-white fill-white" size={24} />
+                  ) : (
+                    <Play className="text-white fill-white ml-1" size={24} />
+                  )}
+                </div>
+              </div>
+              <div className="absolute bottom-8 left-8 flex items-center gap-6 z-10">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Fleñjure Café Concept: Paris • April 2026</span>
+              </div>
+              
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsMuted2(!isMuted2); }}
+                className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
+                aria-label={isMuted2 ? "Unmute" : "Mute"}
+              >
+                {isMuted2 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              </button>
+            </motion.div>
+          </div>
 
           {/* Curated Audio List */}
           <div className="lg:col-span-4 flex flex-col gap-12">
