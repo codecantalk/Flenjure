@@ -399,7 +399,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                     fill
                     className="object-contain p-2"
                   />
-                  <div className="absolute -top-2 -right-2 w-[22px] h-[22px] bg-[rgba(114,114,114,0.9)] dark:bg-stone-700 rounded-full flex items-center justify-center text-[11px] text-white font-medium z-10 shadow-sm">
+                  <div className="absolute w-[22px] h-[22px] bg-[rgba(114,114,114,0.9)] dark:bg-stone-700 rounded-full flex items-center justify-center text-[11px] text-white font-medium z-10 shadow-sm">
                     {item.quantity}
                   </div>
                 </div>

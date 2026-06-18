@@ -1,8 +1,9 @@
+import type { Metadata } from 'next';
 import CafeClient from "@/components/cafe/CafeClient";
 
-export const metadata = {
-  title: "Le Café | Flenjure",
-  description: "Exquisite desserts and munchies for the elevated palette.",
+export const metadata: Metadata = {
+  title: 'Cafe & Culinary Experiences | Fleñjure',
+  description: 'Explore the Fleñjure Cafe. Gourmet dining, exclusive recipes, and culinary experiences designed to elevate your living and taste.',
 };
 
 export default function CafePage() {
