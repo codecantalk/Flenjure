@@ -173,7 +173,7 @@ export default function SightsAndSoundsPage() {
                 </div>
               </div>
               <div className="absolute bottom-8 left-8 flex items-center gap-6 z-10">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">Fleñjure Café Concept: Paris • April 2026</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-medium">‘A Breath of Fresh Air’ • June 2025</span>
               </div>
               
               <button

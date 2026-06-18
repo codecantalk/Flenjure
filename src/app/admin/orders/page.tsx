@@ -55,6 +55,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [filter, setFilter] = useState<"All" | "Unfulfilled" | "Unpaid">("All");
 
   const mockOrders: Order[] = [
     {
@@ -183,6 +184,13 @@ export default function AdminOrdersPage() {
     document.body.removeChild(link);
   };
 
+  const filteredOrders = orders.filter(order => {
+    if (filter === "All") return true;
+    if (filter === "Unfulfilled") return order.status !== "shipped";
+    if (filter === "Unpaid") return order.payment_status !== "completed";
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-stone-500">
@@ -209,10 +217,10 @@ export default function AdminOrdersPage() {
       {/* Toolbar & Filters (Shopify Card style) */}
       <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
         <div className="p-2 flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-stone-200 dark:border-stone-800">
-          <div className="flex items-center gap-2 px-2">
-            <span className="text-sm font-medium text-stone-900 dark:text-white border-b-2 border-stone-900 dark:border-white pb-1 cursor-pointer">All</span>
-            <span className="text-sm font-medium text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 pb-1 cursor-pointer">Unfulfilled</span>
-            <span className="text-sm font-medium text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 pb-1 cursor-pointer">Unpaid</span>
+          <div className="flex items-center gap-4 px-3">
+            <button onClick={() => setFilter("All")} className={`text-sm font-medium pb-1.5 border-b-2 transition-colors ${filter === "All" ? "text-stone-900 dark:text-white border-stone-900 dark:border-white" : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 border-transparent"}`}>All</button>
+            <button onClick={() => setFilter("Unfulfilled")} className={`text-sm font-medium pb-1.5 border-b-2 transition-colors ${filter === "Unfulfilled" ? "text-stone-900 dark:text-white border-stone-900 dark:border-white" : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 border-transparent"}`}>Unfulfilled</button>
+            <button onClick={() => setFilter("Unpaid")} className={`text-sm font-medium pb-1.5 border-b-2 transition-colors ${filter === "Unpaid" ? "text-stone-900 dark:text-white border-stone-900 dark:border-white" : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 border-transparent"}`}>Unpaid</button>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
@@ -244,7 +252,9 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200 dark:divide-stone-800 text-stone-900 dark:text-stone-100">
-              {orders.map((order) => (
+              {filteredOrders.length === 0 ? (
+                <tr><td colSpan={7} className="px-5 py-8 text-center text-stone-500">No orders found.</td></tr>
+              ) : filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/30 transition-colors group cursor-pointer" onClick={() => setSelectedOrder(order)}>
                   <td className="px-5 py-4 font-semibold hover:underline">
                     {order.id}
