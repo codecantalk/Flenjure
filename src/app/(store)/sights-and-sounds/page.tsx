@@ -118,10 +118,10 @@ export default function SightsAndSoundsPage() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-          {/* Featured Video Block (Sticky Left) */}
+          {/* Featured Video Block */}
           <motion.div 
             style={{ y: videoParallax }} 
-            className="lg:col-span-8 flex flex-col gap-16 lg:sticky lg:top-32 lg:h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar pb-12"
+            className="lg:col-span-8 flex flex-col gap-16"
           >
             {/* Featured Video Block 1 */}
             <motion.div 
