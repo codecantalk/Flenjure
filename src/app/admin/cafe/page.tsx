@@ -33,6 +33,7 @@ interface CafeItem {
   image_urls: string[];
   priority: number;
   image?: string; // For backward compatibility before image_urls was added
+  variants?: any[];
 }
 
 const categories = ["Desserts", "Drinks", "Munchies", "Other"];
@@ -59,6 +60,7 @@ function CafeContent() {
   const [inventoryCount, setInventoryCount] = useState(10);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [priority, setPriority] = useState(0);
+  const [variants, setVariants] = useState<any[]>([]);
   
   const [saving, setSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -85,7 +87,7 @@ function CafeContent() {
     setEditingItem(null);
     setName(""); setPrice("0"); setCompareAtPrice(""); setDescription("");
     setCategory("Desserts"); setInStock(true); setInventoryCount(10);
-    setImageUrls([]); setPriority(0);
+    setImageUrls([]); setPriority(0); setVariants([]);
     setCurrentView('edit');
   };
 
@@ -97,6 +99,7 @@ function CafeContent() {
     setInStock(item.in_stock ?? true); setInventoryCount(item.inventory_count ?? 0);
     setImageUrls(item.image_urls || (item.image ? [item.image] : [])); 
     setPriority(item.priority ?? 0);
+    setVariants(item.variants || []);
     setCurrentView('edit');
   };
 
@@ -270,7 +273,8 @@ function CafeContent() {
       compare_at_price: compareAtPrice || undefined,
       category, in_stock: inStock, inventory_count: inventoryCount,
       image_urls: imageUrls,
-      priority
+      priority,
+      variants
     };
     try {
       if (editingItem) await updateCafeItem(editingItem.id, newItem);
@@ -425,6 +429,83 @@ function CafeContent() {
                   </label>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Variants</h4>
+                <button 
+                  type="button"
+                  onClick={() => setVariants([...variants, { size: "OS", color: "", sku: "", inventory_count: 10 }])}
+                  className="text-xs font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                >
+                  + Add Variant
+                </button>
+              </div>
+              
+              {variants.length === 0 ? (
+                <p className="text-xs text-stone-500 dark:text-stone-400">No variants added. This product will be treated as one universal size/style.</p>
+              ) : (
+                <div className="space-y-3">
+                  {variants.map((variant, index) => (
+                    <div key={index} className="flex items-center gap-3 bg-stone-50 dark:bg-stone-900/50 p-3 rounded-md border border-stone-200 dark:border-stone-800">
+                      <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Size (e.g. M, L)"
+                          value={variant.size}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].size = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Color (Optional)"
+                          value={variant.color}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].color = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="SKU"
+                          value={variant.sku}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].sku = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="number"
+                          placeholder="Inventory"
+                          value={variant.inventory_count}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].inventory_count = Number(e.target.value);
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => setVariants(variants.filter((_, i) => i !== index))}
+                        className="text-stone-400 hover:text-red-500"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-6">

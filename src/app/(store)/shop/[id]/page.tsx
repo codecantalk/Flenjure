@@ -23,6 +23,10 @@ export default async function ShopProductDetail({ params }: Props) {
 
     // Determine niche-specific details based on category or name
     const getDetails = (product: any) => {
+      if (product.description && product.description.trim().length > 0) {
+        return product.description.split('\n').filter((line: string) => line.trim().length > 0);
+      }
+      
       const name = product.title.toLowerCase();
       const category = (product.category || "").toLowerCase();
 
@@ -124,7 +128,7 @@ export default async function ShopProductDetail({ params }: Props) {
     const hasVariants = productData.variants && productData.variants.length > 0;
     const mappedSizes = hasVariants 
       ? productData.variants.map((v: any) => v.size + (v.color ? ` - ${v.color}` : ''))
-      : sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : [];
+      : [];
 
     const mappedProductData = {
       ...productData,

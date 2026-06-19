@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCafeItems } from "@/app/admin/actions";
 
@@ -167,18 +167,33 @@ export default function CafeClient() {
 // Minimalist, high-end gallery item
 function MenuItem({ item, aspect }: { item: any, aspect: string }) {
   const addItem = useCartStore((state) => state.addItem);
+  const [isOpen, setIsOpen] = useState(false);
+  const hasVariants = item.variants && item.variants.length > 0;
   
+  const handleAdd = (e: React.MouseEvent, size: string = 'OS') => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image_urls?.[0] || item.image || "/images/cafe_placeholder.png",
+      size,
+      quantity: 1
+    });
+    setIsOpen(false);
+  };
+
   return (
     <div 
-      className="flex flex-col group cursor-pointer" 
-      onClick={() => addItem({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        size: 'OS',
-        quantity: 1
-      })}
+      className="flex flex-col group cursor-pointer relative" 
+      onClick={(e) => {
+        if (hasVariants) {
+          setIsOpen(true);
+        } else {
+          handleAdd(e, 'OS');
+        }
+      }}
     >
        <div className={`relative ${aspect} w-full bg-[#f8f8f8] dark:bg-stone-900 mb-6 overflow-hidden`}>
           <Image 
@@ -201,6 +216,47 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
              <Plus size={10} /> Add to Order
           </span>
        </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute bottom-10 left-2 right-2 z-30 bg-white/95 backdrop-blur-md border border-stone-200 shadow-xl p-3 rounded-sm flex flex-col gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center">
+              <span className="text-[9px] uppercase tracking-[0.2em] font-semibold text-stone-400">Select Size</span>
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(false);
+                }}
+                className="text-stone-400 hover:text-stone-900 transition-colors p-1"
+              >
+                <X size={12} strokeWidth={1} />
+              </button>
+            </div>
+            
+            <div className="flex flex-wrap gap-1">
+              {item.variants.map((v: any, idx: number) => {
+                const label = v.size + (v.color ? ` - ${v.color}` : '');
+                return (
+                  <button
+                    key={idx}
+                    onClick={(e) => handleAdd(e, label)}
+                    className="flex-1 min-w-[32px] h-8 px-2 text-[10px] font-medium border border-stone-200 hover:border-stone-900 hover:bg-stone-900 hover:text-white transition-all flex items-center justify-center bg-white text-stone-900"
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
