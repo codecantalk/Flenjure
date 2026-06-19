@@ -429,9 +429,8 @@ function CafeContent() {
                   </label>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+              <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Variants</h4>
                 <button 
@@ -506,6 +505,7 @@ function CafeContent() {
                   ))}
                 </div>
               )}
+            </div>
             </div>
 
             <div className="space-y-6">
