@@ -222,7 +222,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
                  <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-6 tracking-[0.3em]">Curated Pairings</h4>
                  <div className="grid grid-cols-2 gap-3">
                     {productData.relatedProducts.map((relatedProduct: any) => (
-                      <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-2 group cursor-pointer">
+                      <Link href={`/${productData.isCafeItem ? 'cafe' : 'shop'}/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-2 group cursor-pointer">
                         <div className="aspect-square bg-transparent relative overflow-hidden transition-all duration-700">
                            <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover opacity-80 group-hover:opacity-100" />
                         </div>
