@@ -531,19 +531,19 @@ function ProductCard({ product, viewMode, addItem }: { product: any; viewMode: "
         viewMode === "grid" ? "aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-none" : "aspect-square sm:aspect-[4/5] bg-[#f8f8f8] dark:bg-black shadow-none"
       )}>
         <Link href={`/shop/${product.id}`} className="absolute inset-0 z-0">
-          <div className="absolute inset-4 sm:inset-6">
+          <div className="absolute inset-0">
             <Image
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain mix-blend-multiply dark:mix-blend-normal transition-opacity duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0"
+              className="object-cover transition-opacity duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:opacity-0"
               sizes="(max-width: 768px) 50vw, 33vw"
             />
             <Image
               src={product.hoverImage || product.image}
               alt={`${product.name} alternate view`}
               fill
-              className="object-contain mix-blend-multiply dark:mix-blend-normal absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
+              className="object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.05]"
               sizes="(max-width: 768px) 50vw, 33vw"
             />
           </div>
