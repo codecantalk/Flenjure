@@ -403,8 +403,11 @@ function CafeContent() {
                   <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-900 dark:text-white mb-1.5">Description</label>
-                  <textarea rows={8} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white resize-none transition-colors" />
+                  <div className="flex flex-col mb-1.5">
+                    <label className="block text-sm font-medium text-stone-900 dark:text-white">Description (Product Details)</label>
+                    <span className="text-[10px] text-stone-500">Each new line will be rendered as a bullet point on the live site.</span>
+                  </div>
+                  <textarea rows={8} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Organic and Locally Sourced&#10;Freshly brewed daily" className="w-full bg-transparent border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 text-sm outline-none focus:border-stone-900 dark:focus:border-stone-500 text-stone-900 dark:text-white resize-none transition-colors placeholder:text-stone-300 dark:placeholder:text-stone-700" />
                 </div>
               </div>
               <div className="bg-white dark:bg-[#111] p-5 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">

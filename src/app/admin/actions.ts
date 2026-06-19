@@ -276,6 +276,11 @@ export async function getCafeItems() {
   }
   return data || [];
 }
+export async function getCafeItemById(id: string) {
+  const { data, error } = await supabaseAdmin.from("cafe_items").select("*").eq("id", id).single();
+  if (error) return null;
+  return data;
+}
 export async function createCafeItem(itemData: any) {
   const { data, error } = await supabaseAdmin.from("cafe_items").insert([itemData]).select().single();
   if (error) {

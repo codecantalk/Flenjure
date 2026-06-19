@@ -85,7 +85,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
                  <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-6 tracking-[0.3em]">Curated Pairings</h4>
                  <div className="flex overflow-x-auto snap-x gap-4 pb-6 w-full no-scrollbar">
                     {productData.relatedProducts.map((relatedProduct: any) => (
-                      <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="snap-start shrink-0 w-[60%] flex flex-col gap-2">
+                      <Link href={`/${productData.isCafeItem ? 'cafe' : 'shop'}/${relatedProduct.id}`} key={relatedProduct.id} className="snap-start shrink-0 w-[60%] flex flex-col gap-2">
                         <div className="aspect-square bg-transparent relative">
                            <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover opacity-90" />
                         </div>
@@ -337,7 +337,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
              <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-900 dark:text-white mb-12">Recently Viewed</h4>
              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {productData.relatedProducts.map((relatedProduct: any) => (
-                  <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-3 group">
+                  <Link href={`/${productData.isCafeItem ? 'cafe' : 'shop'}/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-3 group">
                      <div className="aspect-square bg-transparent relative shadow-sm">
                         <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                      </div>

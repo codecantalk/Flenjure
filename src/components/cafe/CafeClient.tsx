@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store";
 import { Plus, X } from "lucide-react";
@@ -185,36 +186,39 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
   };
 
   return (
-    <div 
-      className="flex flex-col group cursor-pointer relative" 
-      onClick={(e) => {
-        if (hasVariants) {
-          setIsOpen(true);
-        } else {
-          handleAdd(e, 'OS');
-        }
-      }}
-    >
-       <div className={`relative ${aspect} w-full bg-[#f8f8f8] dark:bg-stone-900 mb-6 overflow-hidden`}>
-          <Image 
-            src={item.image_urls?.[0] || item.image || "/images/cafe_placeholder.png"} 
-            alt={item.name} 
-            fill 
-            className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal opacity-90 group-hover:opacity-100" 
-          />
-       </div>
-       <div className="flex justify-between items-start gap-4 px-1">
-          <h3 className="text-[11px] md:text-[12px] font-medium uppercase tracking-[0.15em] text-stone-900 dark:text-white leading-relaxed max-w-[80%]">
-            {item.name}
-          </h3>
-          <span className="text-[11px] md:text-[12px] text-stone-500 font-light flex-shrink-0 tracking-widest">
-            ${Number(String(item.price).replace(/[^0-9.]/g, '') || 0).toFixed(2)} USD
-          </span>
-       </div>
+    <div className="flex flex-col group relative">
+       <Link href={`/cafe/${item.id}`} className="cursor-pointer">
+         <div className={`relative ${aspect} w-full bg-[#f8f8f8] dark:bg-stone-900 mb-6 overflow-hidden`}>
+            <Image 
+              src={item.image_urls?.[0] || item.image || "/images/cafe_placeholder.png"} 
+              alt={item.name} 
+              fill 
+              className="object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal opacity-90 group-hover:opacity-100" 
+            />
+         </div>
+         <div className="flex justify-between items-start gap-4 px-1">
+            <h3 className="text-[11px] md:text-[12px] font-medium uppercase tracking-[0.15em] text-stone-900 dark:text-white leading-relaxed max-w-[80%]">
+              {item.name}
+            </h3>
+            <span className="text-[11px] md:text-[12px] text-stone-500 font-light flex-shrink-0 tracking-widest">
+              ${Number(String(item.price).replace(/[^0-9.]/g, '') || 0).toFixed(2)} USD
+            </span>
+         </div>
+       </Link>
        <div className="px-1 mt-3 mb-2 overflow-hidden h-[24px]">
-          <span className="block text-[9px] uppercase tracking-widest font-bold text-stone-400 dark:text-stone-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2">
+          <button 
+             onClick={(e) => {
+               e.preventDefault();
+               if (hasVariants) {
+                 setIsOpen(true);
+               } else {
+                 handleAdd(e, 'OS');
+               }
+             }}
+             className="block text-[9px] uppercase tracking-widest font-bold text-stone-400 dark:text-stone-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 flex items-center gap-2"
+          >
              <Plus size={10} /> Add to Order
-          </span>
+          </button>
        </div>
 
       <AnimatePresence>
