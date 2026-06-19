@@ -86,8 +86,8 @@ export default function ProductDetailClient({ productData }: { productData: any 
                  <div className="flex overflow-x-auto snap-x gap-4 pb-6 w-full no-scrollbar">
                     {productData.relatedProducts.map((relatedProduct: any) => (
                       <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="snap-start shrink-0 w-[60%] flex flex-col gap-2">
-                        <div className="aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 border border-stone-100 dark:border-stone-800 relative">
-                           <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-contain p-4 mix-blend-multiply dark:mix-blend-normal opacity-90" />
+                        <div className="aspect-square bg-transparent relative">
+                           <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover opacity-90" />
                         </div>
                         <span className="text-[9px] uppercase tracking-[0.2em] text-stone-900 dark:text-white truncate mt-1">{relatedProduct.name}</span>
                         <span className="text-[9px] text-stone-400 font-medium tracking-widest">{relatedProduct.price}</span>
@@ -223,8 +223,8 @@ export default function ProductDetailClient({ productData }: { productData: any 
                  <div className="grid grid-cols-2 gap-3">
                     {productData.relatedProducts.map((relatedProduct: any) => (
                       <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-2 group cursor-pointer">
-                        <div className="aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 border border-stone-100 dark:border-stone-800 relative overflow-hidden transition-all duration-700">
-                           <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-contain p-4 mix-blend-multiply dark:mix-blend-normal opacity-80 group-hover:opacity-100" />
+                        <div className="aspect-square bg-transparent relative overflow-hidden transition-all duration-700">
+                           <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover opacity-80 group-hover:opacity-100" />
                         </div>
                         <span className="text-[9px] uppercase tracking-[0.2em] text-stone-900 dark:text-white truncate mt-1 underline decoration-transparent group-hover:decoration-stone-200 transition-all">
                            {relatedProduct.name}
@@ -338,8 +338,8 @@ export default function ProductDetailClient({ productData }: { productData: any 
              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {productData.relatedProducts.map((relatedProduct: any) => (
                   <Link href={`/shop/${relatedProduct.id}`} key={relatedProduct.id} className="flex flex-col gap-3 group">
-                     <div className="aspect-[4/5] bg-[#f8f8f8] dark:bg-stone-900 border border-stone-100 dark:border-stone-800 relative shadow-sm">
-                        <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-contain p-4 grayscale group-hover:grayscale-0 transition-all duration-700 mix-blend-multiply dark:mix-blend-normal" />
+                     <div className="aspect-square bg-transparent relative shadow-sm">
+                        <Image src={relatedProduct.image} alt={relatedProduct.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                      </div>
                      <div className="flex justify-between text-[9px] uppercase tracking-widest mt-1 font-bold">
                         <span className="text-stone-900 dark:text-white">{relatedProduct.name}</span>
