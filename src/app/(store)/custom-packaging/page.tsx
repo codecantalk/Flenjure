@@ -25,9 +25,9 @@ const packagingOptions = [
 
 export default function CustomPackaging() {
   return (
-    <div className="flex flex-col min-h-screen bg-white pt-24">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-white pt-24">
       {/* Hero Section */}
-      <section className="w-full py-24 md:py-32 px-6 lg:px-12 border-b border-stone-100">
+      <section className="w-full py-24 md:py-32 px-6 lg:px-12 border-b border-stone-100 dark:border-stone-800">
         <div className="max-w-7xl mx-auto flex flex-col gap-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -64,7 +64,7 @@ export default function CustomPackaging() {
                 transition={{ duration: 0.8, delay: i * 0.1 }}
                 className="flex flex-col gap-8 group"
               >
-                <div className="relative aspect-[4/5] overflow-hidden bg-stone-50">
+                <div className="relative aspect-[4/5] overflow-hidden bg-stone-50 dark:bg-stone-900">
                   <Image
                     src={option.image}
                     alt={option.title}
@@ -74,7 +74,7 @@ export default function CustomPackaging() {
                 </div>
                 <div className="flex flex-col gap-4">
                   <h3 className="font-serif text-3xl font-light">{option.title}</h3>
-                  <p className="text-stone-500 font-light leading-relaxed max-w-sm">
+                  <p className="text-stone-500 dark:text-stone-400 font-light leading-relaxed max-w-sm">
                     {option.description}
                   </p>
                 </div>
@@ -87,7 +87,7 @@ export default function CustomPackaging() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="flex flex-col gap-12 p-12 lg:p-24 bg-stone-900 text-white"
+              className="flex flex-col gap-12 p-12 lg:p-24 bg-stone-900 dark:bg-stone-800 text-white"
             >
               <div className="flex flex-col gap-6">
                 <h3 className="font-serif text-4xl md:text-5xl font-light leading-tight">
