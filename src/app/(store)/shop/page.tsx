@@ -59,7 +59,8 @@ export default async function ShopPage() {
         category: p.category,
         collectionId: p.collection_id,
         inStock: p.in_stock,
-        sizes: sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : []
+        variants: p.variants || [],
+        sizes: p.variants && p.variants.length > 0 ? p.variants.map((v: any) => v.size + (v.color ? ` - ${v.color}` : '')) : (sizingData.type !== 'one-size' ? sizingData.metrics.map((m: any) => m.size) : [])
       };
     });
   

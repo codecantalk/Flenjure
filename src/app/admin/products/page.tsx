@@ -626,7 +626,7 @@ function AdminProductsPageContent() {
                 <h4 className="text-sm font-semibold text-stone-900 dark:text-white">Variants</h4>
                 <button 
                   type="button"
-                  onClick={() => setVariants([...variants, { size: "OS", color: "", sku: "", inventory_count: 10 }])}
+                  onClick={() => setVariants([...variants, { size: "OS", color: "", sku: "", inventory_count: 10, price: "" }])}
                   className="text-xs font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
                 >
                   + Add Variant
@@ -639,7 +639,7 @@ function AdminProductsPageContent() {
                 <div className="space-y-3">
                   {variants.map((variant, index) => (
                     <div key={index} className="flex items-center gap-3 bg-stone-50 dark:bg-stone-900/50 p-3 rounded-md border border-stone-200 dark:border-stone-800">
-                      <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-3">
                         <input
                           type="text"
                           placeholder="Size (e.g. M, L)"
@@ -680,6 +680,17 @@ function AdminProductsPageContent() {
                           onChange={(e) => {
                             const newVariants = [...variants];
                             newVariants[index].inventory_count = Number(e.target.value);
+                            setVariants(newVariants);
+                          }}
+                          className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Price (Optional)"
+                          value={variant.price || ""}
+                          onChange={(e) => {
+                            const newVariants = [...variants];
+                            newVariants[index].price = e.target.value;
                             setVariants(newVariants);
                           }}
                           className="w-full bg-transparent border-b border-stone-300 dark:border-stone-700 px-2 py-1 text-xs outline-none focus:border-stone-900 dark:focus:border-stone-500"

@@ -171,13 +171,13 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const hasVariants = item.variants && item.variants.length > 0;
   
-  const handleAdd = (e: React.MouseEvent, size: string = 'OS') => {
+  const handleAdd = (e: React.MouseEvent, size: string = 'OS', customPrice?: string) => {
     e.preventDefault();
     e.stopPropagation();
     addItem({
       id: item.id,
       name: item.name,
-      price: item.price,
+      price: customPrice || item.price,
       image: item.image_urls?.[0] || item.image || "/images/cafe_placeholder.png",
       size,
       quantity: 1
@@ -247,10 +247,11 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
             <div className="flex flex-wrap gap-1">
               {item.variants.map((v: any, idx: number) => {
                 const label = v.size + (v.color ? ` - ${v.color}` : '');
+                const variantPrice = v.price && String(v.price).trim() !== "" ? `$${Number(v.price).toFixed(2)}` : undefined;
                 return (
                   <button
                     key={idx}
-                    onClick={(e) => handleAdd(e, label)}
+                    onClick={(e) => handleAdd(e, label, variantPrice)}
                     className="flex-1 min-w-[32px] h-8 px-2 text-[10px] font-medium border border-stone-200 hover:border-stone-900 hover:bg-stone-900 hover:text-white transition-all flex items-center justify-center bg-white text-stone-900"
                   >
                     {label}

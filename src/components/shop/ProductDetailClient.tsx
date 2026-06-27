@@ -14,6 +14,16 @@ export default function ProductDetailClient({ productData }: { productData: any 
   const [adding, setAdding] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
+  let currentPrice = productData.price;
+  if (selectedSize && productData.variants) {
+    const matchedVariant = productData.variants.find((v: any) => 
+      (v.size + (v.color ? ` - ${v.color}` : '')) === selectedSize
+    );
+    if (matchedVariant && matchedVariant.price && String(matchedVariant.price).trim() !== "") {
+      currentPrice = `$${Number(matchedVariant.price).toFixed(2)}`;
+    }
+  }
+
   const handleAddToCart = () => {
     if (productData.sizes && productData.sizes.length > 0 && !selectedSize) {
       setIsDropdownOpen(true);
@@ -23,7 +33,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
     addItem({
       id: productData.id,
       name: productData.name,
-      price: productData.price,
+      price: currentPrice,
       size: selectedSize || "One Size",
       image: productData.images[0],
       quantity: 1,
@@ -102,7 +112,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
               <div className="max-w-[1800px] mx-auto w-full px-2 sm:px-4">
                  <div className="flex justify-between items-center mb-3">
                     <span className="text-[12px] text-[#323232] dark:text-white truncate pr-4">{productData.name}</span>
-                    <span className="text-[12px] text-[#323232] dark:text-white whitespace-nowrap">{productData.price}</span>
+                    <span className="text-[12px] text-[#323232] dark:text-white whitespace-nowrap">{currentPrice}</span>
                  </div>
                  
                  <div className="w-full mb-3">
@@ -157,7 +167,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
           <div className="col-span-3 flex flex-col order-1">
              <div className="flex flex-col gap-2 mb-12">
               <h1 className="text-xl font-medium text-stone-900 dark:text-white uppercase tracking-tight">{productData.name}</h1>
-              <p className="text-base text-stone-900 dark:text-stone-300 font-light">{productData.price}</p>
+              <p className="text-base text-stone-900 dark:text-stone-300 font-light">{currentPrice}</p>
             </div>
 
             {/* Accordions */}

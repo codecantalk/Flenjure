@@ -474,12 +474,21 @@ function QuickAddTrigger({ product, addItem }: { product: any; addItem: any }) {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    let currentPrice = product.price;
+                    if (product.variants) {
+                      const matchedVariant = product.variants.find((v: any) => 
+                        (v.size + (v.color ? ` - ${v.color}` : '')) === size
+                      );
+                      if (matchedVariant && matchedVariant.price && String(matchedVariant.price).trim() !== "") {
+                        currentPrice = `$${Number(matchedVariant.price).toFixed(2)}`;
+                      }
+                    }
                     addItem({
                       id: product.id,
                       name: product.name,
-                      price: product.price,
+                      price: currentPrice,
+                      size: size,
                       image: product.image,
-                      size,
                       quantity: 1
                     });
                     setIsOpen(false);
