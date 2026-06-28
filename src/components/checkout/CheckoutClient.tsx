@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useCurrencyStore } from "@/lib/store";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -118,6 +118,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
       return;
     }
 
+    if (!stripe || !elements) return;
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
@@ -587,8 +588,8 @@ export default function CheckoutClient() {
   }
 
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
-      <CheckoutForm clientSecret={clientSecret} />
+    <Elements stripe={stripePromise} options={{ clientSecret: clientSecret!, appearance: { theme: 'stripe' } }}>
+      <CheckoutForm clientSecret={clientSecret!} />
     </Elements>
   );
 }
