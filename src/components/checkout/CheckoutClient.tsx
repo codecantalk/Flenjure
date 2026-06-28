@@ -32,7 +32,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const formatPrice = useCurrencyStore((state) => state.formatPrice);
   const { currency } = useCurrencyStore();
   const cartTotal = items.reduce((total, item) => {
-    const priceNum = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
+    const priceNum = typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : (Number(item.price) || 0);
     return total + priceNum * item.quantity;
   }, 0);
 
@@ -59,7 +59,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
           id: i.id,
           title: i.name,
           quantity: i.quantity,
-          price: parseFloat(i.price.replace(/[^0-9.-]+/g, "")),
+          price: typeof i.price === 'string' ? parseFloat(i.price.replace(/[^0-9.-]+/g, "")) : (Number(i.price) || 0),
         })),
         is_recovered: false,
       }).catch(console.error);
@@ -201,12 +201,16 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                         {item.size}
                       </p>
                     </div>
-                    <span className="text-[14px] font-medium text-stone-900 dark:text-white">
-                      $
-                      {(
-                        parseFloat(item.price.replace("$", "")) * item.quantity
-                      ).toFixed(2)}
-                    </span>
+                    <button 
+                      onClick={() => useCartStore.getState().removeItem(item.id, item.size)}
+                      type="button"
+                      className="ml-4 text-[10px] text-stone-400 hover:text-red-500 uppercase tracking-widest transition-colors"
+                    >
+                      Remove
+                    </button>
+                    <div className="text-[14px] font-medium text-stone-900 dark:text-white pl-4">
+                      {formatPrice((typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : (Number(item.price) || 0)) * item.quantity)}
+                    </div>
                   </div>
                 ))}
                 <div className="border-t border-[#e6e6e6] dark:border-stone-800 pt-4 mt-2">
@@ -479,9 +483,16 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                   <span className="text-[#a5b0aa] dark:text-stone-400 text-[12px] font-normal mt-1 block">
                     {item.size}
                   </span>
+                  <button 
+                    onClick={() => useCartStore.getState().removeItem(item.id, item.size)}
+                    type="button"
+                    className="text-left mt-2 text-[10px] text-stone-500 hover:text-white uppercase tracking-widest transition-colors w-fit"
+                  >
+                    Remove
+                  </button>
                 </div>
                 <span className="text-white text-[14px] font-medium pl-2">
-                  {formatPrice(parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity)}
+                  {formatPrice((typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : (Number(item.price) || 0)) * item.quantity)}
                 </span>
               </div>
             ))}
