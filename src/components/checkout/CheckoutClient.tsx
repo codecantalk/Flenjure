@@ -427,13 +427,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                    />
                 </div>
               ) : (
-                <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm flex flex-col gap-4">
-                  <ExpressCheckoutElement onConfirm={() => setIsProcessing(true)} />
-                  <div className="flex items-center gap-4 my-2">
-                    <div className="h-px flex-1 bg-stone-200 dark:bg-stone-800"></div>
-                    <span className="text-xs text-stone-500 uppercase">Or pay with card</span>
-                    <div className="h-px flex-1 bg-stone-200 dark:bg-stone-800"></div>
-                  </div>
+                <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm">
                   <PaymentElement />
                 </div>
               )}
