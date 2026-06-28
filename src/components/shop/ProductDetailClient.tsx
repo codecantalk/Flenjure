@@ -16,6 +16,24 @@ export default function ProductDetailClient({ productData }: { productData: any 
   const [adding, setAdding] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
   const formatPrice = useCurrencyStore((state) => state.formatPrice);
+  const { currency } = useCurrencyStore();
+
+  const isCafeItem = productData.isCafeItem === true;
+  let quickPayLabel = "Apple Pay";
+  let quickPayMethod = "applepay";
+
+  if (isCafeItem) {
+    if (currency === 'GBP') {
+      quickPayLabel = "LLOYDS Transfer";
+      quickPayMethod = "lloyds";
+    } else if (currency === 'EUR') {
+      quickPayLabel = "Revolut";
+      quickPayMethod = "revolut";
+    } else {
+      quickPayLabel = "Cash App / Zelle";
+      quickPayMethod = "cashapp";
+    }
+  }
 
   let currentPrice = productData.price;
   if (selectedSize && productData.variants) {
@@ -159,11 +177,11 @@ export default function ProductDetailClient({ productData }: { productData: any 
                       {adding ? "Adding..." : "Add to Bag"}
                    </button>
                    <button 
-                      onClick={() => { handleAddToCart(); setTimeout(() => router.push('/checkout'), 300); }} 
+                      onClick={() => { handleAddToCart(); setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); }} 
                       disabled={adding} 
                       className="flex-1 bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50"
                    >
-                      {productData.isCafeItem ? "Buy Now" : "Pay via Apple Pay"}
+                      {quickPayLabel}
                    </button>
                  </div>
               </div>
@@ -353,11 +371,11 @@ export default function ProductDetailClient({ productData }: { productData: any 
                     {adding ? "Adding..." : "Add to Bag"}
                  </button>
                  <button 
-                    onClick={() => { handleAddToCart(); setTimeout(() => router.push('/checkout'), 300); }} 
+                    onClick={() => { handleAddToCart(); setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); }} 
                     disabled={adding} 
                     className="flex-1 bg-stone-900 dark:bg-white text-white dark:text-stone-900 py-4 text-[12px] font-medium tracking-[0.1em] uppercase hover:opacity-90 transition-all disabled:opacity-50 shadow-sm"
                  >
-                    {productData.isCafeItem ? "Buy Now" : "Apple Pay"}
+                    {quickPayLabel}
                  </button>
               </div>
           </div>

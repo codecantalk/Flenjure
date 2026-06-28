@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useCartStore, useCurrencyStore } from "@/lib/store";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Info, ShoppingBag, Loader2 } from "lucide-react";
 import clsx from "clsx";
@@ -31,6 +31,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const { items, clearCart } = useCartStore();
   const formatPrice = useCurrencyStore((state) => state.formatPrice);
   const { currency } = useCurrencyStore();
+  const searchParams = useSearchParams();
   const cartTotal = items.reduce((total, item) => {
     const priceNum = typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : (Number(item.price) || 0);
     return total + priceNum * item.quantity;
@@ -47,6 +48,43 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const [transactionId, setTransactionId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+
+  const getDefaultMethod = () => {
+    if (currency === 'GBP') return 'lloyds';
+    if (currency === 'EUR') return 'revolut';
+    return 'cashapp';
+  };
+
+  const [selectedMethod, setSelectedMethod] = useState<string>('revolut');
+
+  useEffect(() => {
+    const paramMethod = searchParams.get('method');
+    if (paramMethod) {
+      setSelectedMethod(paramMethod);
+    } else {
+      setSelectedMethod(getDefaultMethod());
+    }
+  }, [searchParams, currency]);
+
+  const getAvailableMethods = () => {
+    if (currency === 'GBP') {
+      return [
+        { id: 'lloyds', label: 'Lloyds Bank' },
+        { id: 'crypto', label: 'Crypto' }
+      ];
+    }
+    if (currency === 'EUR') {
+      return [
+        { id: 'revolut', label: 'Revolut' },
+        { id: 'crypto', label: 'Crypto' }
+      ];
+    }
+    return [
+      { id: 'zelle', label: 'Zelle' },
+      { id: 'cashapp', label: 'Cash App' },
+      { id: 'crypto', label: 'Crypto' }
+    ];
+  };
 
   // CRM Abandoned Cart tracking
   useEffect(() => {
@@ -393,30 +431,108 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
 
               {isCafeMode ? (
                 <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm flex flex-col gap-4">
-                   <p className="text-sm font-medium text-stone-900 dark:text-white mb-2">Cafe Exclusive Payments</p>
-                   {currency === 'GBP' && (
-                     <div className="bg-stone-50 dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 text-sm">
-                       <strong>LLOYDS Bank Transfer</strong><br/><br/>
-                       Account Name: Flenjure Ltd<br/>
-                       Sort Code: 30-90-89<br/>
-                       Account No: 12345678<br/><br/>
-                       Please use your name as the reference.
+                   <p className="text-sm font-medium text-stone-900 dark:text-white mb-1">Cafe Exclusive Payments</p>
+                   
+                   {/* Custom Tab Selector */}
+                   <div className="flex flex-wrap gap-2 mb-2 border-b border-stone-200 dark:border-stone-800 pb-3">
+                     {getAvailableMethods().map((m) => (
+                       <button
+                         key={m.id}
+                         type="button"
+                         onClick={() => setSelectedMethod(m.id)}
+                         className={clsx(
+                           "py-2 px-4 text-xs font-semibold uppercase tracking-wider border transition-all rounded-[4px]",
+                           selectedMethod === m.id
+                             ? "bg-stone-900 text-white dark:bg-white dark:text-black border-stone-900 dark:border-white shadow-sm"
+                             : "bg-stone-50 dark:bg-[#1a1a1a] text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-800 hover:border-stone-900 dark:hover:border-white"
+                         )}
+                       >
+                         {m.label}
+                       </button>
+                     ))}
+                   </div>
+
+                   {/* Lloyds Bank Transfer details */}
+                   {selectedMethod === 'lloyds' && (
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
+                       <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Lloyds Bank Transfer</strong>
+                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs">
+                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Account Name:</span> <strong className="text-stone-900 dark:text-white">Flenjure Ltd</strong></p>
+                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Sort Code:</span> <strong className="text-stone-900 dark:text-white">30-90-89</strong></p>
+                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Account No:</span> <strong className="text-stone-900 dark:text-white">12345678</strong></p>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Please reference the transaction with your full name.</p>
+                       </div>
                      </div>
                    )}
-                   {currency === 'EUR' && (
-                     <div className="bg-stone-50 dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 text-sm">
-                       <strong>Revolut</strong><br/><br/>
-                       Send {formatPrice(cartTotal)} to <strong>@flenjure</strong><br/>
-                       Or scan our QR code.
+
+                   {/* Revolut Details */}
+                   {selectedMethod === 'revolut' && (
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed flex flex-col sm:flex-row gap-4 items-center justify-between">
+                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs flex-1">
+                         <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Revolut Transfer</strong>
+                         <p>Send <strong className="text-stone-900 dark:text-white">{formatPrice(cartTotal)}</strong> directly to our Revolut username:</p>
+                         <p className="text-base font-semibold text-stone-900 dark:text-white mt-2 font-mono">@flenjure</p>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Alternatively, scan the QR code to pay instantly via Revolut app.</p>
+                       </div>
+                       <div className="flex-shrink-0 bg-white p-2 border border-stone-200 rounded-[4px]">
+                         <img
+                           src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://revolut.me/flenjure"
+                           alt="Revolut Pay QR"
+                           className="w-[100px] h-[100px] object-contain"
+                         />
+                       </div>
                      </div>
                    )}
-                   {currency === 'USD' && (
-                     <div className="bg-stone-50 dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 text-sm">
-                       <strong>Zelle / CashApp</strong><br/><br/>
-                       Zelle: sales@flenjure.com<br/>
-                       CashApp: $flenjure
+
+                   {/* Zelle Details */}
+                   {selectedMethod === 'zelle' && (
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
+                       <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Zelle Payment</strong>
+                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs">
+                         <p>Please send payment via Zelle to our official billing email:</p>
+                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">sales@flenjure.com</p>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Please verify you are sending to Flenjure Ltd before finalizing.</p>
+                       </div>
                      </div>
                    )}
+
+                   {/* Cash App Details */}
+                   {selectedMethod === 'cashapp' && (
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed flex flex-col sm:flex-row gap-4 items-center justify-between">
+                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs flex-1">
+                         <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Cash App Payment</strong>
+                         <p>Send <strong className="text-stone-900 dark:text-white">{formatPrice(cartTotal)}</strong> directly to our Cashtag:</p>
+                         <p className="text-base font-semibold text-stone-900 dark:text-white mt-2 font-mono">$flenjure</p>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Scan QR to pay instantly.</p>
+                       </div>
+                       <div className="flex-shrink-0 bg-white p-2 border border-stone-200 rounded-[4px]">
+                         <img
+                           src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://cash.app/$flenjure"
+                           alt="Cash App QR"
+                           className="w-[100px] h-[100px] object-contain"
+                         />
+                       </div>
+                     </div>
+                   )}
+
+                   {/* Crypto Details */}
+                   {selectedMethod === 'crypto' && (
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
+                       <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Cryptocurrency Address</strong>
+                       <div className="space-y-3 text-stone-700 dark:text-stone-300 text-xs">
+                         <div>
+                           <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Bitcoin (BTC):</p>
+                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
+                         </div>
+                         <div>
+                           <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Ethereum / USDT (ERC-20):</p>
+                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</p>
+                         </div>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Only send exact matching assets to the addresses above. Wrong tokens sent will be permanently lost.</p>
+                       </div>
+                     </div>
+                   )}
+
                    <p className="text-xs text-stone-500 mt-2">After sending the funds, please enter your handle or transaction ID below to verify your order.</p>
                    <input
                      type="text"
