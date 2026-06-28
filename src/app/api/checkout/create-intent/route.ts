@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
 
 export async function POST(req: Request) {
   try {
-    const { items, shippingAddress } = await req.json();
+    const { items, shippingAddress, currency = 'usd' } = await req.json();
 
     // In a real production app, you MUST calculate the total on the server
     // by fetching the prices from the database using item IDs, to prevent users
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount > 0 ? amount : 100, // minimum $1.00
-      currency: 'usd',
+      currency: currency.toLowerCase(),
       automatic_payment_methods: {
         enabled: true,
       },

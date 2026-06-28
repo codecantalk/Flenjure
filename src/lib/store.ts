@@ -7,6 +7,7 @@ export interface CartItem {
   size: string;
   image: string;
   quantity: number;
+  isCafe?: boolean;
 }
 
 interface CartStore {
@@ -55,4 +56,52 @@ export const useCartStore = create<CartStore>((set) => ({
       })
     })),
   clearCart: () => set({ items: [] }),
+}));
+
+export interface CurrencyStore {
+  currency: 'USD' | 'EUR' | 'GBP';
+  symbol: string;
+  rate: number;
+  initCurrency: () => Promise<void>;
+  formatPrice: (usdPrice: number | string) => string;
+}
+
+export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
+  currency: 'USD',
+  symbol: '$',
+  rate: 1,
+  initCurrency: async () => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      let currency: 'USD' | 'EUR' | 'GBP' = 'USD';
+      let symbol = '$';
+
+      if (tz === 'Europe/London' || tz === 'Europe/Belfast') {
+        currency = 'GBP';
+        symbol = '£';
+      } else if (tz.startsWith('Europe/')) {
+        currency = 'EUR';
+        symbol = '€';
+      }
+
+      // Fetch live rates
+      const res = await fetch('https://open.er-api.com/v6/latest/USD');
+      const data = await res.json();
+      
+      let rate = 1;
+      if (data && data.rates && data.rates[currency]) {
+        rate = data.rates[currency];
+      }
+
+      set({ currency, symbol, rate });
+    } catch (e) {
+      console.error("Failed to init currency", e);
+    }
+  },
+  formatPrice: (usdPrice: number | string) => {
+    const { symbol, rate } = get();
+    const num = typeof usdPrice === 'string' ? parseFloat(usdPrice.replace(/[^0-9.-]+/g, '')) : usdPrice;
+    if (isNaN(num)) return `${symbol}0.00`;
+    return `${symbol}${(num * rate).toFixed(2)}`;
+  }
 }));

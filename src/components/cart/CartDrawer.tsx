@@ -3,13 +3,14 @@
 import { X, Trash2, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useCurrencyStore } from "@/lib/store";
 import Link from "next/link";
 import { useEffect } from "react";
 import clsx from "clsx";
 
 export default function CartDrawer() {
   const { isOpen, setIsOpen, items, removeItem, updateQuantity } = useCartStore();
+  const formatPrice = useCurrencyStore((state) => state.formatPrice);
 
   // Prevent scroll when cart is open
   useEffect(() => {
@@ -117,7 +118,7 @@ export default function CartDrawer() {
                             </button>
                           </div>
                         </div>
-                        <span className="text-stone-900 dark:text-white font-light text-sm">{item.price}</span>
+                        <span className="text-stone-900 dark:text-white font-light text-sm">{formatPrice(item.price)}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -130,14 +131,14 @@ export default function CartDrawer() {
               <div className="p-8 border-t border-[#e6e6e6] dark:border-stone-800 bg-white dark:bg-stone-950 transition-colors duration-1000">
                 <div className="flex justify-between items-end mb-4 text-xs">
                   <span className="uppercase tracking-[0.1em] text-[10px] font-bold text-stone-500">Subtotal</span>
-                  <span className="text-base font-normal text-stone-900 dark:text-white uppercase">${cartTotal.toFixed(2)}</span>
+                  <span className="text-base font-normal text-stone-900 dark:text-white uppercase">{formatPrice(cartTotal)}</span>
                 </div>
                 
                 {/* Free Shipping Incentive */}
                 <div className="mb-8 flex flex-col gap-3">
                    <div className="flex justify-center">
                      <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-stone-400">
-                       {cartTotal >= 200 ? "Free Shipping Earned" : `$${(200 - cartTotal).toFixed(0)} away from free shipping`}
+                       {cartTotal >= 200 ? "Free Shipping Earned" : `${formatPrice(200 - cartTotal)} away from free shipping`}
                      </span>
                    </div>
                    <div className="w-full h-[3px] bg-stone-100 dark:bg-stone-900 overflow-hidden">

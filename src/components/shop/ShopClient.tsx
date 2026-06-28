@@ -7,7 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import { Plus, X, LayoutGrid, SquareSquare, Sun, Moon } from "lucide-react";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useCurrencyStore } from "@/lib/store";
 import { useTheme } from "next-themes";
 import { supabase } from "@/lib/supabase";
 
@@ -526,6 +526,7 @@ function QuickAddTrigger({ product, addItem }: { product: any; addItem: any }) {
 }
 
 function ProductCard({ product, viewMode, addItem }: { product: any; viewMode: "grid" | "single"; addItem: any }) {
+  const formatPrice = useCurrencyStore((state) => state.formatPrice);
   return (
     <motion.div
       layout
@@ -567,7 +568,7 @@ function ProductCard({ product, viewMode, addItem }: { product: any; viewMode: "
         <Link href={`/shop/${product.id}`} className="text-stone-900 dark:text-stone-100 transition-colors duration-500 ease-in-out hover:text-stone-400 line-clamp-1">
           {product.name}
         </Link>
-        <span className="text-stone-500 dark:text-stone-400 flex-shrink-0">{product.price}</span>
+        <span className="text-stone-500 dark:text-stone-400 flex-shrink-0">{formatPrice(product.price)}</span>
       </div>
     </motion.div>
   );

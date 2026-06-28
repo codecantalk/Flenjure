@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import CurrencyInit from "@/components/CurrencyInit";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -69,6 +70,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-[#fcfcfc] dark:bg-stone-900 text-stone-900 dark:text-stone-50 font-sans font-light tracking-[0.015em] selection:bg-stone-900 selection:text-white dark:selection:bg-white dark:selection:text-stone-900 transition-colors duration-700 ease-in-out"
         suppressHydrationWarning
       >
+        <CurrencyInit />
         {children}
       </body>
     </html>

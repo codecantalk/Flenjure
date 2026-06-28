@@ -5,14 +5,17 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useCurrencyStore } from "@/lib/store";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 
 export default function ProductDetailClient({ productData }: { productData: any }) {
+  const router = useRouter();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
+  const formatPrice = useCurrencyStore((state) => state.formatPrice);
 
   let currentPrice = productData.price;
   if (selectedSize && productData.variants) {
@@ -34,9 +37,10 @@ export default function ProductDetailClient({ productData }: { productData: any 
       id: productData.id,
       name: productData.name,
       price: currentPrice,
-      size: selectedSize || "One Size",
       image: productData.images[0],
+      size: selectedSize || "OS",
       quantity: 1,
+      isCafe: productData.isCafeItem === true
     });
     setTimeout(() => {
       setAdding(false);
@@ -112,7 +116,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
               <div className="max-w-[1800px] mx-auto w-full px-2 sm:px-4">
                  <div className="flex justify-between items-center mb-3">
                     <span className="text-[12px] text-[#323232] dark:text-white truncate pr-4">{productData.name}</span>
-                    <span className="text-[12px] text-[#323232] dark:text-white whitespace-nowrap">{currentPrice}</span>
+                    <span className="text-[12px] text-[#323232] dark:text-white whitespace-nowrap">{formatPrice(currentPrice)}</span>
                  </div>
                  
                  <div className="w-full mb-3">
@@ -146,13 +150,22 @@ export default function ProductDetailClient({ productData }: { productData: any 
                     </div>
                  </div>
 
-                 <button 
-                    onClick={handleAddToCart} 
-                    disabled={adding} 
-                    className="w-full bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50"
-                 >
-                    {adding ? "Adding..." : "Add to Bag"}
-                 </button>
+                 <div className="flex gap-2 w-full">
+                   <button 
+                      onClick={handleAddToCart} 
+                      disabled={adding} 
+                      className="flex-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-900 dark:text-white py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:bg-stone-50 dark:hover:bg-stone-800 transition-all disabled:opacity-50"
+                   >
+                      {adding ? "Adding..." : "Add to Bag"}
+                   </button>
+                   <button 
+                      onClick={() => { handleAddToCart(); setTimeout(() => router.push('/checkout'), 300); }} 
+                      disabled={adding} 
+                      className="flex-1 bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50"
+                   >
+                      {productData.isCafeItem ? "Buy Now" : "Pay via Apple Pay"}
+                   </button>
+                 </div>
               </div>
            </div>
         </div>
@@ -167,7 +180,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
           <div className="col-span-3 flex flex-col order-1">
              <div className="flex flex-col gap-2 mb-12">
               <h1 className="text-xl font-medium text-stone-900 dark:text-white uppercase tracking-tight">{productData.name}</h1>
-              <p className="text-base text-stone-900 dark:text-stone-300 font-light">{currentPrice}</p>
+              <p className="text-base text-stone-900 dark:text-stone-300 font-light">{formatPrice(currentPrice)}</p>
             </div>
 
             {/* Accordions */}
@@ -331,13 +344,22 @@ export default function ProductDetailClient({ productData }: { productData: any 
                 )}
              </div>
 
-             <button 
-                onClick={handleAddToCart}
-                disabled={adding}
-                className="w-full bg-black dark:bg-white text-white dark:text-black py-5 text-[11px] font-bold uppercase tracking-[0.3em] hover:opacity-80 transition-all disabled:opacity-50 shadow-xl"
-             >
-                {adding ? "Adding..." : "Add to Bag"}
-             </button>
+              <div className="flex gap-3 w-full">
+                 <button 
+                    onClick={handleAddToCart} 
+                    disabled={adding} 
+                    className="flex-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-900 dark:text-white py-4 text-[12px] font-medium tracking-[0.1em] uppercase hover:bg-stone-50 dark:hover:bg-stone-800 transition-all disabled:opacity-50 shadow-sm"
+                 >
+                    {adding ? "Adding..." : "Add to Bag"}
+                 </button>
+                 <button 
+                    onClick={() => { handleAddToCart(); setTimeout(() => router.push('/checkout'), 300); }} 
+                    disabled={adding} 
+                    className="flex-1 bg-stone-900 dark:bg-white text-white dark:text-stone-900 py-4 text-[12px] font-medium tracking-[0.1em] uppercase hover:opacity-90 transition-all disabled:opacity-50 shadow-sm"
+                 >
+                    {productData.isCafeItem ? "Buy Now" : "Apple Pay"}
+                 </button>
+              </div>
           </div>
         </div>
 

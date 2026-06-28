@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useCurrencyStore } from "@/lib/store";
 import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCafeItems } from "@/app/admin/actions";
@@ -168,6 +168,7 @@ export default function CafeClient() {
 // Minimalist, high-end gallery item
 function MenuItem({ item, aspect }: { item: any, aspect: string }) {
   const addItem = useCartStore((state) => state.addItem);
+  const formatPrice = useCurrencyStore((state) => state.formatPrice);
   const [isOpen, setIsOpen] = useState(false);
   const hasVariants = item.variants && item.variants.length > 0;
   
@@ -180,7 +181,8 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
       price: customPrice || item.price,
       image: item.image_urls?.[0] || item.image || "/images/cafe_placeholder.png",
       size,
-      quantity: 1
+      quantity: 1,
+      isCafe: true
     });
     setIsOpen(false);
   };
@@ -201,7 +203,7 @@ function MenuItem({ item, aspect }: { item: any, aspect: string }) {
               {item.name}
             </h3>
             <span className="text-[11px] md:text-[12px] text-stone-500 font-light flex-shrink-0 tracking-widest">
-              ${Number(String(item.price).replace(/[^0-9.]/g, '') || 0).toFixed(2)} USD
+              {formatPrice(item.price)}
             </span>
          </div>
        </Link>

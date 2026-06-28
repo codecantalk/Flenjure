@@ -24,13 +24,15 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder"
 );
 
-function CheckoutForm({ clientSecret }: { clientSecret: string }) {
+function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCafeMode?: boolean }) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
   const { items, clearCart } = useCartStore();
+  const formatPrice = useCurrencyStore((state) => state.formatPrice);
+  const { currency } = useCurrencyStore();
   const cartTotal = items.reduce((total, item) => {
-    const priceNum = parseFloat(item.price.replace("$", ""));
+    const priceNum = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
     return total + priceNum * item.quantity;
   }, 0);
 
@@ -42,6 +44,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
+  const [transactionId, setTransactionId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOrderSummary, setShowOrderSummary] = useState(false);
 
@@ -56,7 +59,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
           id: i.id,
           title: i.name,
           quantity: i.quantity,
-          price: parseFloat(i.price.replace("$", "")),
+          price: parseFloat(i.price.replace(/[^0-9.-]+/g, "")),
         })),
         is_recovered: false,
       }).catch(console.error);
@@ -66,7 +69,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    if (!isCafeMode && (!stripe || !elements)) return;
 
     if (
       !email ||
@@ -91,6 +94,28 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
       });
     } catch (e) {
       console.error("CRM tracking failed, proceeding to payment:", e);
+    }
+
+    if (isCafeMode) {
+      if (!transactionId) {
+        return alert("Please enter your Transaction ID or Handle used for payment to verify your order.");
+      }
+      
+      setIsProcessing(true);
+      // Manual Cafe Flow
+      try {
+        await fetch("/api/checkout/manual", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, firstName, lastName, address, city, state, zip, phone, transactionId, items }),
+        });
+        clearCart();
+        router.push("/checkout/success");
+      } catch (e: any) {
+        alert(e.message);
+        setIsProcessing(false);
+      }
+      return;
     }
 
     const { error } = await stripe.confirmPayment({
@@ -141,7 +166,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
             />
           </div>
           <span className="font-semibold text-lg">
-            ${cartTotal.toFixed(2)}
+            {formatPrice(cartTotal)}
           </span>
         </button>
 
@@ -361,17 +386,60 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                 All transactions are secure and encrypted.
               </p>
 
-              <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm">
-                <PaymentElement />
-              </div>
+              {isCafeMode ? (
+                <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm flex flex-col gap-4">
+                   <p className="text-sm font-medium text-stone-900 dark:text-white mb-2">Cafe Exclusive Payments</p>
+                   {currency === 'GBP' && (
+                     <div className="bg-stone-50 dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 text-sm">
+                       <strong>LLOYDS Bank Transfer</strong><br/><br/>
+                       Account Name: Flenjure Ltd<br/>
+                       Sort Code: 30-90-89<br/>
+                       Account No: 12345678<br/><br/>
+                       Please use your name as the reference.
+                     </div>
+                   )}
+                   {currency === 'EUR' && (
+                     <div className="bg-stone-50 dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 text-sm">
+                       <strong>Revolut</strong><br/><br/>
+                       Send {formatPrice(cartTotal)} to <strong>@flenjure</strong><br/>
+                       Or scan our QR code.
+                     </div>
+                   )}
+                   {currency === 'USD' && (
+                     <div className="bg-stone-50 dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 text-sm">
+                       <strong>Zelle / CashApp</strong><br/><br/>
+                       Zelle: sales@flenjure.com<br/>
+                       CashApp: $flenjure
+                     </div>
+                   )}
+                   <p className="text-xs text-stone-500 mt-2">After sending the funds, please enter your handle or transaction ID below to verify your order.</p>
+                   <input
+                     type="text"
+                     value={transactionId}
+                     onChange={(e) => setTransactionId(e.target.value)}
+                     placeholder="e.g. $MyCashAppTag or TxID"
+                     className="w-full bg-stone-50 dark:bg-[#1a1a1a] p-[14px] text-stone-900 dark:text-white text-[14px] placeholder:text-[#737373] outline-none rounded-[4px] shadow-sm border border-stone-200 dark:border-stone-800 focus:ring-1 focus:border-stone-900 dark:focus:ring-white focus:ring-stone-900"
+                   />
+                </div>
+              ) : (
+                <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm flex flex-col gap-4">
+                  <ExpressCheckoutElement onConfirm={() => setIsProcessing(true)} />
+                  <div className="flex items-center gap-4 my-2">
+                    <div className="h-px flex-1 bg-stone-200 dark:bg-stone-800"></div>
+                    <span className="text-xs text-stone-500 uppercase">Or pay with card</span>
+                    <div className="h-px flex-1 bg-stone-200 dark:bg-stone-800"></div>
+                  </div>
+                  <PaymentElement />
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={isProcessing || !stripe || !elements}
+              disabled={isProcessing || (!isCafeMode && (!stripe || !elements))}
               className="w-full h-[60px] flex items-center justify-center bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-[15px] font-bold rounded-[4px] hover:opacity-90 transition-all shadow-md mt-4 mb-24 disabled:opacity-70"
             >
-              {isProcessing ? <Loader2 className="animate-spin" /> : "Pay now"}
+              {isProcessing ? <Loader2 className="animate-spin" /> : (isCafeMode ? "I have paid" : "Pay now")}
             </button>
           </form>
         </div>
@@ -412,10 +480,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                   </span>
                 </div>
                 <span className="text-white text-[14px] font-medium pl-2">
-                  $
-                  {(
-                    parseFloat(item.price.replace("$", "")) * item.quantity
-                  ).toFixed(2)}
+                  {formatPrice(parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity)}
                 </span>
               </div>
             ))}
@@ -443,7 +508,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                 Subtotal · {items.length} {items.length === 1 ? "item" : "items"}
               </span>
               <span className="text-white font-medium">
-                ${cartTotal.toFixed(2)}
+                {formatPrice(cartTotal)}
               </span>
             </div>
             <div className="flex justify-between items-center text-[14px]">
@@ -463,7 +528,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                 USD
               </span>
               <span className="text-[24px] text-white font-semibold tabular-nums tracking-tight">
-                ${cartTotal.toFixed(2)}
+                {formatPrice(cartTotal)}
               </span>
             </div>
           </div>
@@ -475,21 +540,24 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
 
 export default function CheckoutClient() {
   const { items } = useCartStore();
+  const { currency } = useCurrencyStore();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
+  const hasCafeItems = items.some(i => i.isCafe);
+
   useEffect(() => {
-    // Only fetch client secret if we have items
-    if (items.length === 0) return;
+    // Only fetch client secret if we have items and they are not manual cafe items
+    if (items.length === 0 || hasCafeItems) return;
 
     fetch("/api/checkout/create-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items }),
+      body: JSON.stringify({ items, currency }),
     })
       .then((res) => res.json())
       .then((data) => setClientSecret(data.clientSecret))
       .catch(console.error);
-  }, [items]);
+  }, [items, hasCafeItems, currency]);
 
   if (items.length === 0) {
     return (
@@ -502,11 +570,19 @@ export default function CheckoutClient() {
     );
   }
 
-  if (!clientSecret) {
+  if (!clientSecret && !hasCafeItems) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50 dark:bg-stone-950">
         <Loader2 className="animate-spin text-stone-400" size={32} />
       </div>
+    );
+  }
+
+  if (hasCafeItems) {
+    return (
+      <Elements stripe={stripePromise} options={{ appearance: { theme: 'stripe' } }}>
+        <CheckoutForm clientSecret="" isCafeMode={true} />
+      </Elements>
     );
   }
 
