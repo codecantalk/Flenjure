@@ -45,6 +45,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("US");
   const [transactionId, setTransactionId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOrderSummary, setShowOrderSummary] = useState(false);
@@ -332,11 +333,35 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                 Delivery
               </h2>
               <div className="relative">
-                <select className="w-full p-[14px] pt-5 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white">
-                  <option>United States</option>
-                  <option>United Kingdom</option>
-                  <option>Canada</option>
-                  <option>Australia</option>
+                <select 
+                  value={country}
+                  onChange={(e) => {
+                     setCountry(e.target.value);
+                     setState("");
+                  }}
+                  className="w-full p-[14px] pt-5 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white"
+                >
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="FR">France</option>
+                  <option value="DE">Germany</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                  <option value="IT">Italy</option>
+                  <option value="ES">Spain</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="SE">Sweden</option>
+                  <option value="NO">Norway</option>
+                  <option value="DK">Denmark</option>
+                  <option value="FI">Finland</option>
+                  <option value="IE">Ireland</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="JP">Japan</option>
+                  <option value="KR">South Korea</option>
+                  <option value="SG">Singapore</option>
+                  <option value="AE">United Arab Emirates</option>
+                  <option value="SA">Saudi Arabia</option>
                 </select>
                 <div className="absolute top-1.5 left-[15px] text-[11px] text-[#737373]">
                   Country/Region
@@ -381,25 +406,130 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white shadow-sm placeholder:text-[#ababab] text-stone-900 dark:text-white bg-white dark:bg-[#111]"
                 />
-                <div className="relative">
-                  <select
+                {country === 'US' ? (
+                  <div className="relative">
+                    <select
+                      required
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white"
+                    >
+                      <option value="">State</option>
+                      <option value="AL">Alabama</option>
+                      <option value="AK">Alaska</option>
+                      <option value="AZ">Arizona</option>
+                      <option value="AR">Arkansas</option>
+                      <option value="CA">California</option>
+                      <option value="CO">Colorado</option>
+                      <option value="CT">Connecticut</option>
+                      <option value="DE">Delaware</option>
+                      <option value="DC">District Of Columbia</option>
+                      <option value="FL">Florida</option>
+                      <option value="GA">Georgia</option>
+                      <option value="HI">Hawaii</option>
+                      <option value="ID">Idaho</option>
+                      <option value="IL">Illinois</option>
+                      <option value="IN">Indiana</option>
+                      <option value="IA">Iowa</option>
+                      <option value="KS">Kansas</option>
+                      <option value="KY">Kentucky</option>
+                      <option value="LA">Louisiana</option>
+                      <option value="ME">Maine</option>
+                      <option value="MD">Maryland</option>
+                      <option value="MA">Massachusetts</option>
+                      <option value="MI">Michigan</option>
+                      <option value="MN">Minnesota</option>
+                      <option value="MS">Mississippi</option>
+                      <option value="MO">Missouri</option>
+                      <option value="MT">Montana</option>
+                      <option value="NE">Nebraska</option>
+                      <option value="NV">Nevada</option>
+                      <option value="NH">New Hampshire</option>
+                      <option value="NJ">New Jersey</option>
+                      <option value="NM">New Mexico</option>
+                      <option value="NY">New York</option>
+                      <option value="NC">North Carolina</option>
+                      <option value="ND">North Dakota</option>
+                      <option value="OH">Ohio</option>
+                      <option value="OK">Oklahoma</option>
+                      <option value="OR">Oregon</option>
+                      <option value="PA">Pennsylvania</option>
+                      <option value="RI">Rhode Island</option>
+                      <option value="SC">South Carolina</option>
+                      <option value="SD">South Dakota</option>
+                      <option value="TN">Tennessee</option>
+                      <option value="TX">Texas</option>
+                      <option value="UT">Utah</option>
+                      <option value="VT">Vermont</option>
+                      <option value="VA">Virginia</option>
+                      <option value="WA">Washington</option>
+                      <option value="WV">West Virginia</option>
+                      <option value="WI">Wisconsin</option>
+                      <option value="WY">Wyoming</option>
+                    </select>
+                    <ChevronDown
+                      size={14}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] pointer-events-none"
+                    />
+                  </div>
+                ) : country === 'CA' ? (
+                  <div className="relative">
+                    <select
+                      required
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white"
+                    >
+                      <option value="">Province</option>
+                      <option value="AB">Alberta</option>
+                      <option value="BC">British Columbia</option>
+                      <option value="MB">Manitoba</option>
+                      <option value="NB">New Brunswick</option>
+                      <option value="NL">Newfoundland and Labrador</option>
+                      <option value="NS">Nova Scotia</option>
+                      <option value="ON">Ontario</option>
+                      <option value="PE">Prince Edward Island</option>
+                      <option value="QC">Quebec</option>
+                      <option value="SK">Saskatchewan</option>
+                    </select>
+                    <ChevronDown
+                      size={14}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] pointer-events-none"
+                    />
+                  </div>
+                ) : country === 'AU' ? (
+                  <div className="relative">
+                    <select
+                      required
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white"
+                    >
+                      <option value="">State / Territory</option>
+                      <option value="ACT">Australian Capital Territory</option>
+                      <option value="NSW">New South Wales</option>
+                      <option value="NT">Northern Territory</option>
+                      <option value="QLD">Queensland</option>
+                      <option value="SA">South Australia</option>
+                      <option value="TAS">Tasmania</option>
+                      <option value="VIC">Victoria</option>
+                      <option value="WA">Western Australia</option>
+                    </select>
+                    <ChevronDown
+                      size={14}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] pointer-events-none"
+                    />
+                  </div>
+                ) : (
+                  <input
+                    type="text"
                     required
+                    placeholder="State / Province / Region"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white"
-                  >
-                    <option value="">State</option>
-                    <option value="NY">NY</option>
-                    <option value="CA">CA</option>
-                    <option value="TX">TX</option>
-                    <option value="FL">FL</option>
-                    <option value="GA">GA</option>
-                  </select>
-                  <ChevronDown
-                    size={14}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373]"
+                    className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white shadow-sm placeholder:text-[#ababab] text-stone-900 dark:text-white bg-white dark:bg-[#111]"
                   />
-                </div>
+                )}
                 <input
                   type="text"
                   required
