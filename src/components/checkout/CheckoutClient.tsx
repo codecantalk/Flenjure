@@ -671,18 +671,33 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                    {selectedMethod === 'crypto' && (
                      <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
                        <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Cryptocurrency Address</strong>
-                       <div className="space-y-3 text-stone-700 dark:text-stone-300 text-xs">
-                         <div>
-                           <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Bitcoin (BTC):</p>
-                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">bc1ptmyun9ehvy3pnnlpekgrzqr3847fk2sv7jwqyqpjteulrkv3msaszej6fs</p>
+                       <div className="space-y-4 text-stone-700 dark:text-stone-300 text-xs">
+                         <div className="flex items-center gap-3">
+                           <div className="flex-shrink-0 bg-white p-1 border border-stone-200 rounded-[4px]">
+                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=bitcoin:bc1ptmyun9ehvy3pnnlpekgrzqr3847fk2sv7jwqyqpjteulrkv3msaszej6fs" alt="BTC QR" className="w-[50px] h-[50px] object-contain" />
+                           </div>
+                           <div className="flex-1 overflow-hidden">
+                             <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Bitcoin (BTC):</p>
+                             <p className="font-mono bg-white dark:bg-stone-950 p-1.5 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px] mt-1">bc1ptmyun9ehvy3pnnlpekgrzqr3847fk2sv7jwqyqpjteulrkv3msaszej6fs</p>
+                           </div>
                          </div>
-                         <div>
-                           <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Ethereum / USDT (ERC-20):</p>
-                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">0x8504d8c39DED293A27f15791E5Bbd6bea0BB7760</p>
+                         <div className="flex items-center gap-3">
+                           <div className="flex-shrink-0 bg-white p-1 border border-stone-200 rounded-[4px]">
+                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=ethereum:0x8504d8c39DED293A27f15791E5Bbd6bea0BB7760" alt="ETH QR" className="w-[50px] h-[50px] object-contain" />
+                           </div>
+                           <div className="flex-1 overflow-hidden">
+                             <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Ethereum / USDT (ERC-20):</p>
+                             <p className="font-mono bg-white dark:bg-stone-950 p-1.5 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px] mt-1">0x8504d8c39DED293A27f15791E5Bbd6bea0BB7760</p>
+                           </div>
                          </div>
-                         <div>
-                           <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Solana (SOL):</p>
-                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">AWLUMmFp8kmuJyRjH1iK3aAnNZjnHxhaNMsUy3Wf5cGE</p>
+                         <div className="flex items-center gap-3">
+                           <div className="flex-shrink-0 bg-white p-1 border border-stone-200 rounded-[4px]">
+                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=solana:AWLUMmFp8kmuJyRjH1iK3aAnNZjnHxhaNMsUy3Wf5cGE" alt="SOL QR" className="w-[50px] h-[50px] object-contain" />
+                           </div>
+                           <div className="flex-1 overflow-hidden">
+                             <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Solana (SOL):</p>
+                             <p className="font-mono bg-white dark:bg-stone-950 p-1.5 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px] mt-1">AWLUMmFp8kmuJyRjH1iK3aAnNZjnHxhaNMsUy3Wf5cGE</p>
+                           </div>
                          </div>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Only send exact matching assets to the addresses above. Wrong tokens sent will be permanently lost.</p>
                        </div>
