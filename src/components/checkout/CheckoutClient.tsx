@@ -45,6 +45,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
+  const [snapchat, setSnapchat] = useState("");
   const [country, setCountry] = useState("US");
   const [transactionId, setTransactionId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -120,9 +121,11 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
       !address ||
       !city ||
       !state ||
-      !zip
+      !zip ||
+      !phone ||
+      !snapchat
     ) {
-      return alert("Please fill in all required shipping fields");
+      return alert("Please fill in all required shipping and contact fields");
     }
 
     setIsProcessing(true);
@@ -149,7 +152,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
         await fetch("/api/checkout/manual", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, firstName, lastName, address, city, state, zip, phone, transactionId, items }),
+          body: JSON.stringify({ email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items }),
         });
         clearCart();
         router.push("/checkout/success");
@@ -539,16 +542,32 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                   className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white shadow-sm placeholder:text-[#ababab] text-stone-900 dark:text-white bg-white dark:bg-[#111]"
                 />
               </div>
-              <div className="relative mt-1">
-                <input
-                  type="tel"
-                  placeholder="Phone (optional)"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white shadow-sm placeholder:text-[#ababab] text-stone-900 dark:text-white bg-white dark:bg-[#111]"
-                />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] hover:text-stone-900 dark:hover:text-white cursor-help">
-                  <Info size={16} />
+              <div className="grid grid-cols-2 gap-3 mt-1">
+                <div className="relative">
+                  <input
+                    type="tel"
+                    required
+                    placeholder="WhatsApp Number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white shadow-sm placeholder:text-[#ababab] text-stone-900 dark:text-white bg-white dark:bg-[#111]"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] hover:text-stone-900 dark:hover:text-white cursor-help">
+                    <Info size={16} />
+                  </div>
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Snapchat Handle"
+                    value={snapchat}
+                    onChange={(e) => setSnapchat(e.target.value)}
+                    className="w-full p-[14px] border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] text-[14px] font-normal outline-none focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white shadow-sm placeholder:text-[#ababab] text-stone-900 dark:text-white bg-white dark:bg-[#111]"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#737373] hover:text-stone-900 dark:hover:text-white cursor-help">
+                    <Info size={16} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -635,12 +654,12 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                        <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs flex-1">
                          <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Cash App Payment</strong>
                          <p>Send <strong className="text-stone-900 dark:text-white">{formatPrice(cartTotal)}</strong> directly to our Cashtag:</p>
-                         <p className="text-base font-semibold text-stone-900 dark:text-white mt-2 font-mono">$flenjure</p>
+                         <p className="text-base font-semibold text-stone-900 dark:text-white mt-2 font-mono">$Flenjure</p>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Scan QR to pay instantly.</p>
                        </div>
                        <div className="flex-shrink-0 bg-white p-2 border border-stone-200 rounded-[4px]">
                          <img
-                           src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://cash.app/$flenjure"
+                           src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://cash.app/$Flenjure"
                            alt="Cash App QR"
                            className="w-[100px] h-[100px] object-contain"
                          />
@@ -655,11 +674,15 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                        <div className="space-y-3 text-stone-700 dark:text-stone-300 text-xs">
                          <div>
                            <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Bitcoin (BTC):</p>
-                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
+                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">bc1ptmyun9ehvy3pnnlpekgrzqr3847fk2sv7jwqyqpjteulrkv3msaszej6fs</p>
                          </div>
                          <div>
                            <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Ethereum / USDT (ERC-20):</p>
-                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</p>
+                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">0x8504d8c39DED293A27f15791E5Bbd6bea0BB7760</p>
+                         </div>
+                         <div>
+                           <p className="text-[10px] text-stone-400 font-mono uppercase font-bold">Solana (SOL):</p>
+                           <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">AWLUMmFp8kmuJyRjH1iK3aAnNZjnHxhaNMsUy3Wf5cGE</p>
                          </div>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Only send exact matching assets to the addresses above. Wrong tokens sent will be permanently lost.</p>
                        </div>
