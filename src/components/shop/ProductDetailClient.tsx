@@ -30,8 +30,8 @@ export default function ProductDetailClient({ productData }: { productData: any 
       quickPayLabel = "Revolut";
       quickPayMethod = "revolut";
     } else {
-      quickPayLabel = "Cash App / Zelle";
-      quickPayMethod = "cashapp";
+      quickPayLabel = "Bank transfer/ Cash";
+      quickPayMethod = "zelle";
     }
   }
 

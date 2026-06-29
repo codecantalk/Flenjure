@@ -19,11 +19,6 @@ export default function Footer() {
       <div className="bg-stone-950 dark:bg-black py-4 px-6 border-b border-stone-800 transition-colors duration-1000">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-16 text-center">
           <div className="flex items-center gap-3 text-white">
-            <Globe size={16} strokeWidth={1.5} className="text-stone-400" />
-            <span className="text-[10px] uppercase tracking-[0.25em] font-medium">Free Delivery Worldwide</span>
-          </div>
-          <div className="hidden sm:block w-[1px] h-4 bg-stone-700" />
-          <div className="flex items-center gap-3 text-white">
             <Lock size={16} strokeWidth={1.5} className="text-stone-400" />
             <span className="text-[10px] uppercase tracking-[0.25em] font-medium">100% Secure Payments</span>
           </div>
@@ -50,8 +45,8 @@ export default function Footer() {
             />
           </Link>
           <p className="text-sm font-light text-stone-500 max-w-xs mt-2">
-            Quality. Experience. Fun. <br />
-            Enjoy life! On ne vit qu'une fois.
+            On ne vit qu’une fois. <br />
+            You live just once. Flenjoy!
           </p>
         </div>
 
@@ -59,7 +54,6 @@ export default function Footer() {
         <div className="md:col-span-2 flex flex-col gap-4">
           <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500 mb-2">Shop</h4>
           <Link href="/shop" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">All Products</Link>
-          <Link href="/custom-packaging" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Custom Packaging</Link>
         </div>
 
         <div className="md:col-span-2 flex flex-col gap-4">
@@ -70,7 +64,6 @@ export default function Footer() {
 
         <div className="md:col-span-2 flex flex-col gap-4">
           <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500 mb-2">Support</h4>
-          <Link href="/shipping" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Shipping & Returns</Link>
           <Link href="/faq" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">FAQ</Link>
           <Link href="/privacy" className="text-sm font-light text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>
         </div>

@@ -156,55 +156,55 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-              className="relative w-full max-w-md bg-white p-10 md:p-12 shadow-2xl flex flex-col gap-8"
+              className="relative w-full max-w-md bg-white dark:bg-stone-900 p-10 md:p-12 shadow-2xl flex flex-col gap-8 text-stone-900 dark:text-white transition-colors duration-500"
             >
               <button
                 onClick={() => setIsMemberModalOpen(false)}
-                className="absolute top-6 right-6 text-stone-400 hover:text-stone-900 transition-colors"
+                className="absolute top-6 right-6 text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors"
                 aria-label="Close"
               >
                 <X size={20} strokeWidth={1} />
               </button>
 
               <div className="flex flex-col gap-2 text-center">
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400">Join the Club</span>
-                <h3 className="font-serif text-3xl font-light text-stone-900">Private Membership</h3>
-                <p className="text-stone-500 text-sm mt-2 font-light">Get exclusive access to drops, free gifts, and private events.</p>
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-stone-400 dark:text-stone-500">Join the Club</span>
+                <h3 className="font-serif text-3xl font-light text-stone-900 dark:text-white">Private Membership</h3>
+                <p className="text-stone-500 dark:text-stone-400 text-sm mt-2 font-light">Get exclusive access to drops, free gifts, and private events.</p>
               </div>
 
               <form className="flex flex-col gap-6" onSubmit={handleSubscribe}>
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">Email Address *</label>
+                  <label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Email Address *</label>
                   <input
                     type="email"
                     id="email"
                     required
                     value={subEmail}
                     onChange={(e) => setSubEmail(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-4 py-3 outline-none focus:border-stone-900 dark:focus:border-white transition-colors font-light text-sm text-stone-900 dark:text-white"
                     placeholder="Enter your email"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="snapchat" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">Snapchat (Optional)</label>
+                  <label htmlFor="snapchat" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">Snapchat (Optional)</label>
                   <input
                     type="text"
                     id="snapchat"
                     value={subSnapchat}
                     onChange={(e) => setSubSnapchat(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-4 py-3 outline-none focus:border-stone-900 dark:focus:border-white transition-colors font-light text-sm text-stone-900 dark:text-white"
                     placeholder="@username"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="whatsapp" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400">WhatsApp Number *</label>
+                  <label htmlFor="whatsapp" className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 dark:text-stone-500">WhatsApp Number *</label>
                   <input
                     type="tel"
                     id="whatsapp"
                     required
                     value={subPhone}
                     onChange={(e) => setSubPhone(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 px-4 py-3 outline-none focus:border-stone-900 transition-colors font-light text-sm"
+                    className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-4 py-3 outline-none focus:border-stone-900 dark:focus:border-white transition-colors font-light text-sm text-stone-900 dark:text-white"
                     placeholder="+1 (555) 000-0000"
                   />
                 </div>
@@ -212,10 +212,10 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={subStatus === "loading"}
-                  className="mt-4 group relative w-full flex items-center justify-center overflow-hidden border border-stone-900 bg-stone-900 px-8 py-4 text-white transition-all duration-700 disabled:opacity-50"
+                  className="mt-4 group relative w-full flex items-center justify-center overflow-hidden border border-stone-900 dark:border-white bg-stone-900 dark:bg-white px-8 py-4 text-white dark:text-stone-900 transition-all duration-700 disabled:opacity-50"
                 >
-                  <div className="absolute inset-0 translate-y-[101%] bg-white transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
-                  <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900 flex items-center gap-2">
+                  <div className="absolute inset-0 translate-y-[101%] bg-white dark:bg-stone-900 transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:translate-y-0" />
+                  <span className="relative z-10 text-[10px] uppercase tracking-[0.4em] font-bold transition-colors duration-700 group-hover:text-stone-900 dark:group-hover:text-white flex items-center gap-2">
                     {subStatus === "loading" ? "Processing..." : subStatus === "success" ? <><CheckCircle2 size={14} className="text-green-500" /> Welcome to the Family</> : "Submit Request"}
                   </span>
                 </button>

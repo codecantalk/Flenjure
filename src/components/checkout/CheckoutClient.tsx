@@ -52,7 +52,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const getDefaultMethod = () => {
     if (currency === 'GBP') return 'lloyds';
     if (currency === 'EUR') return 'revolut';
-    return 'cashapp';
+    return 'zelle';
   };
 
   const [selectedMethod, setSelectedMethod] = useState<string>('revolut');
@@ -69,19 +69,22 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const getAvailableMethods = () => {
     if (currency === 'GBP') {
       return [
-        { id: 'lloyds', label: 'Lloyds Bank' },
+        { id: 'lloyds', label: 'Bank Transfer' },
+        { id: 'cash', label: 'Cash' },
         { id: 'crypto', label: 'Crypto' }
       ];
     }
     if (currency === 'EUR') {
       return [
         { id: 'revolut', label: 'Revolut' },
+        { id: 'cash', label: 'Cash' },
         { id: 'crypto', label: 'Crypto' }
       ];
     }
     return [
       { id: 'zelle', label: 'Zelle' },
       { id: 'cashapp', label: 'Cash App' },
+      { id: 'cash', label: 'Cash' },
       { id: 'crypto', label: 'Crypto' }
     ];
   };
@@ -529,6 +532,19 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                            <p className="font-mono bg-white dark:bg-stone-950 p-2 border rounded border-stone-200 dark:border-stone-900 select-all overflow-x-auto text-[11px]">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</p>
                          </div>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Only send exact matching assets to the addresses above. Wrong tokens sent will be permanently lost.</p>
+                       </div>
+                     </div>
+                   )}
+
+                   {/* Cash Details */}
+                   {selectedMethod === 'cash' && (
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
+                       <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Cash Handover / Cash on Delivery</strong>
+                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs">
+                         <p>Pay with cash upon local pickup/delivery.</p>
+                         <p className="mt-3">Please contact our support via WhatsApp or email to coordinate handover logistics:</p>
+                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">sales@flenjure.com</p>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Your order will remain pending verification until physical cash handover is completed.</p>
                        </div>
                      </div>
                    )}
