@@ -21,7 +21,7 @@ export default function CafeClient() {
 
     async function fetchItems() {
       const data = await getCafeItems();
-      setItems(data.filter((item: any) => item.in_stock && item.status === 'published'));
+      setItems(data.filter((item: any) => item.in_stock));
     }
     fetchItems();
   }, []);
