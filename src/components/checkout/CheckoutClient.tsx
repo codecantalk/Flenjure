@@ -149,13 +149,18 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
       setIsProcessing(true);
       // Manual Cafe Flow
       try {
-        await fetch("/api/checkout/manual", {
+        const response = await fetch("/api/checkout/manual", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items }),
         });
+        const resData = await response.json();
         clearCart();
-        router.push("/checkout/success");
+        if (resData.orderId) {
+          router.push(`/checkout/success?orderId=${resData.orderId}`);
+        } else {
+          router.push("/checkout/success");
+        }
       } catch (e: any) {
         alert(e.message);
         setIsProcessing(false);
