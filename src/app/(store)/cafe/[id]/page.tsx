@@ -12,10 +12,10 @@ export default async function CafeProductDetail({ params }: Props) {
     const decodedId = decodeURIComponent(id);
     const cafeItemData = await getCafeItemById(decodedId);
     
-    if (!cafeItemData || !cafeItemData.in_stock) {
+    if (!cafeItemData || !cafeItemData.in_stock || cafeItemData.status !== 'published') {
       return (
         <div className="pt-32 px-12 pb-32">
-          <h1>Debug: Cafe item returned null</h1>
+          <h1>Debug: Cafe item returned null or is not published</h1>
           <pre>Requested ID: {id}</pre>
         </div>
       );
@@ -35,7 +35,7 @@ export default async function CafeProductDetail({ params }: Props) {
 
     const allCafeItems = await getCafeItems();
     const relatedProducts = allCafeItems
-      .filter((p: any) => p.id !== cafeItemData.id && p.in_stock)
+      .filter((p: any) => p.id !== cafeItemData.id && p.in_stock && p.status === 'published')
       .sort(() => 0.5 - Math.random()) // naive shuffle
       .slice(0, 2)
       .map((p: any) => {
