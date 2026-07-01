@@ -84,18 +84,19 @@ export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
         symbol = '€';
       }
 
+      // Immediately set the currency and symbol so the UI updates
+      set({ currency, symbol });
+
       // Fetch live rates
       const res = await fetch('https://open.er-api.com/v6/latest/USD');
-      const data = await res.json();
-      
-      let rate = 1;
-      if (data && data.rates && data.rates[currency]) {
-        rate = data.rates[currency];
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.rates && data.rates[currency]) {
+          set({ rate: data.rates[currency] });
+        }
       }
-
-      set({ currency, symbol, rate });
     } catch (e) {
-      console.error("Failed to init currency", e);
+      console.error("Failed to fetch live currency rate", e);
     }
   },
   formatPrice: (usdPrice: number | string) => {
