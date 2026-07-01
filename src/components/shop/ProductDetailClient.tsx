@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useCartStore, useCurrencyStore } from "@/lib/store";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import ImmediateApplePay from "./ImmediateApplePay";
 
 export default function ProductDetailClient({ productData }: { productData: any }) {
   const router = useRouter();
@@ -168,22 +169,31 @@ export default function ProductDetailClient({ productData }: { productData: any 
                     </div>
                  </div>
 
-                 <div className="flex gap-2 w-full">
-                   <button 
+                  <div className="flex gap-2">
+                    <button 
                       onClick={handleAddToCart} 
                       disabled={adding} 
                       className="flex-1 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-900 dark:text-white py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:bg-stone-50 dark:hover:bg-stone-800 transition-all disabled:opacity-50"
-                   >
+                    >
                       {adding ? "Adding..." : "Add to Bag"}
-                   </button>
-                   <button 
-                      onClick={() => { handleAddToCart(); setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); }} 
-                      disabled={adding} 
-                      className="flex-1 bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50"
-                   >
-                      {quickPayLabel}
-                   </button>
-                 </div>
+                    </button>
+                    {quickPayMethod === 'applepay' ? (
+                        <ImmediateApplePay 
+                          productId={productData.id} 
+                          price={currentPrice} 
+                          selectedSize={selectedSize} 
+                          requireSize={productData.sizes && productData.sizes.length > 0} 
+                        />
+                    ) : (
+                      <button 
+                        onClick={() => { handleAddToCart(); setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); }} 
+                        disabled={adding} 
+                        className="flex-1 bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50 h-[43px]"
+                      >
+                        {quickPayLabel}
+                      </button>
+                    )}
+                  </div>
               </div>
            </div>
         </div>
