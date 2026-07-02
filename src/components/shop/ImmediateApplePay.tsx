@@ -59,6 +59,20 @@ function ApplePayButton({ productId, selectedSize }: { productId: string, select
     <div className="w-full">
       <ExpressCheckoutElement 
         onConfirm={handleConfirm}
+        options={{
+          shippingAddressRequired: true,
+          shippingRates: [
+            {
+              id: 'free-shipping',
+              displayName: 'Free Worldwide Shipping',
+              deliveryEstimate: {
+                maximum: { unit: 'business_day', value: 7 },
+                minimum: { unit: 'business_day', value: 3 },
+              },
+              amount: 0
+            }
+          ]
+        }}
       />
       {errorMessage && (
         <div className="text-red-500 text-xs mt-2">{errorMessage}</div>

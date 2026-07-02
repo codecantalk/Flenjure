@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     
     // Calculate total amount in cents
     const amount = items.reduce((total: number, item: any) => {
-      const priceNum = parseFloat(item.price.replace("$", ""));
+      const priceNum = typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : (Number(item.price) || 0);
       return total + Math.round(priceNum * item.quantity * 100);
     }, 0);
 

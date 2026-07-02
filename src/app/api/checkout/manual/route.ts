@@ -36,6 +36,25 @@ export async function POST(req: Request) {
 
     const orderId = "FL-M" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
+    // 0. Deduct Inventory to prevent overselling while pending
+    for (const item of hydratedItems) {
+      if (!item.id) continue;
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
+      const { data: product } = await supabaseAdmin
+        .from('products')
+        .select('inventory_count')
+        .eq(isUUID ? 'id' : 'slug', item.id)
+        .single();
+        
+      if (product && product.inventory_count !== null) {
+        const newCount = Math.max(0, product.inventory_count - item.quantity);
+        await supabaseAdmin
+          .from('products')
+          .update({ inventory_count: newCount })
+          .eq(isUUID ? 'id' : 'slug', item.id);
+      }
+    }
+
     // 1. Create Order in Supabase
     const { data: newOrder, error: orderError } = await supabaseAdmin
       .from('orders')
