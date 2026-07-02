@@ -611,9 +611,9 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                      <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
                        <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Lloyds Bank Transfer</strong>
                        <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs">
-                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Account Name:</span> <strong className="text-stone-900 dark:text-white">Flenjure Ltd</strong></p>
-                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Sort Code:</span> <strong className="text-stone-900 dark:text-white">30-90-89</strong></p>
-                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Account No:</span> <strong className="text-stone-900 dark:text-white">12345678</strong></p>
+                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Account Name:</span> <strong className="text-stone-900 dark:text-white">Abiodun Adesanmi</strong></p>
+                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Sort Code:</span> <strong className="text-stone-900 dark:text-white">30-96-24</strong></p>
+                         <p><span className="text-stone-400 uppercase w-28 inline-block font-mono">Account No:</span> <strong className="text-stone-900 dark:text-white">38718660</strong></p>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Please reference the transaction with your full name.</p>
                        </div>
                      </div>

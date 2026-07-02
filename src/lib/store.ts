@@ -75,6 +75,7 @@ export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
       let currency: 'USD' | 'EUR' | 'GBP' = 'USD';
       let symbol = '$';
+      const rate = 1; // 1-to-1 parity as requested by the client
 
       if (tz === 'Europe/London' || tz === 'Europe/Belfast') {
         currency = 'GBP';
@@ -84,19 +85,10 @@ export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
         symbol = '€';
       }
 
-      // Immediately set the currency and symbol so the UI updates
-      set({ currency, symbol });
-
-      // Fetch live rates
-      const res = await fetch('https://open.er-api.com/v6/latest/USD');
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.rates && data.rates[currency]) {
-          set({ rate: data.rates[currency] });
-        }
-      }
+      // Immediately set the currency, symbol, and 1-to-1 rate
+      set({ currency, symbol, rate });
     } catch (e) {
-      console.error("Failed to fetch live currency rate", e);
+      console.error("Failed to init currency", e);
     }
   },
   formatPrice: (usdPrice: number | string) => {
