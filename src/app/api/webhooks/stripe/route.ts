@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { Resend } from 'resend';
 import { OrderReceipt } from '@/components/emails/OrderReceipt';
 import { createClient } from '@supabase/supabase-js';
+import { sendEmail } from '@/lib/email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2026-05-27.dahlia',
 });
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
@@ -124,39 +122,36 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Send Email Receipt via Resend
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_placeholder') {
-      try {
-        // 3a. Send to Customer
-        await resend.emails.send({
-          from: 'Flenjure <orders@flenjure.com>',
-          to: [email],
-          subject: `Order Confirmation #${orderId}`,
-          react: OrderReceipt({
-            orderId: orderId,
-            customerName: shipping_address?.fullName || "Customer",
-            totalAmount: amount,
-            items: hydratedItems,
-            shippingAddress: shipping_address
-          }),
-        });
+    // 3. Send Email Receipt via Zoho Nodemailer
+    try {
+      // 3a. Send to Customer
+      await sendEmail({
+        to: email,
+        subject: `Order Confirmation #${orderId}`,
+        react: OrderReceipt({
+          orderId: orderId,
+          customerName: shipping_address?.fullName || "Customer",
+          totalAmount: amount,
+          items: hydratedItems,
+          shippingAddress: shipping_address
+        }) as any,
+      });
 
-        // 3b. Send separate copy to Admin (avoids BCC spam drops)
-        await resend.emails.send({
-          from: 'Flenjure System <system@flenjure.com>',
-          to: ['orders@flenjure.com'],
-          subject: `[NEW ORDER] Flenjure #${orderId}`,
-          react: OrderReceipt({
-            orderId: orderId,
-            customerName: shipping_address?.fullName || "Customer",
-            totalAmount: amount,
-            items: hydratedItems,
-            shippingAddress: shipping_address
-          }),
-        });
-      } catch (emailError) {
-        console.error("Failed to send email:", emailError);
-      }
+      // 3b. Send separate copy to Admin
+      await sendEmail({
+        to: 'orders@flenjure.com',
+        subject: `[NEW ORDER] Flenjure #${orderId}`,
+        isInternalAdminAlert: true,
+        react: OrderReceipt({
+          orderId: orderId,
+          customerName: shipping_address?.fullName || "Customer",
+          totalAmount: amount,
+          items: hydratedItems,
+          shippingAddress: shipping_address
+        }) as any,
+      });
+    } catch (emailError) {
+      console.error("Failed to send email via Zoho:", emailError);
     }
   }
 

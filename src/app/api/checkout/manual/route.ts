@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import { OrderReceipt } from '@/components/emails/OrderReceipt';
 import { createClient } from '@supabase/supabase-js';
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+import { sendEmail } from '@/lib/email';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
@@ -83,42 +81,39 @@ export async function POST(req: Request) {
       });
     }
 
-    // 2. Send Email Receipt via Resend
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_placeholder') {
-      try {
-        await resend.emails.send({
-          from: 'Flenjure <orders@flenjure.com>',
-          to: [email],
-          subject: `Order Received (Pending Verification) #${orderId}`,
-          react: OrderReceipt({
-            orderId: orderId,
-            customerName: shipping_address.fullName,
-            totalAmount: totalAmount,
-            items: hydratedItems,
-            shippingAddress: shipping_address
-          }),
-        });
+    // 2. Send Email Receipt via Zoho Nodemailer
+    try {
+      await sendEmail({
+        to: email,
+        subject: `Order Received (Pending Verification) #${orderId}`,
+        react: OrderReceipt({
+          orderId: orderId,
+          customerName: shipping_address.fullName,
+          totalAmount: totalAmount,
+          items: hydratedItems,
+          shippingAddress: shipping_address
+        }) as any,
+      });
 
-        await resend.emails.send({
-          from: 'Flenjure System <system@flenjure.com>',
-          to: ['orders@flenjure.com'],
-          subject: `[NEW CAFE ORDER] Flenjure #${orderId}`,
-          react: OrderReceipt({
-            orderId: orderId,
-            customerName: shipping_address.fullName,
-            totalAmount: totalAmount,
-            items: hydratedItems,
-            shippingAddress: shipping_address
-          }),
-        });
-      } catch (emailError) {
-        console.error("Failed to send manual order email:", emailError);
-      }
+      await sendEmail({
+        to: 'orders@flenjure.com',
+        subject: `[NEW CAFE ORDER] Flenjure #${orderId}`,
+        isInternalAdminAlert: true,
+        react: OrderReceipt({
+          orderId: orderId,
+          customerName: shipping_address.fullName,
+          totalAmount: totalAmount,
+          items: hydratedItems,
+          shippingAddress: shipping_address
+        }) as any,
+      });
+    } catch (emailError) {
+      console.error("Failed to send manual order email via Zoho:", emailError);
     }
 
     return NextResponse.json({ success: true, message: "Manual payment order received", orderId });
   } catch (error: any) {
     console.error("Manual checkout error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to process manual checkout" }, { status: 500 });
   }
 }
