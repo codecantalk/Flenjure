@@ -72,21 +72,18 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
     if (currency === 'GBP') {
       return [
         { id: 'lloyds', label: 'Bank Transfer' },
-        { id: 'cash', label: 'Cash' },
-        { id: 'crypto', label: 'Crypto' }
+        { id: 'cash', label: 'Cash' }
       ];
     }
     if (currency === 'EUR') {
       return [
         { id: 'revolut', label: 'Revolut' },
-        { id: 'cash', label: 'Cash' },
-        { id: 'crypto', label: 'Crypto' }
+        { id: 'cash', label: 'Cash' }
       ];
     }
     return [
       { id: 'zelle', label: 'Zelle' },
       { id: 'cashapp', label: 'Cash App' },
-      { id: 'cash', label: 'Cash' },
       { id: 'crypto', label: 'Crypto' }
     ];
   };
@@ -627,8 +624,10 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                      <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed flex flex-col sm:flex-row gap-4 items-center justify-between">
                        <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs flex-1">
                          <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Revolut Transfer</strong>
-                         <p>Send <strong className="text-stone-900 dark:text-white">{formatPrice(cartTotal)}</strong> directly to our Revolut username:</p>
-                         <p className="text-base font-semibold text-stone-900 dark:text-white mt-2 font-mono">@flenjure</p>
+                         <p>Send <strong className="text-stone-900 dark:text-white">{formatPrice(cartTotal)}</strong> directly via our payment link:</p>
+                         <p className="text-base font-semibold text-stone-900 dark:text-white mt-2 font-mono">
+                           <a href="https://revolut.me/flenjure" target="_blank" rel="noopener noreferrer" className="underline hover:text-stone-500">https://revolut.me/flenjure</a>
+                         </p>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Alternatively, scan the QR code to pay instantly via Revolut app.</p>
                        </div>
                        <div className="flex-shrink-0 bg-white p-2 border border-stone-200 rounded-[4px]">
