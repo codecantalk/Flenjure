@@ -103,7 +103,7 @@ export default async function ShopProductDetail({ params }: Props) {
 
     const allProducts = await getProducts();
     const relatedProducts = allProducts
-      .filter((p: any) => p.id !== productData.id)
+      .filter((p: any) => p.id !== productData.id && p.in_stock)
       .sort(() => 0.5 - Math.random()) // naive shuffle
       .slice(0, 2)
       .map((p: any) => {

@@ -60,6 +60,10 @@ function ApplePayButton({ productId, selectedSize }: { productId: string, select
       <ExpressCheckoutElement 
         onConfirm={handleConfirm}
         options={{
+          wallets: {
+            // @ts-ignore
+            link: 'never'
+          },
           shippingAddressRequired: true,
           shippingRates: [
             {

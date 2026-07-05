@@ -300,7 +300,15 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
 
               {/* Express Checkout (Apple Pay / Google Pay) */}
               <div className="mb-4">
-                <ExpressCheckoutElement onConfirm={() => setIsProcessing(true)} />
+                <ExpressCheckoutElement 
+                  onConfirm={() => setIsProcessing(true)} 
+                  options={{ 
+                    wallets: { 
+                      // @ts-ignore
+                      link: 'never' 
+                    } 
+                  }} 
+                />
               </div>
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-[1px] flex-1 bg-[#e6e6e6] dark:bg-stone-800"></div>
