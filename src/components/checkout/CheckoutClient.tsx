@@ -51,34 +51,41 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOrderSummary, setShowOrderSummary] = useState(false);
 
-  const getDefaultMethod = () => {
-    if (currency === 'GBP') return 'lloyds';
-    if (currency === 'EUR') return 'revolut';
+  const getDefaultMethod = (c: string) => {
+    if (c === 'GB') return 'lloyds';
+    if (c === 'FR') return 'revolut';
     return 'zelle';
   };
 
   const [selectedMethod, setSelectedMethod] = useState<string>('revolut');
+
+  // Initialize country based on currency
+  useEffect(() => {
+    if (currency === 'GBP') setCountry('GB');
+    else if (currency === 'EUR') setCountry('FR');
+    else setCountry('US');
+  }, [currency]);
 
   useEffect(() => {
     const paramMethod = searchParams.get('method');
     if (paramMethod) {
       setSelectedMethod(paramMethod);
     } else {
-      setSelectedMethod(getDefaultMethod());
+      setSelectedMethod(getDefaultMethod(country));
     }
-  }, [searchParams, currency]);
+  }, [searchParams, country]);
 
-  const getAvailableMethods = () => {
-    if (currency === 'GBP') {
+  const getAvailableMethods = (c: string = country) => {
+    if (c === 'GB') {
       return [
         { id: 'lloyds', label: 'Bank Transfer' },
-        { id: 'cash', label: 'Cash' }
+        { id: 'crypto', label: 'Crypto' }
       ];
     }
-    if (currency === 'EUR') {
+    if (c === 'FR') {
       return [
         { id: 'revolut', label: 'Revolut' },
-        { id: 'cash', label: 'Cash' }
+        { id: 'cash', label: 'Cash on Pick up' }
       ];
     }
     return [
@@ -87,6 +94,14 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
       { id: 'crypto', label: 'Crypto' }
     ];
   };
+
+  // Reset selected method if it's not valid for the new country
+  useEffect(() => {
+    const methods = getAvailableMethods(country);
+    if (!methods.some(m => m.id === selectedMethod)) {
+      setSelectedMethod(getDefaultMethod(country));
+    }
+  }, [country, selectedMethod]);
 
   // CRM Abandoned Cart tracking
   useEffect(() => {
@@ -357,24 +372,6 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                   <option value="US">United States</option>
                   <option value="GB">United Kingdom</option>
                   <option value="FR">France</option>
-                  <option value="DE">Germany</option>
-                  <option value="CA">Canada</option>
-                  <option value="AU">Australia</option>
-                  <option value="IT">Italy</option>
-                  <option value="ES">Spain</option>
-                  <option value="NL">Netherlands</option>
-                  <option value="CH">Switzerland</option>
-                  <option value="SE">Sweden</option>
-                  <option value="NO">Norway</option>
-                  <option value="DK">Denmark</option>
-                  <option value="FI">Finland</option>
-                  <option value="IE">Ireland</option>
-                  <option value="NZ">New Zealand</option>
-                  <option value="JP">Japan</option>
-                  <option value="KR">South Korea</option>
-                  <option value="SG">Singapore</option>
-                  <option value="AE">United Arab Emirates</option>
-                  <option value="SA">Saudi Arabia</option>
                 </select>
                 <div className="absolute top-1.5 left-[15px] text-[11px] text-[#737373]">
                   Country/Region
@@ -595,9 +592,8 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                 <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm flex flex-col gap-4">
                    <p className="text-sm font-medium text-stone-900 dark:text-white mb-1">Cafe Exclusive Payments</p>
                    
-                   {/* Custom Tab Selector */}
-                   <div className="flex flex-wrap gap-2 mb-2 border-b border-stone-200 dark:border-stone-800 pb-3">
-                     {getAvailableMethods().map((m) => (
+                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
+                     {getAvailableMethods(country).map((m) => (
                        <button
                          key={m.id}
                          type="button"
