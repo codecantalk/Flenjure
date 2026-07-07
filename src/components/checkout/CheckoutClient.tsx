@@ -677,7 +677,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                        <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs flex-1">
                          <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Zelle Payment</strong>
                          <p>Please send payment via Zelle to our official billing email:</p>
-                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">keitadaudallc@gmail.com</p>
+                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">atlcafe@flenjure.com</p>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Please verify you are sending to Keita Dauda Llc before finalizing.</p>
                        </div>
                        <div className="flex-shrink-0 bg-white p-2 border border-stone-200 rounded-[4px]">
