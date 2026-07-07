@@ -369,9 +369,37 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                   }}
                   className="w-full p-[14px] pt-5 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] appearance-none text-[14px] font-normal outline-none bg-white dark:bg-[#111] text-stone-900 dark:text-white shadow-sm focus:ring-1 focus:ring-stone-900 dark:focus:ring-white focus:border-stone-900 dark:focus:border-white"
                 >
-                  <option value="US">United States</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="FR">France</option>
+                  {isCafeMode ? (
+                    <>
+                      <option value="US">United States</option>
+                      <option value="GB">United Kingdom</option>
+                      <option value="FR">France</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="US">United States</option>
+                      <option value="GB">United Kingdom</option>
+                      <option value="FR">France</option>
+                      <option value="DE">Germany</option>
+                      <option value="CA">Canada</option>
+                      <option value="AU">Australia</option>
+                      <option value="IT">Italy</option>
+                      <option value="ES">Spain</option>
+                      <option value="NL">Netherlands</option>
+                      <option value="CH">Switzerland</option>
+                      <option value="SE">Sweden</option>
+                      <option value="NO">Norway</option>
+                      <option value="DK">Denmark</option>
+                      <option value="FI">Finland</option>
+                      <option value="IE">Ireland</option>
+                      <option value="NZ">New Zealand</option>
+                      <option value="JP">Japan</option>
+                      <option value="KR">South Korea</option>
+                      <option value="SG">Singapore</option>
+                      <option value="AE">United Arab Emirates</option>
+                      <option value="SA">Saudi Arabia</option>
+                    </>
+                  )}
                 </select>
                 <div className="absolute top-1.5 left-[15px] text-[11px] text-[#737373]">
                   Country/Region
@@ -642,16 +670,22 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                          />
                        </div>
                      </div>
-                   )}
-
-                   {/* Zelle Details */}
+                    )}
+                    {/* Zelle Details */}
                    {selectedMethod === 'zelle' && (
-                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
-                       <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Zelle Payment</strong>
-                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs">
+                     <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed flex flex-col sm:flex-row gap-4 items-center justify-between">
+                       <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs flex-1">
+                         <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Zelle Payment</strong>
                          <p>Please send payment via Zelle to our official billing email:</p>
-                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">sales@flenjure.com</p>
-                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Please verify you are sending to Flenjure Ltd before finalizing.</p>
+                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">keitadaudallc@gmail.com</p>
+                         <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Please verify you are sending to Keita Dauda Llc before finalizing.</p>
+                       </div>
+                       <div className="flex-shrink-0 bg-white p-2 border border-stone-200 rounded-[4px]">
+                         <img
+                           src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https%3A%2F%2Fenroll.zellepay.com%2Fqr-codes%3Fdata%3DewogICAgInRva2VuIjogImtlaXRhZGF1ZGFsbGNAZ21haWwuY29tIiwKICAgICJuYW1lIjogIktlaXRhIERhdWRhIExsYyIsCiAgICAiYWN0aW9uIjogInBheW1lbnQiCn0%3D"
+                           alt="Zelle QR Code"
+                           className="w-[100px] h-[100px] object-contain"
+                         />
                        </div>
                      </div>
                    )}
@@ -711,15 +745,14 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                        </div>
                      </div>
                    )}
-
-                   {/* Cash Details */}
+                    {/* Cash Details */}
                    {selectedMethod === 'cash' && (
                      <div className="bg-stone-50 dark:bg-[#161616] p-4 border border-stone-200 dark:border-stone-800 text-sm rounded-[4px] leading-relaxed">
                        <strong className="text-stone-900 dark:text-white uppercase tracking-wider text-xs block mb-3 border-b pb-1 border-stone-200 dark:border-stone-800">Cash Handover / Cash on Delivery</strong>
                        <div className="space-y-1 text-stone-700 dark:text-stone-300 text-xs">
                          <p>Pay with cash upon local pickup/delivery.</p>
                          <p className="mt-3">Please contact our support via WhatsApp or email to coordinate handover logistics:</p>
-                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">sales@flenjure.com</p>
+                         <p className="text-sm font-semibold text-stone-900 dark:text-white mt-2 font-mono">{country === 'FR' ? 'pariscafe@flenjure.com' : country === 'GB' ? 'ldncafe@flenjure.com' : 'atlcafe@flenjure.com'}</p>
                          <p className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-[11px] text-stone-500">Your order will remain pending verification until physical cash handover is completed.</p>
                        </div>
                      </div>
