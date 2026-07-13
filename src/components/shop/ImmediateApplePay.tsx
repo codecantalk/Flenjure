@@ -62,7 +62,9 @@ function ApplePayButton({ productId, selectedSize }: { productId: string, select
         options={{
           wallets: {
             // @ts-ignore
-            link: 'never'
+            link: 'never',
+            applePay: 'always',
+            googlePay: 'always'
           },
           shippingAddressRequired: true,
           shippingRates: [

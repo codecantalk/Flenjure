@@ -320,7 +320,9 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                   options={{ 
                     wallets: { 
                       // @ts-ignore
-                      link: 'never' 
+                      link: 'never',
+                      applePay: 'always',
+                      googlePay: 'always'
                     } 
                   }} 
                 />
