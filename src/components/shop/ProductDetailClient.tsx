@@ -46,10 +46,10 @@ export default function ProductDetailClient({ productData }: { productData: any 
     }
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (): boolean => {
     if (productData.sizes && productData.sizes.length > 0 && !selectedSize) {
       setIsDropdownOpen(true);
-      return;
+      return false;
     }
     setAdding(true);
     addItem({
@@ -64,6 +64,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
     setTimeout(() => {
       setAdding(false);
     }, 1000);
+    return true;
   };
 
   return (
@@ -186,7 +187,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
                         />
                     ) : (
                       <button 
-                        onClick={() => { handleAddToCart(); setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); }} 
+                        onClick={() => { if (handleAddToCart()) { setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); } }} 
                         disabled={adding} 
                         className="flex-1 bg-[#121212] dark:bg-white text-white dark:text-[#121212] py-[14px] text-[11px] font-medium tracking-[0.05em] uppercase hover:opacity-80 transition-all disabled:opacity-50 h-[43px]"
                       >
@@ -381,7 +382,7 @@ export default function ProductDetailClient({ productData }: { productData: any 
                     {adding ? "Adding..." : "Add to Bag"}
                  </button>
                  <button 
-                    onClick={() => { handleAddToCart(); setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); }} 
+                    onClick={() => { if (handleAddToCart()) { setTimeout(() => router.push(`/checkout?method=${quickPayMethod}`), 300); } }} 
                     disabled={adding} 
                     className="flex-1 bg-stone-900 dark:bg-white text-white dark:text-stone-900 py-4 text-[12px] font-medium tracking-[0.1em] uppercase hover:opacity-90 transition-all disabled:opacity-50 shadow-sm"
                  >
