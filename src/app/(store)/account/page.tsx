@@ -64,7 +64,11 @@ export default function AccountPage() {
         if (error) throw error;
       }
     } catch (err: any) {
-      setError(err.message || "An error occurred");
+      if (err.message && (err.message.includes("Load failed") || err.message.includes("Failed to fetch"))) {
+        setError(`Network Error: ${err.message}. This is usually caused by an Ad Blocker, a VPN, or missing Supabase CORS settings for this domain.`);
+      } else {
+        setError(err.message || "An error occurred");
+      }
     } finally {
       setLoading(false);
     }
