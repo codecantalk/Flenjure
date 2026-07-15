@@ -105,12 +105,12 @@ export default function AdminLayout({
     const channel = supabase
       .channel('admin-notifications')
       .on(
-        'broadcast',
-        { event: 'new-order' },
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'orders' },
         (payload) => {
-          console.log('New order received via broadcast!', payload);
+          console.log('New order received via postgres!', payload);
           setHasUnreadNotifications(true);
-          const newOrder = payload.payload;
+          const newOrder = payload.new;
           setNotifications(prev => [{
             id: newOrder.id,
             message: `New order ${newOrder.id} received for $${newOrder.total_amount}`,
@@ -119,12 +119,12 @@ export default function AdminLayout({
         }
       )
       .on(
-        'broadcast',
-        { event: 'new-subscriber' },
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'subscribers' },
         (payload) => {
-          console.log('New subscriber received via broadcast!', payload);
+          console.log('New subscriber received via postgres!', payload);
           setHasUnreadNotifications(true);
-          const newSub = payload.payload;
+          const newSub = payload.new;
           setNotifications(prev => [{
             id: newSub.id,
             message: `New subscriber: ${newSub.email}`,

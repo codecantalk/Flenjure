@@ -17,6 +17,7 @@ import {
 interface OrderReceiptProps {
   orderId: string;
   customerName: string;
+  customerEmail?: string;
   totalAmount: number;
   items: Array<{ title: string; quantity: number; price: number; image?: string | null }>;
   shippingAddress?: {
@@ -33,6 +34,7 @@ interface OrderReceiptProps {
 export const OrderReceipt = ({
   orderId,
   customerName,
+  customerEmail,
   totalAmount,
   items,
   shippingAddress,
@@ -94,9 +96,10 @@ export const OrderReceipt = ({
           {shippingAddress && (
             <>
               <Hr style={hr} />
-              <Heading as="h3" style={subheading}>Shipping Details</Heading>
+              <Heading as="h3" style={subheading}>Customer Details</Heading>
               <Text style={paragraph}>
                 {shippingAddress.fullName && <>{shippingAddress.fullName}<br /></>}
+                {customerEmail && <>{customerEmail}<br /></>}
                 {shippingAddress.addressLine1 && <>{shippingAddress.addressLine1}<br /></>}
                 {shippingAddress.addressLine2 && <>{shippingAddress.addressLine2}<br /></>}
                 {[shippingAddress.city, shippingAddress.state, shippingAddress.postalCode].filter(Boolean).join(', ')}<br />

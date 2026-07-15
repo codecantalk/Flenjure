@@ -40,6 +40,8 @@ interface Order {
     state: string;
     postalCode: string;
     country: string;
+    whatsapp_number?: string;
+    snapchat_handle?: string;
   };
   items: OrderItem[];
   whatsapp_number?: string;
@@ -430,11 +432,20 @@ export default function AdminOrdersPage() {
                       <span className="text-sm text-stone-500">No email provided</span>
                     )}
 
-                    {selectedOrder.whatsapp_number && (
+                    {(selectedOrder.whatsapp_number || selectedOrder.shipping_address?.whatsapp_number) && (
                       <div className="flex items-start gap-2">
                         <Phone size={14} className="text-stone-400 mt-0.5" />
                         <span className="text-sm text-stone-600 dark:text-stone-300">
-                          {selectedOrder.whatsapp_number}
+                          {selectedOrder.whatsapp_number || selectedOrder.shipping_address?.whatsapp_number}
+                        </span>
+                      </div>
+                    )}
+
+                    {selectedOrder.shipping_address?.snapchat_handle && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-stone-400 mt-0.5 text-xs font-bold w-[14px] flex justify-center">S</span>
+                        <span className="text-sm text-stone-600 dark:text-stone-300">
+                          {selectedOrder.shipping_address.snapchat_handle}
                         </span>
                       </div>
                     )}

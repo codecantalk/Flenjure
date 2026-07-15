@@ -83,13 +83,29 @@ export async function POST(req: Request) {
             .eq('id', item.id);
         }
       } else {
-        hydratedItems.push({
-          id: item.id,
-          title: `Item ${item.id}`,
-          price: 0,
-          quantity: item.q,
-          image: null
-        });
+        const { data: cafeItem } = await supabaseAdmin
+          .from('cafe_items')
+          .select('name, price, image, image_urls')
+          .eq('id', item.id)
+          .single();
+
+        if (cafeItem) {
+          hydratedItems.push({
+            id: item.id,
+            title: cafeItem.name || `Cafe Item ${item.id}`,
+            price: cafeItem.price || 0,
+            quantity: item.q,
+            image: cafeItem.image_urls?.[0] || cafeItem.image || null
+          });
+        } else {
+          hydratedItems.push({
+            id: item.id,
+            title: `Item ${item.id}`,
+            price: 0,
+            quantity: item.q,
+            image: null
+          });
+        }
       }
     }
 
@@ -106,7 +122,7 @@ export async function POST(req: Request) {
         email: email,
         shipping_address: shipping_address,
         whatsapp_number: shipping?.phone || null,
-        items: items, // Note: Metadata might just have IDs and Qty. We should store full details if passed.
+        items: hydratedItems,
       }])
       .select()
       .single();
@@ -131,6 +147,7 @@ export async function POST(req: Request) {
         react: OrderReceipt({
           orderId: orderId,
           customerName: shipping_address?.fullName || "Customer",
+          customerEmail: email,
           totalAmount: amount,
           items: hydratedItems,
           shippingAddress: shipping_address
@@ -145,6 +162,7 @@ export async function POST(req: Request) {
         react: OrderReceipt({
           orderId: orderId,
           customerName: shipping_address?.fullName || "Customer",
+          customerEmail: email,
           totalAmount: amount,
           items: hydratedItems,
           shippingAddress: shipping_address

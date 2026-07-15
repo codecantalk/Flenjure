@@ -19,7 +19,9 @@ export async function POST(req: Request) {
       city,
       state,
       postalCode: zip,
-      country: "US" // Can be dynamically passed if needed
+      country: "US", // Can be dynamically passed if needed
+      whatsapp_number: phone || null,
+      snapchat_handle: snapchat || null
     };
 
     const hydratedItems = items.map((item: any) => ({
@@ -65,7 +67,7 @@ export async function POST(req: Request) {
         email: email,
         shipping_address: shipping_address,
         whatsapp_number: phone || null,
-        items: items, 
+        items: hydratedItems, 
       }])
       .select()
       .single();
@@ -89,6 +91,7 @@ export async function POST(req: Request) {
         react: OrderReceipt({
           orderId: orderId,
           customerName: shipping_address.fullName,
+          customerEmail: email,
           totalAmount: totalAmount,
           items: hydratedItems,
           shippingAddress: shipping_address
@@ -102,6 +105,7 @@ export async function POST(req: Request) {
         react: OrderReceipt({
           orderId: orderId,
           customerName: shipping_address.fullName,
+          customerEmail: email,
           totalAmount: totalAmount,
           items: hydratedItems,
           shippingAddress: shipping_address
