@@ -40,6 +40,7 @@ export default function AccountPage() {
           email,
           password,
           options: {
+            emailRedirectTo: `${window.location.origin}/account`,
             data: {
               first_name: firstName,
               last_name: lastName,

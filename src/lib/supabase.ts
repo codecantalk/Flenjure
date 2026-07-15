@@ -9,4 +9,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl || "https://placeholder.supabase.co", supabaseAnonKey || "placeholder");
+const cleanUrl = (supabaseUrl || "https://placeholder.supabase.co").replace(/\/$/, "");
+
+export const supabase = createClient(cleanUrl, supabaseAnonKey || "placeholder");
