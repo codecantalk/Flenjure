@@ -175,41 +175,82 @@ export async function updateOrderField(id: string, field: string, value: string)
   return data;
 }
 
-// CUSTOMERS (Aggregated from Orders)
+// CUSTOMERS (Aggregated from Orders + Auth Users)
 export async function getCustomers() {
-  const { data: orders, error } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
-  if (error || !orders) {
-    return [];
-  }
+  const { data: orders, error: ordersError } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers();
 
   const customerMap = new Map<string, any>();
 
-  orders.forEach((order: any) => {
-    const email = order.email || order.shipping_address?.email || "Unknown";
-    const phone = order.whatsapp_number || order.shipping_address?.phone || "Unknown";
-    const name = order.shipping_address?.fullName || "Unknown Customer";
-    const id = email !== "Unknown" ? email : (phone !== "Unknown" ? phone : order.id);
+  // First, add all registered users to the map
+  if (authData && authData.users) {
+    authData.users.forEach(user => {
+      const email = user.email || "Unknown";
+      const name = user.user_metadata?.first_name 
+        ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`.trim() 
+        : "Unknown Customer";
+      const phone = user.phone || "Unknown";
+      
+      if (email !== "Unknown") {
+        customerMap.set(email, {
+          id: email,
+          name,
+          email,
+          phone,
+          total_spent: 0,
+          orders_count: 0,
+          last_order_date: user.created_at,
+          recent_orders: []
+        });
+      }
+    });
+  }
 
-    if (!customerMap.has(id)) {
-      customerMap.set(id, {
-        id,
-        name,
-        email,
-        phone,
-        total_spent: 0,
-        orders_count: 0,
-        last_order_date: order.created_at,
-        recent_orders: []
-      });
-    }
+  // Then, aggregate data from orders
+  if (orders && !ordersError) {
+    orders.forEach((order: any) => {
+      const email = order.email || order.shipping_address?.email || "Unknown";
+      const phone = order.whatsapp_number || order.shipping_address?.phone || "Unknown";
+      const name = order.shipping_address?.fullName || "Unknown Customer";
+      const id = email !== "Unknown" ? email : (phone !== "Unknown" ? phone : order.id);
 
-    const customer = customerMap.get(id);
-    customer.total_spent += Number(order.total_amount || 0);
-    customer.orders_count += 1;
-    customer.recent_orders.push(order);
-  });
+      if (!customerMap.has(id)) {
+        customerMap.set(id, {
+          id,
+          name,
+          email,
+          phone,
+          total_spent: 0,
+          orders_count: 0,
+          last_order_date: order.created_at,
+          recent_orders: []
+        });
+      }
 
-  return Array.from(customerMap.values());
+      const customer = customerMap.get(id);
+      
+      // Update name if the order has a better name and the existing one is unknown
+      if (customer.name === "Unknown Customer" && name !== "Unknown Customer") {
+        customer.name = name;
+      }
+      
+      // Update phone if order has it and existing is unknown
+      if (customer.phone === "Unknown" && phone !== "Unknown") {
+        customer.phone = phone;
+      }
+
+      customer.total_spent += Number(order.total_amount || 0);
+      customer.orders_count += 1;
+      customer.recent_orders.push(order);
+
+      // Keep the most recent order date
+      if (new Date(order.created_at) > new Date(customer.last_order_date)) {
+        customer.last_order_date = order.created_at;
+      }
+    });
+  }
+
+  return Array.from(customerMap.values()).sort((a, b) => new Date(b.last_order_date).getTime() - new Date(a.last_order_date).getTime());
 }
 
 // CRM / CARTS
