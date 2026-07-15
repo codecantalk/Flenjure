@@ -253,6 +253,16 @@ export async function getCustomers() {
   return Array.from(customerMap.values()).sort((a, b) => new Date(b.last_order_date).getTime() - new Date(a.last_order_date).getTime());
 }
 
+export async function getCustomerOrders(email: string) {
+  if (!email) return [];
+  const { data } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .eq("email", email)
+    .order("created_at", { ascending: false });
+  return data || [];
+}
+
 // CRM / CARTS
 export async function getCrmSessions() {
   const { data } = await supabaseAdmin.from("cart_sessions").select("*").order("updated_at", { ascending: false });
