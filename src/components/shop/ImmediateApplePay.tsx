@@ -9,7 +9,7 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder"
 );
 
-function ApplePayButton({ productId, selectedSize }: { productId: string, selectedSize: string | null }) {
+function ApplePayButton({ productId, selectedSize, requireSize }: { productId: string, selectedSize: string | null, requireSize: boolean }) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -19,6 +19,12 @@ function ApplePayButton({ productId, selectedSize }: { productId: string, select
     if (!stripe || !elements) return;
 
     try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        setErrorMessage(submitError.message || "Please check your payment details.");
+        return;
+      }
+
       // 1. Fetch PaymentIntent client secret from server
       const res = await fetch("/api/checkout/immediate", {
         method: "POST",
@@ -58,6 +64,15 @@ function ApplePayButton({ productId, selectedSize }: { productId: string, select
   return (
     <div className="w-full">
       <ExpressCheckoutElement 
+        onClick={(event) => {
+          if (requireSize && !selectedSize) {
+            setErrorMessage("Please select a size before proceeding to checkout.");
+            event.reject();
+          } else {
+            setErrorMessage("");
+            event.resolve();
+          }
+        }}
         onConfirm={handleConfirm}
         options={{
           wallets: {
@@ -120,7 +135,8 @@ export default function ImmediateApplePay({
       <Elements stripe={stripePromise} options={{ mode: 'payment', amount: amountInCents, currency: 'usd' }}>
         <ApplePayButton 
           productId={productId} 
-          selectedSize={selectedSize || "OS"} 
+          selectedSize={selectedSize || "OS"}
+          requireSize={requireSize}
         />
       </Elements>
     </div>
