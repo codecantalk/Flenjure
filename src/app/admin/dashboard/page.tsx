@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
     orders.forEach(o => {
       let items = [];
       try {
-        items = typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items;
+        items = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
       } catch(e) {}
       
       if (Array.isArray(items)) {

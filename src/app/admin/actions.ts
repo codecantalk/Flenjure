@@ -256,7 +256,7 @@ export async function getSubscribers() {
 export async function getDashboardStats() {
   const { data: orders } = await supabaseAdmin
     .from("orders")
-    .select("id, email, total_amount, status, created_at, line_items")
+    .select("id, email, total_amount, status, created_at, items")
     .order("created_at", { ascending: false });
     
   const { data: carts } = await supabaseAdmin
