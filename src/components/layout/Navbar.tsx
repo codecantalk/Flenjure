@@ -11,7 +11,7 @@ import { useCartStore } from "@/lib/store";
 import SearchOverlay from "../search/SearchOverlay";
 import { useTheme } from "next-themes";
 import { subscribeNewsletter } from "@/app/admin/actions";
-
+import { supabase } from "@/lib/supabase";
 const mainLinks = [
   { name: "Shop", href: "/shop" },
   { name: "Café", href: "/cafe" },
@@ -67,8 +67,20 @@ export default function Navbar() {
     }
   };
 
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     setMounted(true);
+    
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -230,10 +242,20 @@ export default function Navbar() {
               </button>
               <Link
                 href="/account"
-                className="p-2 transition-opacity duration-300 hover:opacity-50"
+                className="p-2 transition-opacity duration-300 hover:opacity-50 flex items-center justify-center"
                 aria-label="Account"
               >
-                <User size={18} strokeWidth={1} />
+                {user ? (
+                  user.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-[18px] h-[18px] rounded-full object-cover" />
+                  ) : (
+                    <div className="w-[18px] h-[18px] rounded-full bg-stone-900 dark:bg-white text-white dark:text-stone-900 flex items-center justify-center text-[9px] font-bold uppercase">
+                      {user.user_metadata?.first_name?.[0] || user.email?.[0] || 'U'}
+                    </div>
+                  )
+                ) : (
+                  <User size={18} strokeWidth={1} />
+                )}
               </Link>
             </div>
 

@@ -14,6 +14,7 @@ export default function AccountPage() {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   
   // Check auth state on mount
@@ -33,6 +34,7 @@ export default function AccountPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       if (view === "register") {
@@ -54,7 +56,8 @@ export default function AccountPage() {
         if (data.user && data.user.identities && data.user.identities.length === 0) {
           setError("Account already exists with this email address.");
         } else if (data.session === null) {
-          setError("Registration successful! Please check your email to confirm your account.");
+          setSuccess("Registration successful! Please check your email to confirm your account.");
+          setView("login");
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -140,8 +143,15 @@ export default function AccountPage() {
         </div>
 
         {error && (
-          <div className="w-full p-4 bg-red-50 border border-red-100 text-red-600 text-sm text-center font-light">
+          <div className="w-full p-4 bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm text-center font-light">
             {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="w-full p-4 flex items-center justify-center gap-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-sm text-center font-light">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            {success}
           </div>
         )}
 
