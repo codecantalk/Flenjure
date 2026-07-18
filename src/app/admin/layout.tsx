@@ -126,7 +126,7 @@ export default function AdminLayout({
 
     checkAuth();
 
-    // Setup Supabase Realtime Subscription via Broadcast
+    // Setup Supabase Realtime Subscription via Broadcast and Postgres
     const channel = supabase
       .channel('admin-notifications')
       .on(
@@ -150,6 +150,34 @@ export default function AdminLayout({
           console.log('New subscriber received via postgres!', payload);
           setHasUnreadNotifications(true);
           const newSub = payload.new;
+          setNotifications(prev => [{
+            id: newSub.id,
+            message: `New subscriber: ${newSub.email}`,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          }, ...prev].slice(0, 5));
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'new-order' },
+        (payload) => {
+          console.log('New order received via broadcast!', payload);
+          setHasUnreadNotifications(true);
+          const newOrder = payload.payload; // broadcast payload is nested in .payload
+          setNotifications(prev => [{
+            id: newOrder.id,
+            message: `New order ${newOrder.id} received for $${newOrder.total_amount}`,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          }, ...prev].slice(0, 5));
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'new-subscriber' },
+        (payload) => {
+          console.log('New subscriber received via broadcast!', payload);
+          setHasUnreadNotifications(true);
+          const newSub = payload.payload;
           setNotifications(prev => [{
             id: newSub.id,
             message: `New subscriber: ${newSub.email}`,
