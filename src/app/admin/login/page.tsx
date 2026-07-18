@@ -20,10 +20,22 @@ export default function AdminLoginPage() {
     !process.env.NEXT_PUBLIC_SUPABASE_URL || 
     process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
 
+  const ADMIN_EMAILS = [
+    "flenjureatl@gmail.com",
+    "arkoprovatikader1998@gmail.com"
+  ];
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
+
+    const userEmail = email.toLowerCase().trim();
+    if (!ADMIN_EMAILS.includes(userEmail)) {
+      setErrorMsg("Unauthorized email address.");
+      setLoading(false);
+      return;
+    }
 
     if (isBypassMode) {
       setTimeout(() => {
@@ -34,7 +46,7 @@ export default function AdminLoginPage() {
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: userEmail,
         password,
       });
 
@@ -44,8 +56,6 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // We expect the user to be an admin (managed via RLS or logic)
-      // Since Flenjure handles admin roles, let's let them straight into the dashboard
       router.push("/admin/dashboard");
     } catch (err) {
       console.error(err);
@@ -60,8 +70,15 @@ export default function AdminLoginPage() {
     setLoading(true);
     setErrorMsg("");
 
+    const userEmail = email.toLowerCase().trim();
+    if (!ADMIN_EMAILS.includes(userEmail)) {
+      setErrorMsg("Unauthorized email address.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
         redirectTo: `${window.location.origin}/admin/login?reset=true`,
       });
       if (error) {
@@ -85,11 +102,18 @@ export default function AdminLoginPage() {
     setLoading(true);
     setErrorMsg("");
 
+    const userEmail = email.toLowerCase().trim();
+    if (!ADMIN_EMAILS.includes(userEmail)) {
+      setErrorMsg("Unauthorized email address.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: userEmail,
         options: {
-          shouldCreateUser: false, // Don't allow creating new admin accounts this way
+          shouldCreateUser: false,
         }
       });
       if (error) throw error;
