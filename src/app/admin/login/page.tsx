@@ -114,6 +114,7 @@ export default function AdminLoginPage() {
         email: userEmail,
         options: {
           shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/admin/dashboard`,
         }
       });
       if (error) throw error;
@@ -196,41 +197,19 @@ export default function AdminLoginPage() {
               </button>
             </div>
           ) : otpSent ? (
-            <form className="space-y-5" onSubmit={handleVerifyOtp}>
-              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg text-emerald-700 dark:text-emerald-400 text-sm text-center mb-4">
-                We sent a secure magic link and code to <strong>{email}</strong>.
-              </div>
-              <div>
-                <label htmlFor="token" className="block text-sm font-medium text-stone-900 dark:text-stone-200 mb-1.5">
-                  Verification Code
-                </label>
-                <input
-                  id="token"
-                  type="text"
-                  required
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder="Enter the 6-digit code or click the link in your email"
-                  className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 outline-none focus:border-stone-900 dark:focus:border-stone-500 transition-colors text-sm text-stone-900 dark:text-white"
-                />
+            <div className="text-center space-y-6">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg text-emerald-700 dark:text-emerald-400 text-sm mb-4">
+                We sent a secure magic link to <strong>{email}</strong>.<br/><br/>
+                Please check your inbox and click the <strong>Sign In</strong> link to securely access the dashboard.
               </div>
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-medium text-sm py-2.5 rounded-md hover:bg-stone-800 dark:hover:bg-stone-100 transition-all duration-300 shadow-sm disabled:opacity-70 mt-2"
+                type="button"
+                onClick={() => { setOtpSent(false); setIsOtpMode(false); }}
+                className="text-xs font-medium text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors"
               >
-                {loading ? <Loader2 className="animate-spin" size={16} /> : "Verify Code"}
+                Use a different login method
               </button>
-              <div className="text-center pt-2">
-                <button
-                  type="button"
-                  onClick={() => { setOtpSent(false); setIsOtpMode(false); }}
-                  className="text-xs font-medium text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors"
-                >
-                  Use a different login method
-                </button>
-              </div>
-            </form>
+            </div>
           ) : (
             <form className="space-y-5" onSubmit={isResetMode ? handleResetPassword : isOtpMode ? handleSendOtp : handleLogin}>
               <div>
