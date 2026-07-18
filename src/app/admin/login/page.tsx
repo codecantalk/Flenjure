@@ -76,6 +76,51 @@ export default function AdminLoginPage() {
     }
   };
 
+  const [isOtpMode, setIsOtpMode] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [token, setToken] = useState("");
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false, // Don't allow creating new admin accounts this way
+        }
+      });
+      if (error) throw error;
+      setOtpSent(true);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to send OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'magiclink',
+      });
+      if (error) throw error;
+      router.push("/admin/dashboard");
+    } catch (err: any) {
+      setErrorMsg(err.message || "Invalid OTP code.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#fcfcfc] dark:bg-[#0a0a0a] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
@@ -126,8 +171,44 @@ export default function AdminLoginPage() {
                 Return to login
               </button>
             </div>
+          ) : otpSent ? (
+            <form className="space-y-5" onSubmit={handleVerifyOtp}>
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-lg text-emerald-700 dark:text-emerald-400 text-sm text-center mb-4">
+                We sent a secure magic link and code to <strong>{email}</strong>.
+              </div>
+              <div>
+                <label htmlFor="token" className="block text-sm font-medium text-stone-900 dark:text-stone-200 mb-1.5">
+                  Verification Code
+                </label>
+                <input
+                  id="token"
+                  type="text"
+                  required
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  placeholder="Enter the 6-digit code or click the link in your email"
+                  className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-md px-3 py-2 outline-none focus:border-stone-900 dark:focus:border-stone-500 transition-colors text-sm text-stone-900 dark:text-white"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 bg-stone-900 dark:bg-white text-white dark:text-stone-900 font-medium text-sm py-2.5 rounded-md hover:bg-stone-800 dark:hover:bg-stone-100 transition-all duration-300 shadow-sm disabled:opacity-70 mt-2"
+              >
+                {loading ? <Loader2 className="animate-spin" size={16} /> : "Verify Code"}
+              </button>
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setOtpSent(false); setIsOtpMode(false); }}
+                  className="text-xs font-medium text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors"
+                >
+                  Use a different login method
+                </button>
+              </div>
+            </form>
           ) : (
-            <form className="space-y-5" onSubmit={isResetMode ? handleResetPassword : handleLogin}>
+            <form className="space-y-5" onSubmit={isResetMode ? handleResetPassword : isOtpMode ? handleSendOtp : handleLogin}>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-stone-900 dark:text-stone-200 mb-1.5">
                   Email address
@@ -142,7 +223,7 @@ export default function AdminLoginPage() {
                 />
               </div>
 
-              {!isResetMode && !isBypassMode && (
+              {!isResetMode && !isBypassMode && !isOtpMode && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label htmlFor="password" className="block text-sm font-medium text-stone-900 dark:text-stone-200">
@@ -179,12 +260,34 @@ export default function AdminLoginPage() {
                     <span>
                       {isResetMode 
                         ? "Send reset link" 
+                        : isOtpMode
+                        ? "Send Verification Code"
                         : (isBypassMode ? "Access dashboard" : "Log in")}
                     </span>
-                    {!isResetMode && <ArrowRight size={16} />}
+                    {!isResetMode && !isOtpMode && <ArrowRight size={16} />}
                   </>
                 )}
               </button>
+
+              {!isResetMode && !isBypassMode && (
+                <div className="text-center pt-2 pb-2">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-stone-200 dark:border-stone-700"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-white dark:bg-[#111] px-2 text-stone-500">Or continue with</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsOtpMode(!isOtpMode)}
+                    className="mt-4 text-sm font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors border border-stone-200 dark:border-stone-700 rounded-md px-4 py-2 w-full flex justify-center items-center gap-2"
+                  >
+                    {isOtpMode ? "Password" : "OTP Magic Link"}
+                  </button>
+                </div>
+              )}
 
               {isResetMode && (
                 <div className="text-center pt-2">

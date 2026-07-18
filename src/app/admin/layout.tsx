@@ -86,7 +86,32 @@ export default function AdminLayout({
           return;
         }
 
-        // Removed strict profile check since not all initialized admin users have a profile row
+        // --- ADMIN ROLE BASED ACCESS CONTROL (RBAC) ---
+        // Explicitly whitelist authorized admin emails
+        const ADMIN_EMAILS = [
+          "flenjureatl@gmail.com",
+          "arkoprovatikader1998@gmail.com"
+        ];
+        
+        // Add environment variable fallback for flexibility
+        const envAdmins = process.env.NEXT_PUBLIC_ADMIN_EMAILS 
+          ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',').map(e => e.trim()) 
+          : [];
+          
+        const authorizedEmails = [...ADMIN_EMAILS, ...envAdmins];
+        const userEmail = session.user.email?.toLowerCase();
+
+        if (!userEmail || !authorizedEmails.includes(userEmail)) {
+          console.warn(`Unauthorized access attempt to CMS by: ${userEmail}`);
+          // If not an admin, boot them back to the shop
+          if (pathname !== "/admin/login") {
+            router.push("/shop");
+          } else {
+            setLoading(false);
+          }
+          return;
+        }
+
         setAuthorized(true);
         if (pathname === "/admin/login") {
           router.push("/admin/dashboard");

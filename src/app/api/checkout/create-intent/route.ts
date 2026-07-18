@@ -29,7 +29,12 @@ export async function POST(req: Request) {
         enabled: true,
       },
       metadata: {
-        items: JSON.stringify(items.map((i: any) => ({ id: i.id, q: i.quantity }))),
+        items: JSON.stringify(items.map((i: any) => ({ 
+          id: i.id, 
+          q: i.quantity,
+          size: i.size || undefined,
+          color: i.color || undefined
+        }))),
       },
     });
 

@@ -193,7 +193,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
             city,
             state,
             postal_code: zip,
-            country: "US",
+            country: country,
           },
         },
       },
