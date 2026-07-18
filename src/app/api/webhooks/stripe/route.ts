@@ -42,7 +42,18 @@ export async function POST(req: Request) {
       console.error("Failed to parse items from metadata", e);
     }
 
-    const email = paymentIntent.receipt_email || 'customer@example.com';
+    let email = paymentIntent.receipt_email;
+    
+    if (!email && paymentIntent.latest_charge) {
+      try {
+        const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
+        email = charge.billing_details?.email || charge.receipt_email;
+      } catch (e) {
+        console.error("Failed to fetch charge for email", e);
+      }
+    }
+
+    email = email || 'customer@example.com';
     const amount = paymentIntent.amount / 100;
     const shipping = paymentIntent.shipping;
     const shipping_address = shipping ? {

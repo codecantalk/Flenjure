@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Elements, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useCurrencyStore } from "@/lib/store";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder"
@@ -13,6 +14,7 @@ function ApplePayButton({ productId, selectedSize, requireSize }: { productId: s
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
+  const { currency } = useCurrencyStore();
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleConfirm = async (event: any) => {
@@ -33,7 +35,7 @@ function ApplePayButton({ productId, selectedSize, requireSize }: { productId: s
           productId,
           size: selectedSize,
           quantity: 1,
-          currency: "USD"
+          currency: currency
         }),
       });
 
@@ -102,19 +104,10 @@ function ApplePayButton({ productId, selectedSize, requireSize }: { productId: s
   );
 }
 
-export default function ImmediateApplePay({ 
-  productId, 
-  price, 
-  selectedSize,
-  requireSize 
-}: { 
-  productId: string, 
-  price: string | number, 
-  selectedSize: string | null,
-  requireSize: boolean 
-}) {
+export default function ImmediateApplePay({ productId, price, selectedSize = null, requireSize = false }: { productId: string, price: number | string, selectedSize?: string | null, requireSize?: boolean }) {
   const priceNum = typeof price === 'string' ? parseFloat(price.replace(/[^0-9.-]+/g, "")) : (Number(price) || 0);
   const amountInCents = Math.round(priceNum * 100);
+  const { currency } = useCurrencyStore();
 
   // If size is required but not selected, we wrap a standard button that alerts them
   if (requireSize && !selectedSize) {
@@ -132,7 +125,7 @@ export default function ImmediateApplePay({
 
   return (
     <div className="flex-1 h-[43px]">
-      <Elements stripe={stripePromise} options={{ mode: 'payment', amount: amountInCents, currency: 'usd' }}>
+      <Elements stripe={stripePromise} options={{ mode: 'payment', amount: amountInCents, currency: currency.toLowerCase() }}>
         <ApplePayButton 
           productId={productId} 
           selectedSize={selectedSize || "OS"}
