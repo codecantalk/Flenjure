@@ -168,7 +168,8 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
             email, firstName, lastName, address, city, state, zip, phone, snapchat, 
             transactionId: selectedMethod === 'cash' ? 'CASH-ON-DELIVERY' : transactionId, 
             items, 
-            paymentMethod: selectedMethod 
+            paymentMethod: selectedMethod,
+            country
           }),
         });
         const resData = await response.json();

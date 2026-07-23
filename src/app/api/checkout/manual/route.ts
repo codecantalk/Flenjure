@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items, paymentMethod } = data;
+    const { email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items, paymentMethod, country } = data;
 
     const shipping_address = {
       fullName: `${firstName} ${lastName}`,
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       city,
       state,
       postalCode: zip,
-      country: "US", // Can be dynamically passed if needed
+      country: country || "US",
       whatsapp_number: phone || null,
       snapchat_handle: snapchat || null
     };
