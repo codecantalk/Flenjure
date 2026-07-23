@@ -154,7 +154,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
     }
 
     if (isCafeMode) {
-      if (!transactionId) {
+      if (selectedMethod !== 'cash' && !transactionId) {
         return alert("Please enter your Transaction ID or Handle used for payment to verify your order.");
       }
       
@@ -164,7 +164,12 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
         const response = await fetch("/api/checkout/manual", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items }),
+          body: JSON.stringify({ 
+            email, firstName, lastName, address, city, state, zip, phone, snapchat, 
+            transactionId: selectedMethod === 'cash' ? 'CASH-ON-DELIVERY' : transactionId, 
+            items, 
+            paymentMethod: selectedMethod 
+          }),
         });
         const resData = await response.json();
         clearCart();
@@ -759,14 +764,18 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
                      </div>
                    )}
 
-                   <p className="text-xs text-stone-500 mt-2">After sending the funds, please enter your handle or transaction ID below to verify your order.</p>
-                   <input
-                     type="text"
-                     value={transactionId}
-                     onChange={(e) => setTransactionId(e.target.value)}
-                     placeholder="e.g. $MyCashAppTag or TxID"
-                     className="w-full bg-stone-50 dark:bg-[#1a1a1a] p-[14px] text-stone-900 dark:text-white text-[14px] placeholder:text-[#737373] outline-none rounded-[4px] shadow-sm border border-stone-200 dark:border-stone-800 focus:ring-1 focus:border-stone-900 dark:focus:ring-white focus:ring-stone-900"
-                   />
+                   {selectedMethod !== 'cash' && (
+                     <>
+                       <p className="text-xs text-stone-500 mt-2">After sending the funds, please enter your handle or transaction ID below to verify your order.</p>
+                       <input
+                         type="text"
+                         value={transactionId}
+                         onChange={(e) => setTransactionId(e.target.value)}
+                         placeholder="e.g. $MyCashAppTag or TxID"
+                         className="w-full bg-stone-50 dark:bg-[#1a1a1a] p-[14px] text-stone-900 dark:text-white text-[14px] placeholder:text-[#737373] outline-none rounded-[4px] shadow-sm border border-stone-200 dark:border-stone-800 focus:ring-1 focus:border-stone-900 dark:focus:ring-white focus:ring-stone-900"
+                       />
+                     </>
+                   )}
                 </div>
               ) : (
                 <div className="p-4 border border-[#d9d9d9] dark:border-stone-800 rounded-[4px] bg-white dark:bg-[#111] shadow-sm">
@@ -780,7 +789,7 @@ function CheckoutForm({ clientSecret, isCafeMode }: { clientSecret: string, isCa
               disabled={isProcessing || (!isCafeMode && (!stripe || !elements))}
               className="w-full h-[60px] flex items-center justify-center bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-[15px] font-bold rounded-[4px] hover:opacity-90 transition-all shadow-md mt-4 mb-24 disabled:opacity-70"
             >
-              {isProcessing ? <Loader2 className="animate-spin" /> : (isCafeMode ? "I have paid" : "Pay now")}
+              {isProcessing ? <Loader2 className="animate-spin" /> : (isCafeMode ? (selectedMethod === 'cash' ? "Place order" : "I have paid") : "Pay now")}
             </button>
           </form>
         </div>

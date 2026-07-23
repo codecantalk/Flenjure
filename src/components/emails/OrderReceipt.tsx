@@ -29,6 +29,7 @@ interface OrderReceiptProps {
     postalCode?: string | null;
     country?: string | null;
   } | null;
+  paymentMethod?: string;
 }
 
 export const OrderReceipt = ({
@@ -38,6 +39,7 @@ export const OrderReceipt = ({
   totalAmount,
   items,
   shippingAddress,
+  paymentMethod,
 }: OrderReceiptProps) => (
   <Html>
     <Head />
@@ -49,9 +51,15 @@ export const OrderReceipt = ({
         </Section>
         <Section style={content}>
           <Text style={greeting}>Hi {customerName},</Text>
-          <Text style={paragraph}>
-            Thank you for shopping with Flenjure! We're getting your order ready to be shipped. We will notify you when it has been sent.
-          </Text>
+          {paymentMethod === 'cash' ? (
+            <Text style={paragraph}>
+              Thank you for shopping with Flenjure! We have received your Cash on Delivery / Local Pickup order. Our team will contact you shortly to coordinate the cash handover logistics.
+            </Text>
+          ) : (
+            <Text style={paragraph}>
+              Thank you for shopping with Flenjure! We're getting your order ready to be shipped. We will notify you when it has been sent.
+            </Text>
+          )}
 
           <Hr style={hr} />
           

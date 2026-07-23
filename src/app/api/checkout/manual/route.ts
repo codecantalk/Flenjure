@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items } = data;
+    const { email, firstName, lastName, address, city, state, zip, phone, snapchat, transactionId, items, paymentMethod } = data;
 
     const shipping_address = {
       fullName: `${firstName} ${lastName}`,
@@ -62,8 +62,8 @@ export async function POST(req: Request) {
         id: orderId,
         total_amount: totalAmount,
         status: 'pending', // Manual orders start as pending verification
-        payment_method: 'manual',
-        payment_status: 'pending', // Waiting for transaction ID/crypto confirmation
+        payment_method: paymentMethod || 'manual',
+        payment_status: paymentMethod === 'cash' ? 'cash-on-delivery' : 'pending',
         email: email,
         shipping_address: shipping_address,
         whatsapp_number: phone || null,
@@ -94,7 +94,8 @@ export async function POST(req: Request) {
           customerEmail: email,
           totalAmount: totalAmount,
           items: hydratedItems,
-          shippingAddress: shipping_address
+          shippingAddress: shipping_address,
+          paymentMethod: paymentMethod
         }) as any,
       });
 

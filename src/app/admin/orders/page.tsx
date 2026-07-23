@@ -392,12 +392,12 @@ export default function AdminOrdersPage() {
                       <span className="text-stone-900 dark:text-white">Total</span>
                       <span className="text-stone-900 dark:text-white">${selectedOrder.total_amount.toFixed(2)}</span>
                     </div>
-                    <div className="text-xs text-stone-500 text-right pt-1">
-                      Paid by {selectedOrder.payment_method === "manual_payment" ? "Manual Transfer" : "Apple Pay"}
+                    <div className="text-xs text-stone-500 text-right pt-1 capitalize">
+                      Paid by {selectedOrder.payment_method === "manual_payment" ? "Manual Transfer" : selectedOrder.payment_method === "cash" ? "Cash on Delivery" : selectedOrder.payment_method?.replace(/_/g, ' ') || "Unknown"}
                     </div>
                   </div>
 
-                  {selectedOrder.payment_method === "manual_payment" && selectedOrder.payment_details && (
+                  {selectedOrder.payment_method !== "stripe" && selectedOrder.payment_method !== "apple_pay" && selectedOrder.payment_method !== "cash" && selectedOrder.payment_details && (
                     <div className="p-3 rounded-md bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 space-y-1">
                       <h5 className="text-xs font-medium text-stone-900 dark:text-white">Manual Payment Details</h5>
                       <div className="text-xs text-stone-600 dark:text-stone-400">
