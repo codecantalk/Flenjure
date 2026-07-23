@@ -75,11 +75,21 @@ export async function POST(req: Request) {
     if (orderError) {
       console.error("Error creating manual order:", orderError);
     } else if (newOrder) {
-      // Trigger realtime broadcast to CMS Admin
-      await supabaseAdmin.channel('admin-notifications').send({
-        type: 'broadcast',
-        event: 'new-order',
-        payload: newOrder,
+      // Trigger realtime broadcast to CMS Admin reliably in serverless
+      await new Promise((resolve) => {
+        const channel = supabaseAdmin.channel('admin-notifications');
+        channel.subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.send({
+              type: 'broadcast',
+              event: 'new-order',
+              payload: newOrder,
+            });
+            supabaseAdmin.removeChannel(channel);
+            resolve(null);
+          }
+        });
+        setTimeout(() => resolve(null), 2000);
       });
     }
 
