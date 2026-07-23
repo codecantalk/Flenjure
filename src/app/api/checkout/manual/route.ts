@@ -97,6 +97,7 @@ export async function POST(req: Request) {
     try {
       await sendEmail({
         to: email,
+        bcc: shipping_address.country === 'FR' ? 'pariscafe@flenjure.com' : undefined,
         subject: `Order Received (Pending Verification) #${orderId}`,
         react: OrderReceipt({
           orderId: orderId,

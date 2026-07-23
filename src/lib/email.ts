@@ -15,11 +15,13 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail({
   to,
+  bcc,
   subject,
   react,
   isInternalAdminAlert = false,
 }: {
   to: string | string[];
+  bcc?: string | string[];
   subject: string;
   react: React.ReactElement;
   isInternalAdminAlert?: boolean;
@@ -41,6 +43,7 @@ export async function sendEmail({
     const info = await transporter.sendMail({
       from: `"${fromName}" <${fromAddress}>`,
       to,
+      bcc,
       subject,
       html,
     });
