@@ -1026,16 +1026,16 @@ export default function AdminCustomersPage() {
       {/* CREATE / EDIT CUSTOMER MODAL (STICKY HEADER, STICKY FOOTER, SMOOTH SCROLL BODY) */}
       {isModalOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex justify-center p-4 sm:p-6 overflow-y-auto overscroll-contain"
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="bg-white dark:bg-[#121212] border border-stone-200 dark:border-stone-800 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-[#121212] border border-stone-200 dark:border-stone-800 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col my-auto max-h-[calc(100vh-3rem)] sm:max-h-[calc(100vh-4rem)] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             
             {/* Sticky Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 sm:py-5 border-b border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/40 shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 sm:py-5 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/50 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 shrink-0">
                   {modalMode === "create" ? <UserPlus size={18} /> : <Edit2 size={18} />}
