@@ -157,6 +157,17 @@ export default function AdminCustomersPage() {
     fetchCustomers();
   }, []);
 
+  // Keyboard navigation for modal (Escape key to close)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen]);
+
   const handleCopy = (text: string, id: string) => {
     if (!text || text === "Unknown") return;
     navigator.clipboard.writeText(text);
@@ -355,7 +366,7 @@ export default function AdminCustomersPage() {
   }
 
   return (
-    <div className="p-6 md:p-8 pb-32">
+    <div className="p-4 sm:p-6 md:p-8 pb-32">
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Notification Toast */}
@@ -382,7 +393,7 @@ export default function AdminCustomersPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-200 dark:border-stone-800 pb-6">
           <div>
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-sm">
+              <div className="p-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-sm shrink-0">
                 <Users size={22} />
               </div>
               <div>
@@ -400,7 +411,7 @@ export default function AdminCustomersPage() {
             <button
               onClick={() => fetchCustomers(true)}
               disabled={refreshing}
-              className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors shadow-xs"
+              className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors shadow-xs cursor-pointer"
               title="Refresh list"
             >
               <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
@@ -479,7 +490,7 @@ export default function AdminCustomersPage() {
             <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
               <button
                 onClick={() => setActiveFilter("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === "all"
                     ? "bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-xs"
                     : "text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -489,7 +500,7 @@ export default function AdminCustomersPage() {
               </button>
               <button
                 onClick={() => setActiveFilter("registered")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === "registered"
                     ? "bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-xs"
                     : "text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -499,7 +510,7 @@ export default function AdminCustomersPage() {
               </button>
               <button
                 onClick={() => setActiveFilter("guest")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === "guest"
                     ? "bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-xs"
                     : "text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -509,7 +520,7 @@ export default function AdminCustomersPage() {
               </button>
               <button
                 onClick={() => setActiveFilter("vip")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                   activeFilter === "vip"
                     ? "bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-xs"
                     : "text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -532,7 +543,7 @@ export default function AdminCustomersPage() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-white"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-white cursor-pointer"
                 >
                   <X size={14} />
                 </button>
@@ -543,16 +554,16 @@ export default function AdminCustomersPage() {
 
           {/* Customer Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse whitespace-nowrap">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/30 text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
-                  <th className="py-3.5 px-5">Customer Profile</th>
-                  <th className="py-3.5 px-4">Contact</th>
-                  <th className="py-3.5 px-4">Location</th>
-                  <th className="py-3.5 px-4">Orders</th>
-                  <th className="py-3.5 px-4">Total Spend</th>
-                  <th className="py-3.5 px-4">Tags</th>
-                  <th className="py-3.5 px-5 text-right">Actions</th>
+                  <th className="py-3.5 px-5 whitespace-nowrap">Customer Profile</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Contact</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Location</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Orders</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Total Spend</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Tags</th>
+                  <th className="py-3.5 px-5 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 dark:divide-stone-800/60 text-sm">
@@ -585,22 +596,22 @@ export default function AdminCustomersPage() {
                             }`}>
                               {initials}
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-stone-900 dark:text-white">
+                                <span className="font-medium text-stone-900 dark:text-white truncate">
                                   {customer.name}
                                 </span>
                                 {customer.is_registered ? (
-                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 whitespace-nowrap">
                                     <ShieldCheck size={10} /> Member
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-stone-100 dark:bg-stone-800/80 text-stone-500">
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-stone-100 dark:bg-stone-800/80 text-stone-500 whitespace-nowrap">
                                     Guest
                                   </span>
                                 )}
                               </div>
-                              <div className="text-xs text-stone-400 dark:text-stone-500">
+                              <div className="text-xs text-stone-400 dark:text-stone-500 whitespace-nowrap">
                                 Client since {new Date(customer.created_at || customer.last_order_date || Date.now()).toLocaleDateString(undefined, { month: "short", year: "numeric" })}
                               </div>
                             </div>
@@ -612,13 +623,13 @@ export default function AdminCustomersPage() {
                           <div className="flex flex-col gap-1 text-xs">
                             <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-400 group">
                               <Mail size={12} className="text-stone-400 shrink-0" />
-                              <span className="truncate max-w-[170px]" title={customer.email}>
+                              <span className="truncate max-w-[180px]" title={customer.email}>
                                 {customer.email}
                               </span>
                               {customer.email && customer.email !== "Unknown" && (
                                 <button
                                   onClick={() => handleCopy(customer.email, `email-${customer.id}`)}
-                                  className="opacity-0 group-hover:opacity-100 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-opacity p-0.5"
+                                  className="opacity-0 group-hover:opacity-100 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-opacity p-0.5 cursor-pointer"
                                   title="Copy Email"
                                 >
                                   {copiedId === `email-${customer.id}` ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
@@ -628,10 +639,10 @@ export default function AdminCustomersPage() {
                             {customer.phone && customer.phone !== "Unknown" && (
                               <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-400 group">
                                 <Phone size={12} className="text-stone-400 shrink-0" />
-                                <span>{customer.phone}</span>
+                                <span className="whitespace-nowrap">{customer.phone}</span>
                                 <button
                                   onClick={() => handleCopy(customer.phone, `phone-${customer.id}`)}
-                                  className="opacity-0 group-hover:opacity-100 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-opacity p-0.5"
+                                  className="opacity-0 group-hover:opacity-100 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-opacity p-0.5 cursor-pointer"
                                   title="Copy Phone"
                                 >
                                   {copiedId === `phone-${customer.id}` ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
@@ -644,24 +655,24 @@ export default function AdminCustomersPage() {
                         {/* Location */}
                         <td className="py-4 px-4 text-xs text-stone-600 dark:text-stone-400">
                           {customer.shipping_address?.city ? (
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 whitespace-nowrap">
                               <MapPin size={12} className="text-stone-400 shrink-0" />
                               <span>{customer.shipping_address.city}, {customer.shipping_address.country || "USA"}</span>
                             </div>
                           ) : (
-                            <span className="text-stone-400 dark:text-stone-600 italic">Not specified</span>
+                            <span className="text-stone-400 dark:text-stone-600 italic whitespace-nowrap">Not specified</span>
                           )}
                         </td>
 
                         {/* Orders count */}
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200">
                             <ShoppingBag size={12} /> {customer.orders_count} {customer.orders_count === 1 ? "order" : "orders"}
                           </span>
                         </td>
 
                         {/* Spend */}
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-4 whitespace-nowrap">
                           <div className="font-semibold text-stone-900 dark:text-white">
                             ${(customer.total_spent || 0).toFixed(2)}
                           </div>
@@ -679,7 +690,7 @@ export default function AdminCustomersPage() {
                               customer.tags.map((t, idx) => (
                                 <span 
                                   key={idx}
-                                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700"
+                                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 whitespace-nowrap"
                                 >
                                   {t}
                                 </span>
@@ -691,11 +702,11 @@ export default function AdminCustomersPage() {
                         </td>
 
                         {/* Actions */}
-                        <td className="py-4 px-5 text-right" onClick={e => e.stopPropagation()}>
+                        <td className="py-4 px-5 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={(e) => openEditModal(customer, e)}
-                              className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                              className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                               title="Edit Profile"
                             >
                               <Edit2 size={15} />
@@ -703,7 +714,7 @@ export default function AdminCustomersPage() {
 
                             <button
                               onClick={() => setCustomerToDelete(customer)}
-                              className="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                              className="p-1.5 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                               title="Delete Profile"
                             >
                               <Trash2 size={15} />
@@ -711,7 +722,7 @@ export default function AdminCustomersPage() {
 
                             <button
                               onClick={() => setExpandedCustomer(isExpanded ? null : customer.id)}
-                              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors ml-1"
+                              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors ml-1 cursor-pointer"
                               title={isExpanded ? "Collapse" : "Expand"}
                             >
                               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -723,107 +734,136 @@ export default function AdminCustomersPage() {
                       {/* Expanded Customer Details Drawer */}
                       {isExpanded && (
                         <tr className="bg-stone-50/70 dark:bg-stone-900/25 border-b border-stone-200 dark:border-stone-800">
-                          <td colSpan={7} className="p-0">
-                            <div className="p-6 md:p-8 space-y-6">
+                          <td colSpan={7} className="p-0 whitespace-normal">
+                            <div className="p-5 sm:p-7 md:p-8 space-y-6">
                               
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
                                 
-                                {/* Address card */}
-                                <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs">
-                                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-100 dark:border-stone-800">
-                                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-stone-500 tracking-wider">
-                                      <MapPin size={14} /> Shipping Destination
+                                {/* 1. Shipping Destination Card */}
+                                <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs min-w-0 flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-stone-100 dark:border-stone-800">
+                                      <div className="flex items-center gap-2 text-xs font-semibold uppercase text-stone-500 tracking-wider">
+                                        <MapPin size={14} /> Shipping Destination
+                                      </div>
+                                      <button
+                                        onClick={(e) => openEditModal(customer, e)}
+                                        className="text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center gap-1 cursor-pointer"
+                                      >
+                                        <Edit2 size={12} /> Edit
+                                      </button>
                                     </div>
-                                    <button
-                                      onClick={(e) => openEditModal(customer, e)}
-                                      className="text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center gap-1"
-                                    >
-                                      <Edit2 size={12} /> Edit
-                                    </button>
-                                  </div>
 
-                                  {customer.shipping_address ? (
-                                    <div className="space-y-1.5 text-xs text-stone-700 dark:text-stone-300">
-                                      {customer.shipping_address.fullName && (
-                                        <div className="font-semibold text-stone-900 dark:text-white">
-                                          {customer.shipping_address.fullName}
+                                    {customer.shipping_address && (customer.shipping_address.addressLine1 || customer.shipping_address.city) ? (
+                                      <div className="space-y-1.5 text-xs text-stone-700 dark:text-stone-300 break-words leading-relaxed">
+                                        {customer.shipping_address.fullName && (
+                                          <div className="font-semibold text-stone-900 dark:text-white">
+                                            {customer.shipping_address.fullName}
+                                          </div>
+                                        )}
+                                        {customer.shipping_address.addressLine1 && (
+                                          <div>{customer.shipping_address.addressLine1}</div>
+                                        )}
+                                        {customer.shipping_address.addressLine2 && (
+                                          <div>{customer.shipping_address.addressLine2}</div>
+                                        )}
+                                        <div>
+                                          {[
+                                            customer.shipping_address.city,
+                                            customer.shipping_address.state,
+                                            customer.shipping_address.postalCode
+                                          ].filter(Boolean).join(", ")}
                                         </div>
-                                      )}
-                                      <div>{customer.shipping_address.addressLine1 || "No street address"}</div>
-                                      {customer.shipping_address.addressLine2 && (
-                                        <div>{customer.shipping_address.addressLine2}</div>
-                                      )}
-                                      <div>
-                                        {[
-                                          customer.shipping_address.city,
-                                          customer.shipping_address.state,
-                                          customer.shipping_address.postalCode
-                                        ].filter(Boolean).join(", ")}
-                                      </div>
-                                      <div>{customer.shipping_address.country || "United States"}</div>
-                                      {customer.shipping_address.phone && (
-                                        <div className="pt-2 text-stone-500">
-                                          Phone: {customer.shipping_address.phone}
-                                        </div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <div className="text-xs text-stone-400 py-3 italic">
-                                      No shipping address registered yet. Click edit to add shipping details.
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Notes and Staff metadata */}
-                                <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs">
-                                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-100 dark:border-stone-800">
-                                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-stone-500 tracking-wider">
-                                      <FileText size={14} /> Staff Notes & Tags
-                                    </div>
-                                    <button
-                                      onClick={(e) => openEditModal(customer, e)}
-                                      className="text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center gap-1"
-                                    >
-                                      <Edit2 size={12} /> Edit
-                                    </button>
-                                  </div>
-
-                                  <div className="space-y-3">
-                                    <div>
-                                      <div className="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-1">
-                                        Internal Notes
-                                      </div>
-                                      <div className="text-xs text-stone-700 dark:text-stone-300 bg-stone-50 dark:bg-stone-900/60 p-3 rounded-lg min-h-[55px] border border-stone-100 dark:border-stone-800">
-                                        {customer.notes ? customer.notes : <span className="text-stone-400 italic">No staff notes recorded.</span>}
-                                      </div>
-                                    </div>
-
-                                    <div>
-                                      <div className="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-1.5">
-                                        Tags
-                                      </div>
-                                      <div className="flex flex-wrap gap-1.5">
-                                        {customer.tags && customer.tags.length > 0 ? (
-                                          customer.tags.map((tg, i) => (
-                                            <span 
-                                              key={i} 
-                                              className="px-2.5 py-1 rounded-md text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 flex items-center gap-1"
-                                            >
-                                              <Tag size={10} /> {tg}
-                                            </span>
-                                          ))
-                                        ) : (
-                                          <span className="text-xs text-stone-400 italic">No assigned tags.</span>
+                                        <div>{customer.shipping_address.country || "United States"}</div>
+                                        {customer.shipping_address.phone && (
+                                          <div className="pt-2 text-stone-500">
+                                            Phone: {customer.shipping_address.phone}
+                                          </div>
                                         )}
                                       </div>
+                                    ) : (
+                                      <div className="py-4 px-3 rounded-lg border border-dashed border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/30 text-center flex flex-col items-center justify-center gap-2">
+                                        <MapPin size={18} className="text-stone-400" />
+                                        <p className="text-xs text-stone-500 dark:text-stone-400 max-w-[220px] mx-auto leading-relaxed break-words">
+                                          No shipping address registered yet.
+                                        </p>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => openEditModal(customer, e)}
+                                          className="text-xs font-medium text-stone-900 dark:text-white underline underline-offset-4 hover:opacity-75 transition-opacity cursor-pointer"
+                                        >
+                                          + Add Shipping Address
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* 2. Staff Notes and Tags */}
+                                <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs min-w-0 flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-stone-100 dark:border-stone-800">
+                                      <div className="flex items-center gap-2 text-xs font-semibold uppercase text-stone-500 tracking-wider">
+                                        <FileText size={14} /> Staff Notes & Tags
+                                      </div>
+                                      <button
+                                        onClick={(e) => openEditModal(customer, e)}
+                                        className="text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white flex items-center gap-1 cursor-pointer"
+                                      >
+                                        <Edit2 size={12} /> Edit
+                                      </button>
+                                    </div>
+
+                                    <div className="space-y-3.5">
+                                      <div>
+                                        <div className="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-1">
+                                          Internal Notes
+                                        </div>
+                                        <div className="text-xs text-stone-700 dark:text-stone-300 bg-stone-50 dark:bg-stone-900/60 p-3 rounded-lg min-h-[55px] border border-stone-100 dark:border-stone-800 break-words whitespace-pre-wrap leading-relaxed">
+                                          {customer.notes ? (
+                                            customer.notes
+                                          ) : (
+                                            <div className="text-stone-400 italic flex items-center justify-between">
+                                              <span>No staff notes recorded.</span>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => openEditModal(customer, e)}
+                                                className="text-stone-600 dark:text-stone-300 underline not-italic hover:text-stone-900 dark:hover:text-white cursor-pointer"
+                                              >
+                                                + Add
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      <div>
+                                        <div className="text-[11px] font-medium text-stone-400 uppercase tracking-wider mb-1.5">
+                                          Customer Tags
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {customer.tags && customer.tags.length > 0 ? (
+                                            customer.tags.map((tg, i) => (
+                                              <span 
+                                                key={i} 
+                                                className="px-2.5 py-1 rounded-md text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 flex items-center gap-1"
+                                              >
+                                                <Tag size={10} /> {tg}
+                                              </span>
+                                            ))
+                                          ) : (
+                                            <span className="text-xs text-stone-400 italic">No assigned tags.</span>
+                                          )}
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
 
-                                {/* Client Summary Info */}
-                                <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs flex flex-col justify-between">
+                                {/* 3. Client Summary Card */}
+                                <div className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-5 shadow-xs min-w-0 flex flex-col justify-between">
                                   <div>
-                                    <div className="text-xs font-semibold uppercase text-stone-500 tracking-wider mb-3 pb-2 border-b border-stone-100 dark:border-stone-800">
+                                    <div className="text-xs font-semibold uppercase text-stone-500 tracking-wider mb-3 pb-2.5 border-b border-stone-100 dark:border-stone-800">
                                       Client Summary
                                     </div>
                                     <div className="space-y-2 text-xs">
@@ -857,13 +897,13 @@ export default function AdminCustomersPage() {
                                   <div className="pt-4 flex gap-2">
                                     <button
                                       onClick={(e) => openEditModal(customer, e)}
-                                      className="flex-1 px-3 py-2 text-xs font-medium rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors text-center"
+                                      className="flex-1 px-3 py-2 text-xs font-medium rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors text-center cursor-pointer"
                                     >
                                       Edit Full Profile
                                     </button>
                                     <a
                                       href={`mailto:${customer.email}`}
-                                      className="p-2 rounded-lg border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                                      className="p-2 rounded-lg border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                                       title="Send Email"
                                     >
                                       <Mail size={14} />
@@ -884,7 +924,7 @@ export default function AdminCustomersPage() {
                                     {customer.recent_orders.map((order: any, idx: number) => (
                                       <div 
                                         key={order.id || idx} 
-                                        className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-4 flex flex-col justify-between shadow-2xs"
+                                        className="bg-white dark:bg-[#111] border border-stone-200 dark:border-stone-800 rounded-xl p-4 flex flex-col justify-between shadow-2xs min-w-0"
                                       >
                                         <div>
                                           <div className="flex justify-between items-start mb-3">
@@ -919,10 +959,10 @@ export default function AdminCustomersPage() {
                                         </div>
 
                                         <div className="pt-2.5 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-[11px]">
-                                          <span className="text-stone-400 capitalize">
+                                          <span className="text-stone-400 capitalize truncate pr-2">
                                             {order.payment_method?.replace(/_/g, " ") || "Payment"}
                                           </span>
-                                          <span className={`px-2 py-0.5 rounded-full font-medium uppercase text-[10px] tracking-wider ${
+                                          <span className={`px-2 py-0.5 rounded-full font-medium uppercase text-[10px] tracking-wider shrink-0 ${
                                             order.status === "shipped" 
                                               ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
                                               : order.status === "cancelled"
@@ -966,7 +1006,7 @@ export default function AdminCustomersPage() {
                         {searchQuery && (
                           <button
                             onClick={() => setSearchQuery("")}
-                            className="text-xs font-medium text-stone-900 dark:text-white underline underline-offset-4"
+                            className="text-xs font-medium text-stone-900 dark:text-white underline underline-offset-4 cursor-pointer"
                           >
                             Clear search filters
                           </button>
@@ -983,22 +1023,28 @@ export default function AdminCustomersPage() {
 
       </div>
 
-      {/* CREATE / EDIT CUSTOMER MODAL */}
+      {/* CREATE / EDIT CUSTOMER MODAL (STICKY HEADER, STICKY FOOTER, SMOOTH SCROLL BODY) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-[#121212] border border-stone-200 dark:border-stone-800 rounded-2xl max-w-2xl w-full shadow-2xl my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-[#121212] border border-stone-200 dark:border-stone-800 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/30">
+            {/* Sticky Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 sm:py-5 border-b border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/40 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900">
+                <div className="p-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 shrink-0">
                   {modalMode === "create" ? <UserPlus size={18} /> : <Edit2 size={18} />}
                 </div>
                 <div>
-                  <h3 className="text-lg font-serif font-medium text-stone-900 dark:text-white">
+                  <h3 className="text-base sm:text-lg font-serif font-medium text-stone-900 dark:text-white">
                     {modalMode === "create" ? "Add New Customer Profile" : "Edit Customer Profile"}
                   </h3>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-[11px] sm:text-xs text-stone-500">
                     {modalMode === "create" 
                       ? "Create an administrative client profile in Flenjure CMS"
                       : "Modify contact info, shipping coordinates, tags, and internal notes"}
@@ -1007,279 +1053,290 @@ export default function AdminCustomersPage() {
               </div>
 
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1.5 rounded-lg transition-colors"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+                title="Close (Esc)"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleFormSubmit} className="p-6 space-y-6">
+            {/* Modal Form with Scrollable Content and Sticky Action Footer */}
+            <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               
-              {formError && (
-                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-medium">
-                  {formError}
-                </div>
-              )}
+              {/* Scrollable Form Body */}
+              <div className="p-5 sm:p-6 space-y-6 overflow-y-auto flex-1 overscroll-contain">
+                
+                {formError && (
+                  <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-medium">
+                    {formError}
+                  </div>
+                )}
 
-              {/* Section 1: Contact & Personal Details */}
-              <div className="space-y-4">
-                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
-                  <Users size={13} /> 1. Personal & Contact Details
+                {/* Section 1: Contact & Personal Details */}
+                <div className="space-y-4">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-stone-400 flex items-center gap-1.5 pb-1 border-b border-stone-100 dark:border-stone-800/60">
+                    <Users size={13} /> 1. Personal & Contact Details
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Alexander"
+                        value={formData.first_name}
+                        onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Laurent"
+                        value={formData.last_name}
+                        onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        Email Address <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="client@example.com"
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        Phone / WhatsApp Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+1 (404) 555-0192"
+                        value={formData.phone}
+                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Section 2: Shipping Destination */}
+                <div className="space-y-4 pt-2">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-stone-400 flex items-center gap-1.5 pb-1 border-b border-stone-100 dark:border-stone-800/60">
+                    <MapPin size={13} /> 2. Primary Shipping Destination
+                  </div>
+
                   <div>
                     <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      First Name
+                      Street Address (Line 1)
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Alexander"
-                      value={formData.first_name}
-                      onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
+                      placeholder="e.g. 3344 Peachtree Rd NE"
+                      value={formData.addressLine1}
+                      onChange={e => setFormData({ ...formData, addressLine1: e.target.value })}
+                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      Last Name
+                      Apartment, Suite, Unit (Line 2)
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Laurent"
-                      value={formData.last_name}
-                      onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      Email Address <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="client@example.com"
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
+                      placeholder="Suite 1800 (Optional)"
+                      value={formData.addressLine2}
+                      onChange={e => setFormData({ ...formData, addressLine2: e.target.value })}
+                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      Phone / WhatsApp Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="+1 (404) 555-0192"
-                      value={formData.phone}
-                      onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
-                    />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Atlanta"
+                        value={formData.city}
+                        onChange={e => setFormData({ ...formData, city: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        State / Province
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="GA"
+                        value={formData.state}
+                        onChange={e => setFormData({ ...formData, state: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        Postal / ZIP
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="30326"
+                        value={formData.postalCode}
+                        onChange={e => setFormData({ ...formData, postalCode: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="United States"
+                        value={formData.country}
+                        onChange={e => setFormData({ ...formData, country: e.target.value })}
+                        className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Section 2: Shipping Destination */}
-              <div className="space-y-4 pt-2 border-t border-stone-100 dark:border-stone-800/80">
-                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
-                  <MapPin size={13} /> 2. Primary Shipping Destination
-                </div>
+                {/* Section 3: CRM Details, Notes & Tags */}
+                <div className="space-y-4 pt-2">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-stone-400 flex items-center gap-1.5 pb-1 border-b border-stone-100 dark:border-stone-800/60">
+                    <Tag size={13} /> 3. Internal Notes & Tags
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                    Street Address (Line 1)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 3344 Peachtree Rd NE"
-                    value={formData.addressLine1}
-                    onChange={e => setFormData({ ...formData, addressLine1: e.target.value })}
-                    className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                    Apartment, Suite, Unit (Line 2)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Suite 1800 (Optional)"
-                    value={formData.addressLine2}
-                    onChange={e => setFormData({ ...formData, addressLine2: e.target.value })}
-                    className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      City
+                      Internal Staff Notes
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Atlanta"
-                      value={formData.city}
-                      onChange={e => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
+                    <textarea
+                      rows={3}
+                      placeholder="Private staff notes, preferences, sizing feedback, interior styling notes..."
+                      value={formData.notes}
+                      onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors resize-none leading-relaxed"
                     />
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      State / Province
+                      Customer Tags
                     </label>
-                    <input
-                      type="text"
-                      placeholder="GA"
-                      value={formData.state}
-                      onChange={e => setFormData({ ...formData, state: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      Postal / ZIP
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="30326"
-                      value={formData.postalCode}
-                      onChange={e => setFormData({ ...formData, postalCode: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                      Country
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="United States"
-                      value={formData.country}
-                      onChange={e => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 3: CRM Details, Notes & Tags */}
-              <div className="space-y-4 pt-2 border-t border-stone-100 dark:border-stone-800/80">
-                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
-                  <Tag size={13} /> 3. Internal Notes & Tags
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                    Internal Staff Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Private staff notes, preferences, sizing feedback, interior styling notes..."
-                    value={formData.notes}
-                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-3 text-sm text-stone-900 dark:text-white focus:outline-hidden focus:border-stone-400 dark:focus:border-stone-600 transition-colors resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
-                    Customer Tags
-                  </label>
-                  
-                  {/* Current Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-2.5">
-                    {formData.tags.map((tag, idx) => (
-                      <span 
-                        key={idx}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTag(tag)}
-                          className="hover:opacity-75 transition-opacity"
+                    
+                    {/* Current Tags */}
+                    <div className="flex flex-wrap gap-1.5 mb-2.5 min-h-[32px] p-2 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-stone-800">
+                      {formData.tags.map((tag, idx) => (
+                        <span 
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs"
                         >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
-                    {formData.tags.length === 0 && (
-                      <span className="text-xs text-stone-400 italic">No tags selected</span>
-                    )}
-                  </div>
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(tag)}
+                            className="hover:opacity-70 transition-opacity p-0.5 cursor-pointer"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                      {formData.tags.length === 0 && (
+                        <span className="text-xs text-stone-400 italic py-0.5">No tags assigned yet</span>
+                      )}
+                    </div>
 
-                  {/* Add Custom Tag */}
-                  <div className="flex gap-2 mb-3">
-                    <input
-                      type="text"
-                      placeholder="Add tag (e.g. VIP, Architect, Wholesale)..."
-                      value={newTagInput}
-                      onChange={e => setNewTagInput(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddTag(newTagInput);
-                        }
-                      }}
-                      className="flex-1 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-900 dark:text-white focus:outline-hidden"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleAddTag(newTagInput)}
-                      className="px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-800 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-                    >
-                      Add Tag
-                    </button>
-                  </div>
-
-                  {/* Quick Suggested Tags */}
-                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-stone-400">
-                    <span className="font-medium">Suggestions:</span>
-                    {SUGGESTED_TAGS.map(sug => (
+                    {/* Add Custom Tag */}
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        placeholder="Type a tag name and hit Enter..."
+                        value={newTagInput}
+                        onChange={e => setNewTagInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddTag(newTagInput);
+                          }
+                        }}
+                        className="flex-1 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 dark:text-white focus:outline-hidden"
+                      />
                       <button
-                        key={sug}
                         type="button"
-                        onClick={() => handleAddTag(sug)}
-                        className={`px-2 py-0.5 rounded-md border text-[11px] transition-colors ${
-                          formData.tags.includes(sug)
-                            ? "border-transparent bg-stone-200 dark:bg-stone-800 text-stone-400 cursor-default"
-                            : "border-stone-200 dark:border-stone-800 hover:border-stone-400 text-stone-600 dark:text-stone-300"
-                        }`}
+                        onClick={() => handleAddTag(newTagInput)}
+                        className="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-800 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer shrink-0"
                       >
-                        + {sug}
+                        Add Tag
                       </button>
-                    ))}
+                    </div>
+
+                    {/* Quick Suggested Tags */}
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-stone-400">
+                      <span className="font-medium mr-1">Suggestions:</span>
+                      {SUGGESTED_TAGS.map(sug => {
+                        const isAdded = formData.tags.includes(sug);
+                        return (
+                          <button
+                            key={sug}
+                            type="button"
+                            onClick={() => !isAdded && handleAddTag(sug)}
+                            disabled={isAdded}
+                            className={`px-2.5 py-1 rounded-md border text-[11px] transition-colors cursor-pointer ${
+                              isAdded
+                                ? "border-transparent bg-stone-200/60 dark:bg-stone-800 text-stone-400 cursor-default"
+                                : "border-stone-200 dark:border-stone-800 hover:border-stone-400 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-900"
+                            }`}
+                          >
+                            + {sug}
+                          </button>
+                        );
+                      })}
+                    </div>
+
                   </div>
 
                 </div>
 
               </div>
 
-              {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200 dark:border-stone-800">
+              {/* Sticky Modal Action Footer */}
+              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/40 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-5 py-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs sm:text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-xs sm:text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {formSubmitting && <Loader2 size={14} className="animate-spin" />}
                   <span>{modalMode === "create" ? "Create Customer Profile" : "Save Changes"}</span>
