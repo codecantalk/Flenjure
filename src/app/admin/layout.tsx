@@ -264,14 +264,22 @@ export default function AdminLayout({
         
         <div className="md:hidden bg-white dark:bg-[#111] border-b border-stone-200 dark:border-stone-800 p-4 flex items-center justify-between z-30 shrink-0">
           <div className="flex items-center gap-2">
-            <Image 
-              src="/favicon.png" 
-              alt="Flenjure Icon" 
-              width={32} 
-              height={32} 
-              className="object-contain"
-              style={{ width: 'auto', height: 'auto' }}
-            />
+            <div className="relative w-28 h-7">
+              <Image 
+                src="/logo-black.png" 
+                alt="Flenjure" 
+                fill
+                className="object-contain dark:hidden"
+                priority
+              />
+              <Image 
+                src="/logo-white.png" 
+                alt="Flenjure" 
+                fill
+                className="object-contain hidden dark:block"
+                priority
+              />
+            </div>
           </div>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -298,14 +306,22 @@ export default function AdminLayout({
             {/* Logo Brand area */}
             <div className="p-5 flex items-center justify-between sticky top-0 bg-[#f4f4f4] dark:bg-[#111] z-10">
               <Link href="/admin/dashboard" className="flex items-center">
-                <Image 
-                  src="/favicon.png" 
-                  alt="Flenjure Icon" 
-                  width={32} 
-                  height={32} 
-                  className="object-contain"
-                  style={{ width: 'auto', height: 'auto' }}
-                />
+                <div className="relative w-32 h-8">
+                  <Image 
+                    src="/logo-black.png" 
+                    alt="Flenjure" 
+                    fill
+                    className="object-contain dark:hidden"
+                    priority
+                  />
+                  <Image 
+                    src="/logo-white.png" 
+                    alt="Flenjure" 
+                    fill
+                    className="object-contain hidden dark:block"
+                    priority
+                  />
+                </div>
               </Link>
               <button 
                 onClick={() => setSidebarOpen(false)}

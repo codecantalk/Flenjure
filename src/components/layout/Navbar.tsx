@@ -139,8 +139,9 @@ export default function Navbar() {
     return (
       <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-stone-950 py-6 border-b border-stone-200 dark:border-stone-800 transition-colors duration-1000">
         <div className="w-full px-6 flex justify-center">
-          <Link href="/" className="relative h-12 w-48 sm:h-16 sm:w-64 transition-all duration-1000">
-            <Image src="/logo.png" alt="Fleñjure Logo" fill className="object-contain" sizes="(max-width: 640px) 192px, 256px" priority />
+          <Link href="/" className="relative h-10 w-36 sm:h-12 sm:w-48 transition-all duration-1000">
+            <Image src="/logo-black.png" alt="Fleñjure Logo" fill className="object-contain dark:hidden" sizes="(max-width: 640px) 144px, 192px" priority />
+            <Image src="/logo-white.png" alt="Fleñjure Logo" fill className="object-contain hidden dark:block" sizes="(max-width: 640px) 144px, 192px" priority />
           </Link>
         </div>
       </header>
@@ -189,40 +190,78 @@ export default function Navbar() {
               className={clsx(
                 "relative transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] origin-center flex items-center justify-center",
                 (!isHome && isScrolled)
-                  ? "h-10 w-10 sm:h-12 sm:w-12" // Icon size on scroll
+                  ? "h-8 w-16 sm:h-9 sm:w-20" // Icon/emblem size on scroll
                   : (isHome && isScrolled)
-                  ? "h-8 w-32 sm:h-10 sm:w-40" // Smallest full logo on scroll (Home)
+                  ? "h-8 w-28 sm:h-10 sm:w-36" // Sleek logo on scroll (Home)
                   : isHome
-                  ? "h-14 w-56 sm:h-20 sm:w-72" // Large on home page
-                  : "h-10 w-40 sm:h-12 sm:w-48" // Medium on store/other pages
+                  ? "h-12 w-48 sm:h-16 sm:w-64" // Hero on home page
+                  : "h-9 w-36 sm:h-11 sm:w-44" // Medium on store/other pages
               )}
             >
-              {/* Main Full Logo */}
-              <Image
-                src="/logo.png"
-                alt="Fleñjure Logo"
-                fill
-                className={clsx(
-                  "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]",
-                  (!isHome && isScrolled) ? "opacity-0 scale-90 blur-sm pointer-events-none" : "opacity-100 scale-100 blur-0"
-                )}
-                sizes="(max-width: 640px) 224px, 288px"
-                priority
-              />
-
-              {/* Icon / Scroll Logo */}
-              {!isHome && (
+              {/* Home Hero Logo (White on dark video) */}
+              {isHome && !isScrolled ? (
                 <Image
-                  src="/favicon.png"
-                  alt="Fleñjure Icon"
+                  src="/logo-white.png"
+                  alt="Fleñjure Logo"
                   fill
-                  className={clsx(
-                    "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] absolute inset-0",
-                    isScrolled ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-110 blur-sm pointer-events-none"
-                  )}
-                  sizes="(max-width: 640px) 48px, 48px"
+                  className="object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                  sizes="(max-width: 640px) 192px, 256px"
                   priority
                 />
+              ) : (
+                <>
+                  {/* Main Full Logo (Adaptive Dark/Light) */}
+                  <Image
+                    src="/logo-black.png"
+                    alt="Fleñjure Logo"
+                    fill
+                    className={clsx(
+                      "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] dark:hidden",
+                      (!isHome && isScrolled) ? "opacity-0 scale-90 blur-sm pointer-events-none" : "opacity-100 scale-100 blur-0"
+                    )}
+                    sizes="(max-width: 640px) 180px, 220px"
+                    priority
+                  />
+                  <Image
+                    src="/logo-white.png"
+                    alt="Fleñjure Logo"
+                    fill
+                    className={clsx(
+                      "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hidden dark:block",
+                      (!isHome && isScrolled) ? "opacity-0 scale-90 blur-sm pointer-events-none" : "opacity-100 scale-100 blur-0"
+                    )}
+                    sizes="(max-width: 640px) 180px, 220px"
+                    priority
+                  />
+
+                  {/* Icon / Scroll Logo */}
+                  {!isHome && (
+                    <>
+                      <Image
+                        src="/favicon.png"
+                        alt="Fleñjure Icon"
+                        fill
+                        className={clsx(
+                          "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] absolute inset-0 dark:hidden",
+                          isScrolled ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-110 blur-sm pointer-events-none"
+                        )}
+                        sizes="(max-width: 640px) 64px, 80px"
+                        priority
+                      />
+                      <Image
+                        src="/favicon-white.png"
+                        alt="Fleñjure Icon"
+                        fill
+                        className={clsx(
+                          "object-contain transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] absolute inset-0 hidden dark:block",
+                          isScrolled ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-110 blur-sm pointer-events-none"
+                        )}
+                        sizes="(max-width: 640px) 64px, 80px"
+                        priority
+                      />
+                    </>
+                  )}
+                </>
               )}
             </Link>
           </div>
@@ -303,9 +342,10 @@ export default function Navbar() {
               className="fixed top-0 left-0 bottom-0 w-[95vw] sm:w-[450px] bg-white dark:bg-[#121212] z-[100] shadow-2xl flex flex-col overflow-y-auto"
             >
               {/* Background Watermark Logo */}
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.05] dark:opacity-[0.08] overflow-hidden">
-                <div className="relative w-[120%] h-[120%]">
-                  <Image src="/favicon.png" alt="watermark" fill className="object-contain" sizes="100vw" priority />
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03] dark:opacity-[0.05] overflow-hidden">
+                <div className="relative w-[90%] h-[90%]">
+                  <Image src="/logo-black.png" alt="watermark" fill className="object-contain dark:hidden" sizes="100vw" priority />
+                  <Image src="/logo-white.png" alt="watermark" fill className="object-contain hidden dark:block" sizes="100vw" priority />
                 </div>
               </div>
 
@@ -379,12 +419,12 @@ export default function Navbar() {
                   </form>
 
                   <p className="text-[10px] text-stone-500 dark:text-stone-400 mb-8">
-                    By providing your email address, you agree to our <Link href="/contact" className="underline hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>.
+                    By providing your email address, you agree to our <Link href="/privacy" className="underline hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>.
                   </p>
 
                   <div className="flex flex-col gap-4">
                     <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors">Client Services</Link>
-                    <Link href="/shipping" onClick={() => setIsMenuOpen(false)} className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors">Legal & Privacy</Link>
+                    <Link href="/privacy" onClick={() => setIsMenuOpen(false)} className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors">Legal & Privacy</Link>
                     <span className="text-[11px] uppercase tracking-[0.15em] font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer">Careers</span>
                   </div>
 

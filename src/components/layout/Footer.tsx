@@ -35,13 +35,20 @@ export default function Footer() {
         
         {/* Brand Column */}
         <div className="md:col-span-4 flex flex-col gap-6">
-          <Link href="/" className="relative h-14 w-48">
+          <Link href="/" className="relative h-11 w-40 sm:h-12 sm:w-44">
             <Image
-              src="/logo.png"
+              src="/logo-black.png"
               alt="Fleñjure Logo"
               fill
-              className="object-contain object-left"
-              sizes="128px"
+              className="object-contain object-left dark:hidden"
+              sizes="176px"
+            />
+            <Image
+              src="/logo-white.png"
+              alt="Fleñjure Logo"
+              fill
+              className="object-contain object-left hidden dark:block"
+              sizes="176px"
             />
           </Link>
           <p className="text-sm font-light text-stone-500 max-w-xs mt-2">

@@ -150,14 +150,22 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-[#fcfcfc] dark:bg-[#0a0a0a] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="mx-auto mb-6 flex justify-center">
-          <Image 
-            src="/logo.png" 
-            alt="Flenjure" 
-            width={160} 
-            height={50} 
-            className="object-contain"
-            style={{ width: 'auto', height: 'auto' }}
-          />
+          <div className="relative w-44 h-14">
+            <Image 
+              src="/logo-black.png" 
+              alt="Flenjure" 
+              fill
+              className="object-contain dark:hidden"
+              priority
+            />
+            <Image 
+              src="/logo-white.png" 
+              alt="Flenjure" 
+              fill
+              className="object-contain hidden dark:block"
+              priority
+            />
+          </div>
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white">
           {isResetMode ? "Reset your password" : "Log in to Flenjure"}

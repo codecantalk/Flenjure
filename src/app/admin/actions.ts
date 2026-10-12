@@ -175,82 +175,282 @@ export async function updateOrderField(id: string, field: string, value: string)
   return data;
 }
 
-// CUSTOMERS (Aggregated from Orders + Auth Users)
+// CUSTOMERS (Aggregated from Auth Users + Orders)
+export interface CustomerData {
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  phone?: string;
+  shipping_address?: {
+    fullName?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+    phone?: string;
+    snapchat_handle?: string;
+    whatsapp_number?: string;
+  } | null;
+  notes?: string;
+  tags?: string[];
+}
+
 export async function getCustomers() {
   const { data: orders, error: ordersError } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers();
 
   const customerMap = new Map<string, any>();
 
-  // First, add all registered users to the map
+  // 1. Add all registered Supabase Auth users to map
   if (authData && authData.users) {
     authData.users.forEach(user => {
-      const email = user.email || "Unknown";
-      const name = user.user_metadata?.first_name 
-        ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`.trim() 
-        : "Unknown Customer";
-      const phone = user.phone || "Unknown";
-      
-      if (email !== "Unknown") {
-        customerMap.set(email, {
-          id: email,
-          name,
-          email,
-          phone,
-          total_spent: 0,
-          orders_count: 0,
-          last_order_date: user.created_at,
-          recent_orders: []
-        });
+      const email = user.email || "";
+      if (!email) return;
+
+      const meta = user.user_metadata || {};
+      const firstName = meta.first_name || "";
+      const lastName = meta.last_name || "";
+      let name = "";
+      if (firstName || lastName) {
+        name = `${firstName} ${lastName}`.trim();
+      } else if (meta.full_name) {
+        name = meta.full_name;
+      } else if (meta.name) {
+        name = meta.name;
+      } else {
+        name = email.split("@")[0] || "Customer";
       }
+
+      const phone = user.phone || meta.phone || "";
+
+      customerMap.set(email.toLowerCase(), {
+        id: user.id,
+        auth_id: user.id,
+        first_name: firstName,
+        last_name: lastName,
+        name,
+        email,
+        phone: phone || "Unknown",
+        shipping_address: meta.shipping_address || null,
+        notes: meta.notes || "",
+        tags: Array.isArray(meta.tags) ? meta.tags : [],
+        is_registered: true,
+        total_spent: 0,
+        orders_count: 0,
+        last_order_date: user.created_at,
+        created_at: user.created_at,
+        recent_orders: []
+      });
     });
   }
 
-  // Then, aggregate data from orders
+  // 2. Aggregate / merge order history
   if (orders && !ordersError) {
     orders.forEach((order: any) => {
-      const email = order.email || order.shipping_address?.email || "Unknown";
-      const phone = order.whatsapp_number || order.shipping_address?.phone || "Unknown";
-      const name = order.shipping_address?.fullName || "Unknown Customer";
-      const id = email !== "Unknown" ? email : (phone !== "Unknown" ? phone : order.id);
+      const rawEmail = order.email || order.shipping_address?.email || "";
+      const emailKey = rawEmail ? rawEmail.toLowerCase() : "";
+      const orderPhone = order.whatsapp_number || order.shipping_address?.phone || order.shipping_address?.whatsapp_number || "";
+      const orderName = order.shipping_address?.fullName || "";
+      const mapKey = emailKey || (orderPhone ? orderPhone : order.id);
 
-      if (!customerMap.has(id)) {
-        customerMap.set(id, {
-          id,
-          name,
-          email,
-          phone,
+      if (!customerMap.has(mapKey)) {
+        const nameParts = orderName.trim().split(" ");
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(" ") || "";
+
+        customerMap.set(mapKey, {
+          id: mapKey,
+          auth_id: null,
+          first_name: firstName,
+          last_name: lastName,
+          name: orderName || (rawEmail ? rawEmail.split("@")[0] : "Customer"),
+          email: rawEmail || "Unknown",
+          phone: orderPhone || "Unknown",
+          shipping_address: order.shipping_address || null,
+          notes: "",
+          tags: [],
+          is_registered: false,
           total_spent: 0,
           orders_count: 0,
           last_order_date: order.created_at,
+          created_at: order.created_at,
           recent_orders: []
         });
       }
 
-      const customer = customerMap.get(id);
-      
-      // Update name if the order has a better name and the existing one is unknown
-      if (customer.name === "Unknown Customer" && name !== "Unknown Customer") {
-        customer.name = name;
+      const customer = customerMap.get(mapKey);
+
+      // Enhance name if currently generic
+      if ((!customer.name || customer.name === "Customer" || customer.name === "Unknown Customer") && orderName) {
+        customer.name = orderName;
+        if (!customer.first_name) customer.first_name = orderName.trim().split(" ")[0] || "";
+        if (!customer.last_name) customer.last_name = orderName.trim().split(" ").slice(1).join(" ") || "";
       }
-      
-      // Update phone if order has it and existing is unknown
-      if (customer.phone === "Unknown" && phone !== "Unknown") {
-        customer.phone = phone;
+
+      // Enhance phone if empty or unknown
+      if ((!customer.phone || customer.phone === "Unknown") && orderPhone) {
+        customer.phone = orderPhone;
+      }
+
+      // Fill shipping address if missing
+      if (!customer.shipping_address && order.shipping_address) {
+        customer.shipping_address = order.shipping_address;
       }
 
       customer.total_spent += Number(order.total_amount || 0);
       customer.orders_count += 1;
       customer.recent_orders.push(order);
 
-      // Keep the most recent order date
       if (new Date(order.created_at) > new Date(customer.last_order_date)) {
         customer.last_order_date = order.created_at;
       }
     });
   }
 
-  return Array.from(customerMap.values()).sort((a, b) => new Date(b.last_order_date).getTime() - new Date(a.last_order_date).getTime());
+  return Array.from(customerMap.values()).sort(
+    (a, b) => new Date(b.last_order_date || b.created_at || 0).getTime() - new Date(a.last_order_date || a.created_at || 0).getTime()
+  );
+}
+
+export async function createCustomer(data: CustomerData) {
+  const email = data.email?.trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    return { error: "A valid email address is required." };
+  }
+
+  // Check if user already exists
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const existing = authData?.users?.find(u => u.email?.toLowerCase() === email);
+  if (existing) {
+    return { error: "A customer profile with this email already exists." };
+  }
+
+  const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    user_metadata: {
+      first_name: data.first_name?.trim() || "",
+      last_name: data.last_name?.trim() || "",
+      phone: data.phone?.trim() || "",
+      shipping_address: data.shipping_address || null,
+      notes: data.notes?.trim() || "",
+      tags: data.tags || [],
+    }
+  });
+
+  if (createError) {
+    return { error: createError.message };
+  }
+
+  revalidatePath("/admin/customers");
+  return { success: true, customer: created.user };
+}
+
+export async function updateCustomer(idOrEmail: string, data: CustomerData) {
+  const email = data.email?.trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    return { error: "A valid email address is required." };
+  }
+
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const existingUser = authData?.users?.find(
+    u => u.id === idOrEmail || u.email?.toLowerCase() === idOrEmail.toLowerCase() || u.email?.toLowerCase() === email
+  );
+
+  const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+
+  if (existingUser) {
+    // Update existing Supabase Auth profile
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+      email,
+      user_metadata: {
+        ...(existingUser.user_metadata || {}),
+        first_name: data.first_name?.trim() || "",
+        last_name: data.last_name?.trim() || "",
+        full_name: fullName,
+        phone: data.phone?.trim() || "",
+        shipping_address: data.shipping_address || null,
+        notes: data.notes !== undefined ? data.notes.trim() : (existingUser.user_metadata?.notes || ""),
+        tags: data.tags || existingUser.user_metadata?.tags || [],
+      }
+    });
+
+    if (updateError) {
+      return { error: updateError.message };
+    }
+  } else {
+    // Create new Auth profile for guest customer
+    const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: {
+        first_name: data.first_name?.trim() || "",
+        last_name: data.last_name?.trim() || "",
+        full_name: fullName,
+        phone: data.phone?.trim() || "",
+        shipping_address: data.shipping_address || null,
+        notes: data.notes?.trim() || "",
+        tags: data.tags || [],
+      }
+    });
+
+    if (createError) {
+      return { error: createError.message };
+    }
+  }
+
+  // Also sync order records under this email if customer changed details
+  try {
+    const { data: matchedOrders } = await supabaseAdmin
+      .from("orders")
+      .select("id, shipping_address")
+      .eq("email", email);
+
+    if (matchedOrders && matchedOrders.length > 0) {
+      for (const ord of matchedOrders) {
+        const updatedAddress = {
+          ...(ord.shipping_address || {}),
+          ...(data.shipping_address || {}),
+          ...(fullName ? { fullName } : {}),
+          ...(data.phone ? { whatsapp_number: data.phone, phone: data.phone } : {})
+        };
+
+        await supabaseAdmin
+          .from("orders")
+          .update({
+            shipping_address: updatedAddress,
+            whatsapp_number: data.phone || undefined
+          })
+          .eq("id", ord.id);
+      }
+    }
+  } catch (err) {
+    console.error("Order sync warning (non-fatal):", err);
+  }
+
+  revalidatePath("/admin/customers");
+  return { success: true };
+}
+
+export async function deleteCustomer(idOrEmail: string) {
+  try {
+    const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+    const existing = authData?.users?.find(
+      u => u.id === idOrEmail || u.email?.toLowerCase() === idOrEmail.toLowerCase()
+    );
+
+    if (existing) {
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(existing.id);
+      if (error) return { error: error.message };
+    }
+
+    revalidatePath("/admin/customers");
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || "Failed to remove customer" };
+  }
 }
 
 export async function getCustomerOrders(email: string) {

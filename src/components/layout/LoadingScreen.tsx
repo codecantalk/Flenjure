@@ -23,12 +23,12 @@ export default function LoadingScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#F9F9F9]"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#fcfcfc] dark:bg-[#0a0a0a]"
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ 
-              scale: [0.8, 1, 0.95],
+              scale: [0.85, 1, 0.98],
               opacity: [0, 1, 1]
             }}
             transition={{ 
@@ -36,16 +36,34 @@ export default function LoadingScreen() {
               times: [0, 0.5, 1],
               ease: "easeInOut"
             }}
-            className="relative w-24 h-24"
+            className="flex flex-col items-center gap-6"
           >
-            <Image
-              src="/favicon.png"
-              alt="Fleñjure Loading"
-              fill
-              className="object-contain"
-              sizes="96px"
-              priority
-            />
+            <div className="relative w-48 h-16 sm:w-60 sm:h-20">
+              <Image
+                src="/logo-black.png"
+                alt="Fleñjure Loading"
+                fill
+                className="object-contain dark:hidden"
+                sizes="(max-width: 640px) 192px, 240px"
+                priority
+              />
+              <Image
+                src="/logo-white.png"
+                alt="Fleñjure Loading"
+                fill
+                className="object-contain hidden dark:block"
+                sizes="(max-width: 640px) 192px, 240px"
+                priority
+              />
+            </div>
+            <motion.span
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 0.6, y: 0 }}
+              transition={{ delay: 0.4, duration: 1 }}
+              className="text-[10px] uppercase tracking-[0.35em] font-light text-stone-500 dark:text-stone-400"
+            >
+              Elevate Your Living
+            </motion.span>
           </motion.div>
         </motion.div>
       )}
