@@ -62,7 +62,7 @@ export default function LoadingScreen() {
               transition={{ delay: 0.4, duration: 1 }}
               className="text-[10px] uppercase tracking-[0.35em] font-light text-stone-500 dark:text-stone-400"
             >
-              Elevate Your Living
+              On ne vit qu’une fois
             </motion.span>
           </motion.div>
         </motion.div>

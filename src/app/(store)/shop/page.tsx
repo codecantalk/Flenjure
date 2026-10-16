@@ -3,7 +3,7 @@ import { getProducts, getCollections } from "@/app/admin/actions";
 
 export const metadata: Metadata = {
   title: 'Shop Premium Essentials',
-  description: 'Shop Fleñjure\'s premium lifestyle and apparel collections. Discover Capsule 1 and elevate your living with exclusive, high-end pieces designed in Atlanta.',
+  description: 'Shop Fleñjure\'s premium lifestyle and apparel collections. Discover Capsule 1 with exclusive, high-end pieces designed in Atlanta.',
 };
 import ShopClient from "@/components/shop/ShopClient";
 import { Suspense } from "react";

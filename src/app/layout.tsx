@@ -17,23 +17,23 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://flenjure.com"),
   title: {
     template: "%s | Fleñjure",
-    default: "Fleñjure | Elevate Your Living",
+    default: "Fleñjure | On Ne Vit Qu’une Fois",
   },
-  description: "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “elevate your living”:, experiences, clothing, dining, traveling, partying, dreaming—everything.",
+  description: "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “on ne vit qu’une fois”: experiences, clothing, dining, traveling, partying, dreaming—everything.",
   openGraph: {
-    title: "Fleñjure | Elevate Your Living",
-    description: "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “elevate your living”:, experiences, clothing, dining, traveling, partying, dreaming—everything.",
+    title: "Fleñjure | On Ne Vit Qu’une Fois",
+    description: "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “on ne vit qu’une fois”: experiences, clothing, dining, traveling, partying, dreaming—everything.",
     url: "https://flenjure.com",
     siteName: "Fleñjure",
-    images: [{ url: "https://flenjure.com/og-image.png?v=3", width: 1200, height: 630, alt: "Fleñjure" }],
+    images: [{ url: "https://flenjure.com/og-image.png?v=4", width: 1200, height: 630, alt: "Fleñjure" }],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Fleñjure",
-    description: "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “elevate your living”:, experiences, clothing, dining, traveling, partying, dreaming—everything.",
-    images: ["https://flenjure.com/og-image.png?v=3"],
+    description: "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “on ne vit qu’une fois”: experiences, clothing, dining, traveling, partying, dreaming—everything.",
+    images: ["https://flenjure.com/og-image.png?v=4"],
   },
   icons: {
     icon: [
@@ -56,7 +56,7 @@ export default function RootLayout({
     "name": "Fleñjure",
     "url": "https://flenjure.com",
     "logo": "https://flenjure.com/logo-black.png",
-    "description": "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “elevate your living”:, experiences, clothing, dining, traveling, partying, dreaming—everything."
+    "description": "Inspired in 2021, Fleñjure is lifestyle brand headquartered in Atlanta, GA, USA. Fleñjure loosely translates to “on ne vit qu’une fois”: experiences, clothing, dining, traveling, partying, dreaming—everything."
   };
 
   return (
